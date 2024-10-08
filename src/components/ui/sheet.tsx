@@ -111,7 +111,7 @@ const SheetLi = ({
   link: string;
 }) => {
   return (
-    <Link className="w-full py-4 " href="/">
+    <Link className="w-full py-4 " href={link}>
       <SheetClose>
         <li>
           <span>{children}</span>
