@@ -170,7 +170,7 @@ const MOT: React.FC = () => {
 
     // Cleanup on unmount
     return () => {
-      cancelAnimationFrame(animate as any);
+      cancelAnimationFrame(animate);
     };
   }, []);
 
