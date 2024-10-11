@@ -143,12 +143,12 @@ const ListItem = React.forwardRef<
 });
 ListItem.displayName = "ListItem";
 
-const components: { title: string; href: string; description: string }[] = [
+const games = [
   {
-    title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
+    title: "Multiple Objects Tracking",
+    href: "/games/multiple-objects-tracking",
     description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
+      "A game where the player has to track multiple objects bouncing around in an animation",
   },
   {
     title: "Hover Card",
@@ -218,10 +218,10 @@ const ShadNavbar = () => {
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+          <NavigationMenuTrigger>Games</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-              {components.map((component) => (
+              {games.map((component) => (
                 <ListItem
                   key={component.title}
                   title={component.title}
