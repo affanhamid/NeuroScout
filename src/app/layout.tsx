@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Navbar from "@/components/components/Navbar";
+import Providers from "./providers";
+import { getSession } from "./api/auth/[...nextauth]/auth";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -21,18 +22,21 @@ export const metadata: Metadata = {
     "NeuroScout is a football talent-acquisition platform through cognitive assessments",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getSession();
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Providers session={session}>
+          <main>{children}</main>
+        </Providers>
         {/* <Navbar /> */}
-        {children}
       </body>
     </html>
   );

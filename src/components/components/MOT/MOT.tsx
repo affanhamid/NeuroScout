@@ -3,6 +3,9 @@ import React, { useRef, useEffect, useState } from "react";
 import { Ball, createBalls, drawBall } from "./Ball";
 import { resolveCollisions, resolveCollisionsWithWalls } from "./collision";
 import { calculateScore } from "./scoring";
+import { MOTDialog, ThankYouDialog } from "./MOTDialog";
+import Navbar from "../Navbar";
+import Countdown from "../Countdown";
 
 const MOT = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -14,11 +17,14 @@ const MOT = () => {
   const trialsRef = useRef<number>(0);
   const totalTrialsRef = useRef<number>(2);
   const scoresRef = useRef<number[]>([]);
+  const durationRef = useRef<number>(3);
 
   const [ballRadius, setBallRadius] = useState<number>(70);
   const [vts, setVts] = useState<number>(7);
-  const [duration, setDuration] = useState<number>(3);
   const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [showUI, setShowUI] = useState<boolean>(true);
+  const [gameStarted, setGameStarted] = useState<boolean>(false);
+  const [showThankYou, setShowThankYou] = useState<boolean>(false);
 
   const begin = (canvas: HTMLCanvasElement) => {
     let currentSpeed = 0.01;
@@ -52,8 +58,14 @@ const MOT = () => {
     clearTimeout(timerId);
   };
 
+  const handleGameComplete = () => {
+    setShowThankYou(true);
+    setShowUI(true);
+  };
+
   useEffect(() => {
     if (!isRunning) return;
+    setShowUI(false);
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
 
@@ -84,7 +96,7 @@ const MOT = () => {
         currentSpeed = 0;
       }
       isClickableRef.current = true;
-    }, duration * 1000);
+    }, durationRef.current * 1000);
 
     function handleClick(event: MouseEvent) {
       if (!isClickableRef.current) return;
@@ -100,51 +112,48 @@ const MOT = () => {
 
         if (distance < ball.radius) {
           ball.color = "green";
-          clickedBallsRef.current.add(index);
+          setTimeout(() => {
+            clickedBallsRef.current.add(index);
 
-          if (clickedBallsRef.current.size === 4) {
-            canvas.removeEventListener("click", handleClick);
+            if (clickedBallsRef.current.size === 4) {
+              canvas.removeEventListener("click", handleClick);
 
-            const score = calculateScore(
-              Array.from(clickedBallsRef.current),
-              actualBallsRef.current
-            );
-            if (score === 4) {
-              setVts(vts + 1);
-            } else {
-              setVts(vts - 1);
-            }
-            scoresRef.current.push(score);
-
-            alert(`Your score: ${score}`);
-
-            trialsRef.current += 1;
-
-            // Check if all trials are done
-            if (trialsRef.current < totalTrialsRef.current) {
-              setIsRunning(false);
-              isClickableRef.current = false;
-              clickedBallsRef.current.clear();
-              highlightedBallsRef.current = [];
-
-              // Restart the game after a short delay
-              setTimeout(() => {
-                setIsRunning(true);
-              }, 1000);
-            } else {
-              alert(
-                `Game Over! VTS: ${vts}, Total Trials: ${totalTrialsRef.current}, Scores: ${scoresRef.current}`
+              const score = calculateScore(
+                Array.from(clickedBallsRef.current),
+                actualBallsRef.current
               );
-              trialsRef.current = 0;
-              scoresRef.current = [];
+              if (score === 4) {
+                setVts(vts + 1);
+              } else {
+                setVts(vts - 1);
+              }
+              scoresRef.current.push(score);
 
-              setIsRunning(false);
-              isClickableRef.current = false;
-              clickedBallsRef.current.clear();
-              highlightedBallsRef.current = [];
-              setVts(7);
+              trialsRef.current += 1;
+
+              if (trialsRef.current < totalTrialsRef.current) {
+                setIsRunning(false);
+                isClickableRef.current = false;
+                clickedBallsRef.current.clear();
+                highlightedBallsRef.current = [];
+
+                setTimeout(() => {
+                  setGameStarted(true);
+                }, 1000);
+              } else {
+                handleGameComplete();
+                setShowUI(true);
+                trialsRef.current = 0;
+                scoresRef.current = [];
+
+                setIsRunning(false);
+                isClickableRef.current = false;
+                clickedBallsRef.current.clear();
+                highlightedBallsRef.current = [];
+                setVts(7);
+              }
             }
-          }
+          }, 500);
         }
       });
     }
@@ -157,21 +166,45 @@ const MOT = () => {
       }
       end(timerId);
     };
-  }, [isRunning, ballRadius, vts, duration]);
+  }, [isRunning, ballRadius, vts]);
 
   return (
     <div className="bg-black h-screen w-screen flex flex-col items-center justify-center">
+      <div
+        className={`absolute top-0 left-0 w-full h-full flex justify-center items-center ${
+          gameStarted ? "" : "hidden"
+        }`}
+      >
+        {gameStarted && (
+          <Countdown
+            onComplete={() => {
+              setTimeout(() => {
+                setGameStarted(false);
+                setIsRunning(true);
+              }, 1000);
+            }}
+          />
+        )}
+      </div>
       <canvas ref={canvasRef} className="block" />
+      <div className={`absolute top-0 h-max ${showUI ? "" : "hidden"}`}>
+        <Navbar />
+      </div>
+      <div
+        className={`absolute top-10 right-10 text-white text-2xl ${
+          !isRunning ? "" : "hidden"
+        }`}
+      >
+        Trial: {trialsRef.current}
+        {totalTrialsRef.current}
+      </div>
       <div className="absolute top-3 left-3 text-white flex items-center">
-        <button
-          onClick={() => {
-            setIsRunning(true);
-          }}
-          className="text-black bg-green-500 ml-4 p-2 rounded"
-          disabled={isRunning}
-        >
-          Start Game
-        </button>
+        <MOTDialog startGame={() => setGameStarted(true)} />
+        <ThankYouDialog
+          showThankYou={showThankYou}
+          setShowThankYou={setShowThankYou}
+          startGame={() => setGameStarted(true)}
+        />
       </div>
     </div>
   );

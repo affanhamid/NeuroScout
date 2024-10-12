@@ -1,6 +1,8 @@
+"use client";
 import * as React from "react";
 import ShadNavbar from "../ui/navigation-menu";
 import ShadSheet from "../ui/sheet";
+import Profile from "./Profile";
 
 const Navbar = () => {
   return (
@@ -9,7 +11,10 @@ const Navbar = () => {
       <div className="hidden md:flex flex-1 justify-center">
         <ShadNavbar />
       </div>
-      <div className="hidden md:block">Get Started</div>
+      <div className="hidden md:flex md:items-center md:gap-4">
+        <Profile />
+        <div>Get Started</div>
+      </div>
       <div>
         <ShadSheet className="md:hidden" />
       </div>
