@@ -1,0 +1,180 @@
+"use client";
+import React, { useRef, useEffect, useState } from "react";
+import { Ball, createBalls, drawBall } from "./Ball";
+import { resolveCollisions, resolveCollisionsWithWalls } from "./collision";
+import { calculateScore } from "./scoring";
+
+const MOT = () => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const animationFrameId = useRef<number | null>(null);
+  const highlightedBallsRef = useRef<number[]>([]);
+  const actualBallsRef = useRef<number[]>([]);
+  const clickedBallsRef = useRef<Set<number>>(new Set());
+  const isClickableRef = useRef<boolean>(false);
+  const trialsRef = useRef<number>(0);
+  const totalTrialsRef = useRef<number>(2);
+  const scoresRef = useRef<number[]>([]);
+
+  const [ballRadius, setBallRadius] = useState<number>(70);
+  const [vts, setVts] = useState<number>(7);
+  const [duration, setDuration] = useState<number>(3);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+
+  const begin = (canvas: HTMLCanvasElement) => {
+    let currentSpeed = 0.01;
+    const balls = createBalls(canvas, ballRadius);
+
+    const uniqueIndices = new Set<number>();
+    while (uniqueIndices.size < 4) {
+      uniqueIndices.add(Math.floor(Math.random() * balls.length));
+    }
+    highlightedBallsRef.current = Array.from(uniqueIndices);
+    actualBallsRef.current = highlightedBallsRef.current;
+
+    return { currentSpeed, balls };
+  };
+
+  const update = (
+    balls: Ball[],
+    currentSpeed: number,
+    canvas: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D
+  ) => {
+    resolveCollisionsWithWalls(balls, currentSpeed, canvas);
+    resolveCollisions(balls, currentSpeed);
+
+    balls.forEach((ball, index) =>
+      drawBall(ball, highlightedBallsRef.current.includes(index), ctx)
+    );
+  };
+
+  const end = (timerId: NodeJS.Timeout) => {
+    clearTimeout(timerId);
+  };
+
+  useEffect(() => {
+    if (!isRunning) return;
+    const canvas = canvasRef.current!;
+    const ctx = canvas.getContext("2d")!;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let { currentSpeed, balls } = begin(canvas);
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      update(balls, currentSpeed, canvas, ctx);
+
+      animationFrameId.current = requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    setTimeout(() => {
+      currentSpeed = vts;
+      highlightedBallsRef.current = [];
+    }, 1000);
+
+    const timerId = setTimeout(() => {
+      if (animationFrameId.current) {
+        currentSpeed = 0;
+      }
+      isClickableRef.current = true;
+    }, duration * 1000);
+
+    function handleClick(event: MouseEvent) {
+      if (!isClickableRef.current) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      balls.forEach((ball, index) => {
+        const dx = mouseX - ball.x;
+        const dy = mouseY - ball.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < ball.radius) {
+          ball.color = "green";
+          clickedBallsRef.current.add(index);
+
+          if (clickedBallsRef.current.size === 4) {
+            canvas.removeEventListener("click", handleClick);
+
+            const score = calculateScore(
+              Array.from(clickedBallsRef.current),
+              actualBallsRef.current
+            );
+            if (score === 4) {
+              setVts(vts + 1);
+            } else {
+              setVts(vts - 1);
+            }
+            scoresRef.current.push(score);
+
+            alert(`Your score: ${score}`);
+
+            trialsRef.current += 1;
+
+            // Check if all trials are done
+            if (trialsRef.current < totalTrialsRef.current) {
+              setIsRunning(false);
+              isClickableRef.current = false;
+              clickedBallsRef.current.clear();
+              highlightedBallsRef.current = [];
+
+              // Restart the game after a short delay
+              setTimeout(() => {
+                setIsRunning(true);
+              }, 1000);
+            } else {
+              alert(
+                `Game Over! VTS: ${vts}, Total Trials: ${totalTrialsRef.current}, Scores: ${scoresRef.current}`
+              );
+              trialsRef.current = 0;
+              scoresRef.current = [];
+
+              setIsRunning(false);
+              isClickableRef.current = false;
+              clickedBallsRef.current.clear();
+              highlightedBallsRef.current = [];
+              setVts(7);
+            }
+          }
+        }
+      });
+    }
+
+    canvas.addEventListener("click", handleClick);
+
+    return () => {
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
+      end(timerId);
+    };
+  }, [isRunning, ballRadius, vts, duration]);
+
+  return (
+    <div className="bg-black h-screen w-screen flex flex-col items-center justify-center">
+      <canvas ref={canvasRef} className="block" />
+      <div className="absolute top-3 left-3 text-white flex items-center">
+        <button
+          onClick={() => {
+            setIsRunning(true);
+          }}
+          className="text-black bg-green-500 ml-4 p-2 rounded"
+          disabled={isRunning}
+        >
+          Start Game
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default MOT;

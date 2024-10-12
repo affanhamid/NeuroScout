@@ -1,6 +1,5 @@
 import React from "react";
-import PhaserGame from "@/components/components/PhaserGame";
-import MOT from "@/components/components/MOT";
+import MOT from "@/components/components/MOT/MOT";
 
 const page = () => {
   return (
