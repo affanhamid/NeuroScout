@@ -8,35 +8,35 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Data } from "@/database/MOT";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useSession, signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
 
-export const MOTDialog = ({ startGame }: { startGame: () => void }) => {
+interface MOTDialogProps {
+  startGame: () => void;
+}
+
+export const MOTDialog: React.FC<MOTDialogProps> = ({ startGame }) => {
   const { data: session } = useSession();
-  const [open, setOpen] = React.useState(true); // Dialog open state
-  const [step, setStep] = React.useState(1); // Step state to track which modal to show
+  const [open, setOpen] = React.useState<boolean>(true);
+  const [step, setStep] = React.useState<number>(1);
 
   const handleNext = () => {
     if (step < 3) {
-      setStep(step + 1); // Move to the next step
+      setStep(step + 1);
     } else {
-      if (session && session.user) {
-        setOpen(false);
-        startGame();
-      } else {
-        setOpen(false);
-        signIn("auth0");
-      }
+      setOpen(false);
+      session?.user ? startGame() : signIn("auth0");
     }
   };
 
   const handleBack = () => {
     if (step > 1) {
-      setStep(step - 1); // Move to the previous step
+      setStep(step - 1);
     } else {
-      setOpen(false); // Close the dialog after the first step
+      setOpen(false);
       startGame();
     }
   };
@@ -58,45 +58,30 @@ export const MOTDialog = ({ startGame }: { startGame: () => void }) => {
           <DialogDescription>
             {step === 1 && (
               <>
-                Welcome! In this game, you will be challenged to track several
-                moving objects and identify which ones were highlighted at the
-                start. You will play multiple rounds, and your score will be
-                based on how many correct objects you can identify.
+                Welcome! Track moving objects and identify which ones were
+                highlighted at the start. Play multiple rounds and score based
+                on correct identifications.
               </>
             )}
             {step === 2 && (
-              <>
-                <ul className="list-disc list-inside text-left">
-                  <li>
-                    1. At the beginning of each round, 4 balls will be
-                    highlighted in green for 1 second.
-                  </li>
-                  <li>
-                    2. After the highlight, the balls will start moving around
-                    the screen.
-                  </li>
-                  <li>
-                    3. Once the movement stops, you have to click on the 4 balls
-                    that were highlighted.
-                  </li>
-                  <li>
-                    4. If you get all 4 balls correct, the speed will increase
-                    for the next trial, else it will decrease.
-                  </li>
-                </ul>
-              </>
+              <ul className="list-disc list-inside text-left">
+                <li>1. 4 balls will be highlighted in green for 1 second.</li>
+                <li>2. The balls will start moving around the screen.</li>
+                <li>3. Click the 4 balls that were highlighted.</li>
+                <li>
+                  4. Correct guesses increase speed; incorrect guesses decrease
+                  it.
+                </li>
+              </ul>
             )}
             {step === 3 && (
               <div className="flex flex-col gap-3">
-                <span>
-                  You are now ready to start the game! Stay focused and see how
-                  many highlighted balls you can remember. Good luck!{" "}
-                </span>
-                <b className="text-lg text-red-500">
-                  {session && session.user && session.user.email
-                    ? ""
-                    : "Please log in with your Google account to start the game"}
-                </b>
+                <span>You're ready to start! Stay focused and good luck!</span>
+                {!session?.user && (
+                  <b className="text-lg text-red-500">
+                    Please log in with your Google account to start the game
+                  </b>
+                )}
               </div>
             )}
           </DialogDescription>
@@ -114,20 +99,17 @@ export const MOTDialog = ({ startGame }: { startGame: () => void }) => {
                 Back to Home Page
               </Button>
             </Link>
-
             <Button
               onClick={handleNext}
               className={`text-black ${
-                session && session?.user ? "bg-green-500" : "bg-white"
+                session?.user ? "bg-green-500" : "bg-white"
               } px-6 py-3 rounded-md hover:bg-green-600 flex gap-3`}
             >
-              {step === 3 && !(session && session?.user) && (
-                <FcGoogle className="w-6 h-6" />
-              )}
+              {step === 3 && !session?.user && <FcGoogle className="w-6 h-6" />}
               <span>
                 {step < 3
                   ? "Next"
-                  : session && session.user
+                  : session?.user
                   ? "Start Playing"
                   : "Log In With Google"}
               </span>
@@ -139,40 +121,142 @@ export const MOTDialog = ({ startGame }: { startGame: () => void }) => {
   );
 };
 
-export const ThankYouDialog = ({
-  startGame,
+interface ThankYouDialogProps {
+  showThankYou: boolean;
+  setShowThankYou: React.Dispatch<React.SetStateAction<boolean>>;
+  dataRef: React.MutableRefObject<Data>;
+  submit: () => void;
+}
+
+interface Errors {
+  age: string;
+  yearsPlayingFootball: string;
+}
+
+export const ThankYouDialog: React.FC<ThankYouDialogProps> = ({
   showThankYou,
   setShowThankYou,
-}: {
-  startGame: () => void;
-  showThankYou: boolean;
-  setShowThankYou: React.Dispatch<boolean>;
+  dataRef,
+  submit,
 }) => {
+  const { data: session } = useSession();
+  const [yearsPlayingFootball, setYearsPlayingFootball] =
+    React.useState<string>("");
+  const [age, setAge] = React.useState<string>("");
+  const [consent, setConsent] = React.useState<boolean>(false);
+  const [errors, setErrors] = React.useState<Errors>({
+    age: "",
+    yearsPlayingFootball: "",
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const ageValue = parseInt(age, 10);
+    const yearsPlayingValue = parseInt(yearsPlayingFootball, 10);
+    let valid = true;
+    const newErrors: Errors = { age: "", yearsPlayingFootball: "" };
+
+    if (ageValue < 5 || ageValue > 100) {
+      newErrors.age = "Please enter a valid age between 5 and 100.";
+      valid = false;
+    }
+
+    if (yearsPlayingValue < 0 || yearsPlayingValue > ageValue) {
+      newErrors.yearsPlayingFootball =
+        "Please enter a valid number of years playing football, which cannot exceed your age.";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+
+    if (!valid) return;
+
+    dataRef.current.age = ageValue;
+    dataRef.current.yearsPlayingFootball = yearsPlayingValue;
+    dataRef.current.email = session?.user?.email as string;
+    dataRef.current.screenWidth = window.innerWidth;
+    dataRef.current.screenHeight = window.innerHeight;
+    submit();
+    setShowThankYou(false);
+  };
+
   return (
     <Dialog open={showThankYou}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Thank You for Playing !</DialogTitle>
+          <DialogTitle>Thank You for Playing!</DialogTitle>
+          <DialogDescription>
+            To view your scores, you need to submit the data for analysis.
+          </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
-          <div className="flex w-full justify-between">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label
+              htmlFor="yearsPlayingFootball"
+              className="block text-sm font-medium text-white"
+            >
+              How many years have you been playing football?
+            </label>
+            <input
+              type="number"
+              id="yearsPlayingFootball"
+              value={yearsPlayingFootball}
+              onChange={(e) => setYearsPlayingFootball(e.target.value)}
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm appearance-none"
+              required
+            />
+            {errors.yearsPlayingFootball && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.yearsPlayingFootball}
+              </p>
+            )}
+          </div>
+          <div>
+            <label
+              htmlFor="age"
+              className="block text-sm font-medium text-white"
+            >
+              What is your age?
+            </label>
+            <input
+              type="number"
+              id="age"
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm appearance-none"
+              required
+            />
+            {errors.age && (
+              <p className="text-red-500 text-sm mt-1">{errors.age}</p>
+            )}
+          </div>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="consent"
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              className="h-4 w-4 text-green-600 border-gray-300 rounded"
+              required
+            />
+            <label htmlFor="consent" className="ml-2 block text-sm text-white">
+              Do you consent to giving out your data?
+            </label>
+          </div>
+          <DialogFooter className="flex w-full justify-between">
             <Link href="/">
               <Button className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600">
                 Back to Home Page
               </Button>
             </Link>
-
             <Button
+              type="submit"
               className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600"
-              onClick={() => {
-                setShowThankYou(false);
-                startGame();
-              }}
             >
-              {"Try Again"}
+              Submit
             </Button>
-          </div>
-        </DialogFooter>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

@@ -6,6 +6,7 @@ import { calculateScore } from "./scoring";
 import { MOTDialog, ThankYouDialog } from "./MOTDialog";
 import Navbar from "../Navbar";
 import Countdown from "../Countdown";
+import { Data, insertMOTData } from "@/database/MOT";
 
 const MOT = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -15,20 +16,38 @@ const MOT = () => {
   const clickedBallsRef = useRef<Set<number>>(new Set());
   const isClickableRef = useRef<boolean>(false);
   const trialsRef = useRef<number>(0);
-  const totalTrialsRef = useRef<number>(2);
-  const scoresRef = useRef<number[]>([]);
+  const totalTrialsRef = useRef<number>(1);
   const durationRef = useRef<number>(3);
+  const ballRadiusRef = useRef<number>(70);
+  const dataRef = useRef<Data>({
+    timeOfData: Date.now(),
+    vts: 5,
+    scores: [],
+    age: 0,
+    yearsPlayingFootball: 0,
+    timeToClicks: [],
+    email: "",
+    screenWidth: 0,
+    screenHeight: 0,
+    ballSize: ballRadiusRef.current,
+    duration: durationRef.current,
+  });
+  const gameEndTimeRef = useRef<number>(0);
 
-  const [ballRadius, setBallRadius] = useState<number>(70);
-  const [vts, setVts] = useState<number>(7);
+  const [vts, setVts] = useState<number>(5);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [showUI, setShowUI] = useState<boolean>(true);
   const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [showThankYou, setShowThankYou] = useState<boolean>(false);
 
+  const submit = async () => {
+    const data = dataRef.current;
+    insertMOTData(data);
+  };
+
   const begin = (canvas: HTMLCanvasElement) => {
     let currentSpeed = 0.01;
-    const balls = createBalls(canvas, ballRadius);
+    const balls = createBalls(canvas, ballRadiusRef.current);
 
     const uniqueIndices = new Set<number>();
     while (uniqueIndices.size < 4) {
@@ -96,6 +115,7 @@ const MOT = () => {
         currentSpeed = 0;
       }
       isClickableRef.current = true;
+      gameEndTimeRef.current = Date.now();
     }, durationRef.current * 1000);
 
     function handleClick(event: MouseEvent) {
@@ -114,6 +134,9 @@ const MOT = () => {
           ball.color = "green";
           setTimeout(() => {
             clickedBallsRef.current.add(index);
+            dataRef.current.timeToClicks.push(
+              Date.now() - gameEndTimeRef.current
+            );
 
             if (clickedBallsRef.current.size === 4) {
               canvas.removeEventListener("click", handleClick);
@@ -127,7 +150,7 @@ const MOT = () => {
               } else {
                 setVts(vts - 1);
               }
-              scoresRef.current.push(score);
+              dataRef.current.scores.push(score);
 
               trialsRef.current += 1;
 
@@ -144,7 +167,6 @@ const MOT = () => {
                 handleGameComplete();
                 setShowUI(true);
                 trialsRef.current = 0;
-                scoresRef.current = [];
 
                 setIsRunning(false);
                 isClickableRef.current = false;
@@ -166,7 +188,7 @@ const MOT = () => {
       }
       end(timerId);
     };
-  }, [isRunning, ballRadius, vts]);
+  }, [isRunning, vts]);
 
   return (
     <div className="bg-black h-screen w-screen flex flex-col items-center justify-center">
@@ -195,15 +217,15 @@ const MOT = () => {
           !isRunning ? "" : "hidden"
         }`}
       >
-        Trial: {trialsRef.current}
-        {totalTrialsRef.current}
+        Trial: {trialsRef.current}/{totalTrialsRef.current}
       </div>
       <div className="absolute top-3 left-3 text-white flex items-center">
         <MOTDialog startGame={() => setGameStarted(true)} />
         <ThankYouDialog
           showThankYou={showThankYou}
           setShowThankYou={setShowThankYou}
-          startGame={() => setGameStarted(true)}
+          dataRef={dataRef}
+          submit={submit}
         />
       </div>
     </div>
