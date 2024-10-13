@@ -21,10 +21,10 @@ const MOT = () => {
   const isClickableRef = useRef<boolean>(false);
   const trialsRef = useRef<number>(0);
   const practiceTrialsRef = useRef<number>(0);
-  const totalPracticeTrialsRef = useRef<number>(1);
-  const totalTrialsRef = useRef<number>(2);
+  const totalPracticeTrialsRef = useRef<number>(2);
+  const totalTrialsRef = useRef<number>(6);
   const isPracticeRef = useRef<boolean>(true);
-  const durationRef = useRef<number>(5);
+  const durationRef = useRef<number>(10);
   const ballRadiusRef = useRef<number>(70);
   const startingVtsRef = useRef<number>(3);
   const dataRef = useRef<Data>({
