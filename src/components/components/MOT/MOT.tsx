@@ -16,8 +16,8 @@ const MOT = () => {
   const clickedBallsRef = useRef<Set<number>>(new Set());
   const isClickableRef = useRef<boolean>(false);
   const trialsRef = useRef<number>(0);
-  const totalTrialsRef = useRef<number>(10);
-  const durationRef = useRef<number>(10);
+  const totalTrialsRef = useRef<number>(2);
+  const durationRef = useRef<number>(5);
   const ballRadiusRef = useRef<number>(70);
   const dataRef = useRef<Data>({
     timeOfData: Date.now(),
@@ -49,13 +49,13 @@ const MOT = () => {
   const begin = (canvas: HTMLCanvasElement) => {
     let currentSpeed = 0.01;
     if (window.innerWidth < 768) {
-      ballRadiusRef.current = 30;
+      ballRadiusRef.current = 40;
     } else if (window.innerWidth < 1024) {
       ballRadiusRef.current = 50;
     } else if (window.innerWidth < 1440) {
       ballRadiusRef.current = 60;
     } else {
-      ballRadiusRef.current = 70;
+      ballRadiusRef.current = 60;
     }
     dataRef.current.ballSize = ballRadiusRef.current;
     const balls = createBalls(canvas, ballRadiusRef.current);
@@ -183,7 +183,6 @@ const MOT = () => {
                 isClickableRef.current = false;
                 clickedBallsRef.current.clear();
                 highlightedBallsRef.current = [];
-                setVts(7);
               }
             }
           }, 500);
