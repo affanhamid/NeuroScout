@@ -1,10 +1,9 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
-import { Ball, createBalls, drawBall } from "./Ball";
+import { Ball, createBalls, drawBall, HIGHLIGHT_COLOR } from "./Ball";
 import { resolveCollisions, resolveCollisionsWithWalls } from "./collision";
 import { calculateScore } from "./scoring";
-import { MOTDialog, ThankYouDialog } from "./MOTDialog";
-import Navbar from "../Navbar";
+import { MOTDialog, ThankYouDialog, PracticeCompleteDialog } from "./MOTDialog";
 import Countdown from "../Countdown";
 import { Data, insertMOTData } from "@/database/MOT";
 
@@ -16,12 +15,15 @@ const MOT = () => {
   const clickedBallsRef = useRef<Set<number>>(new Set());
   const isClickableRef = useRef<boolean>(false);
   const trialsRef = useRef<number>(0);
-  const totalTrialsRef = useRef<number>(2);
-  const durationRef = useRef<number>(5);
+  const practiceTrialsRef = useRef<number>(0);
+  const totalPracticeTrialsRef = useRef<number>(2);
+  const totalTrialsRef = useRef<number>(6);
+  const isPracticeRef = useRef<boolean>(true);
+  const durationRef = useRef<number>(10);
   const ballRadiusRef = useRef<number>(70);
   const dataRef = useRef<Data>({
     timeOfData: Date.now(),
-    vts: 5,
+    vts: 0,
     scores: [],
     age: 0,
     yearsPlayingFootball: 0,
@@ -31,14 +33,16 @@ const MOT = () => {
     screenHeight: 0,
     ballSize: 0,
     duration: durationRef.current,
+    practiceRounds: totalPracticeTrialsRef.current,
   });
   const gameEndTimeRef = useRef<number>(0);
 
-  const [vts, setVts] = useState<number>(5);
+  const [vts, setVts] = useState<number>(3);
   const [isRunning, setIsRunning] = useState<boolean>(false);
-  const [showUI, setShowUI] = useState<boolean>(true);
   const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [showThankYou, setShowThankYou] = useState<boolean>(false);
+  const [showPracticeComplete, setShowPracticeComplete] =
+    useState<boolean>(false); // To show practice complete dialog
 
   const submit = async () => {
     dataRef.current.vts = vts;
@@ -90,12 +94,26 @@ const MOT = () => {
 
   const handleGameComplete = () => {
     setShowThankYou(true);
-    setShowUI(true);
+  };
+
+  const handlePracticeComplete = () => {
+    setShowPracticeComplete(true); // Show practice complete dialog
+  };
+
+  const startActualGame = () => {
+    isPracticeRef.current = false;
+    setIsRunning(false);
+    setVts(3);
+    isClickableRef.current = false;
+    clickedBallsRef.current.clear();
+    highlightedBallsRef.current = [];
+    setTimeout(() => {
+      setGameStarted(true);
+    }, 1000);
   };
 
   useEffect(() => {
     if (!isRunning) return;
-    setShowUI(false);
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
 
@@ -106,7 +124,7 @@ const MOT = () => {
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#000";
+      ctx.fillStyle = "#1B1B1B";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       update(balls, currentSpeed, canvas, ctx);
@@ -142,7 +160,7 @@ const MOT = () => {
         const distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance < ball.radius) {
-          ball.color = "green";
+          ball.color = HIGHLIGHT_COLOR;
           setTimeout(() => {
             clickedBallsRef.current.add(index);
             dataRef.current.timeToClicks.push(
@@ -163,26 +181,43 @@ const MOT = () => {
               }
               dataRef.current.scores.push(score);
 
-              trialsRef.current += 1;
+              if (isPracticeRef.current) {
+                practiceTrialsRef.current += 1;
+                if (
+                  practiceTrialsRef.current < totalPracticeTrialsRef.current
+                ) {
+                  setIsRunning(false);
+                  isClickableRef.current = false;
+                  clickedBallsRef.current.clear();
+                  highlightedBallsRef.current = [];
 
-              if (trialsRef.current < totalTrialsRef.current) {
-                setIsRunning(false);
-                isClickableRef.current = false;
-                clickedBallsRef.current.clear();
-                highlightedBallsRef.current = [];
-
-                setTimeout(() => {
-                  setGameStarted(true);
-                }, 1000);
+                  setTimeout(() => {
+                    setGameStarted(true);
+                  }, 1000);
+                } else {
+                  handlePracticeComplete(); // Show practice complete dialog
+                }
               } else {
-                handleGameComplete();
-                setShowUI(true);
-                trialsRef.current = 0;
+                trialsRef.current += 1;
 
-                setIsRunning(false);
-                isClickableRef.current = false;
-                clickedBallsRef.current.clear();
-                highlightedBallsRef.current = [];
+                if (trialsRef.current < totalTrialsRef.current) {
+                  setIsRunning(false);
+                  isClickableRef.current = false;
+                  clickedBallsRef.current.clear();
+                  highlightedBallsRef.current = [];
+
+                  setTimeout(() => {
+                    setGameStarted(true);
+                  }, 1000);
+                } else {
+                  handleGameComplete();
+                  trialsRef.current = 0;
+
+                  setIsRunning(false);
+                  isClickableRef.current = false;
+                  clickedBallsRef.current.clear();
+                  highlightedBallsRef.current = [];
+                }
               }
             }
           }, 500);
@@ -201,7 +236,7 @@ const MOT = () => {
   }, [isRunning, vts]);
 
   return (
-    <div className="bg-black h-screen w-screen flex flex-col items-center justify-center">
+    <div className="bg-game-background h-screen w-screen flex flex-col items-center justify-center">
       <div
         className={`absolute top-0 left-0 w-full h-full flex justify-center items-center ${
           gameStarted ? "" : "hidden"
@@ -219,15 +254,14 @@ const MOT = () => {
         )}
       </div>
       <canvas ref={canvasRef} className="block" />
-      <div className={`absolute top-0 h-max ${showUI ? "" : "hidden"}`}>
-        <Navbar />
-      </div>
       <div
         className={`absolute top-10 right-10 text-white text-2xl ${
           !isRunning ? "" : "hidden"
         }`}
       >
-        Trial: {trialsRef.current}/{totalTrialsRef.current}
+        {isPracticeRef.current
+          ? `Practice Trial: ${practiceTrialsRef.current}/${totalPracticeTrialsRef.current}`
+          : `Trial: ${trialsRef.current}/${totalTrialsRef.current}`}
       </div>
       <div className="absolute top-3 left-3 text-white flex items-center">
         <MOTDialog startGame={() => setGameStarted(true)} />
@@ -236,6 +270,11 @@ const MOT = () => {
           setShowThankYou={setShowThankYou}
           dataRef={dataRef}
           submit={submit}
+        />
+        <PracticeCompleteDialog
+          showPracticeComplete={showPracticeComplete}
+          setShowPracticeComplete={setShowPracticeComplete}
+          startActualGame={startActualGame}
         />
       </div>
     </div>

@@ -7,6 +7,9 @@ export interface Ball {
   color: string;
 }
 
+export const BASE_COLOR = "#FDDA0D";
+export const HIGHLIGHT_COLOR = "#2E8B57";
+
 export const createBall = (
   x: number,
   y: number,
@@ -20,7 +23,7 @@ export const createBall = (
     radius: ballRadius,
     vx: Math.cos(angle) * currentSpeed,
     vy: Math.sin(angle) * currentSpeed,
-    color: "yellow",
+    color: BASE_COLOR,
   };
 };
 
@@ -31,7 +34,7 @@ export const drawBall = (
 ): void => {
   ctx.beginPath();
   ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-  ctx.fillStyle = isHighlighted ? "green" : ball.color; // Highlight in green if selected
+  ctx.fillStyle = isHighlighted ? HIGHLIGHT_COLOR : ball.color;
   ctx.fill();
   ctx.closePath();
 };

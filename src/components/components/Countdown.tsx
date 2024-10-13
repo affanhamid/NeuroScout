@@ -17,7 +17,7 @@ const Countdown: React.FC<CountdownProps> = ({ onComplete }) => {
   }, [count, onComplete]);
 
   return (
-    <div className="flex items-center justify-center h-screen w-screen bg-black">
+    <div className="flex items-center justify-center h-screen w-screen bg-game-background">
       <h1 className="text-white text-9xl font-bold">
         {count > 0 ? count : "Start!"}
       </h1>

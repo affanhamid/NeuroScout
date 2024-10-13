@@ -13,6 +13,7 @@ export interface Data {
   screenHeight: number;
   ballSize: number;
   duration: number;
+  practiceRounds: number;
 }
 
 export async function insertMOTData(data: Data): Promise<void> {
@@ -30,7 +31,8 @@ export async function insertMOTData(data: Data): Promise<void> {
     screenWidth, 
     screenHeight, 
     ballSize, 
-    duration
+    duration,
+    practiceRounds
   ) VALUES (
     ${data.timeOfData}, 
     ${data.vts}, 
@@ -42,7 +44,8 @@ export async function insertMOTData(data: Data): Promise<void> {
     ${data.screenWidth}, 
     ${data.screenHeight}, 
     ${data.ballSize}, 
-    ${data.duration}
+    ${data.duration},
+    ${data.practiceRounds}
   );
 `;
     console.log("Data inserted successfully");
