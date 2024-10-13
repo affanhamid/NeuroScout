@@ -36,8 +36,12 @@ export const MOTDialog: React.FC<MOTDialogProps> = ({ startGame }) => {
     if (step > 1) {
       setStep(step - 1);
     } else {
-      setOpen(false);
-      startGame();
+      if (session?.user) {
+        setOpen(false);
+        startGame();
+      } else {
+        signIn("auth0");
+      }
     }
   };
 
