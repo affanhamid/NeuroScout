@@ -16,8 +16,8 @@ const MOT = () => {
   const clickedBallsRef = useRef<Set<number>>(new Set());
   const isClickableRef = useRef<boolean>(false);
   const trialsRef = useRef<number>(0);
-  const totalTrialsRef = useRef<number>(1);
-  const durationRef = useRef<number>(3);
+  const totalTrialsRef = useRef<number>(10);
+  const durationRef = useRef<number>(10);
   const ballRadiusRef = useRef<number>(70);
   const dataRef = useRef<Data>({
     timeOfData: Date.now(),
