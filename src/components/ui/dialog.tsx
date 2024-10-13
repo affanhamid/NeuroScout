@@ -32,6 +32,7 @@ const DialogContent = React.forwardRef<
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
+      onInteractOutside={(event) => event.preventDefault()} // Prevent closing when clicking outside
       className={cn(
         "fixed left-[50%] top-[50%] z-50 grid max-w-3xl w-max translate-x-[-50%] translate-y-[-50%] gap-6 rounded-lg border border-zinc-200 bg-zinc-900 p-8 shadow-lg duration-200 data-[state=open]:fade-in data-[state=closed]:fade-out",
         className
