@@ -41,6 +41,7 @@ const MOT = () => {
   const [showThankYou, setShowThankYou] = useState<boolean>(false);
 
   const submit = async () => {
+    dataRef.current.vts = vts;
     const data = dataRef.current;
     insertMOTData(data);
   };
