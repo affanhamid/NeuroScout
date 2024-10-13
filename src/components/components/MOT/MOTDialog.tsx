@@ -262,7 +262,7 @@ export const ThankYouDialog: React.FC<ThankYouDialogProps> = ({
               type="submit"
               className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600"
             >
-              Submit
+              Submit and See Results
             </Button>
           </DialogFooter>
         </form>
@@ -301,6 +301,57 @@ export const PracticeCompleteDialog: React.FC<PracticeCompleteDialogProps> = ({
             className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600"
           >
             Start Actual Game
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+interface ResultsDialogProps {
+  showResults: boolean;
+  setShowResults: React.Dispatch<React.SetStateAction<boolean>>;
+  scores: number[];
+  practiceRounds: number;
+  vts: number;
+}
+
+export const ResultsDialog: React.FC<ResultsDialogProps> = ({
+  showResults,
+  setShowResults,
+  scores,
+  practiceRounds,
+  vts,
+}) => {
+  const totalScore = scores.reduce((acc, score) => acc + score, 0);
+
+  return (
+    <Dialog open={showResults} onOpenChange={setShowResults}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Your Game Results</DialogTitle>
+          <DialogDescription>
+            Here’s how you did during the game.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 text-white">
+          <div>
+            <b>Total Score:</b> {totalScore}
+          </div>
+          <div>
+            <b>Final Speed (Visual Threshold Speed):</b> {vts}
+          </div>
+          <div>
+            <b>Scores per Round:</b>{" "}
+            {scores.slice(practiceRounds, scores.length).join(", ")}
+          </div>
+        </div>
+        <DialogFooter className="flex w-full justify-between">
+          <Button
+            className="text-black bg-red-500 px-6 py-3 rounded-md hover:bg-red-600"
+            onClick={() => setShowResults(false)}
+          >
+            Close
           </Button>
         </DialogFooter>
       </DialogContent>

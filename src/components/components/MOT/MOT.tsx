@@ -3,7 +3,12 @@ import React, { useRef, useEffect, useState } from "react";
 import { Ball, createBalls, drawBall, HIGHLIGHT_COLOR } from "./Ball";
 import { resolveCollisions, resolveCollisionsWithWalls } from "./collision";
 import { calculateScore } from "./scoring";
-import { MOTDialog, ThankYouDialog, PracticeCompleteDialog } from "./MOTDialog";
+import {
+  MOTDialog,
+  ThankYouDialog,
+  PracticeCompleteDialog,
+  ResultsDialog,
+} from "./MOTDialog";
 import Countdown from "../Countdown";
 import { Data, insertMOTData } from "@/database/MOT";
 
@@ -16,14 +21,15 @@ const MOT = () => {
   const isClickableRef = useRef<boolean>(false);
   const trialsRef = useRef<number>(0);
   const practiceTrialsRef = useRef<number>(0);
-  const totalPracticeTrialsRef = useRef<number>(2);
-  const totalTrialsRef = useRef<number>(6);
+  const totalPracticeTrialsRef = useRef<number>(1);
+  const totalTrialsRef = useRef<number>(2);
   const isPracticeRef = useRef<boolean>(true);
-  const durationRef = useRef<number>(10);
+  const durationRef = useRef<number>(5);
   const ballRadiusRef = useRef<number>(70);
+  const startingVtsRef = useRef<number>(3);
   const dataRef = useRef<Data>({
     timeOfData: Date.now(),
-    vts: 0,
+    vts: startingVtsRef.current,
     scores: [],
     age: 0,
     yearsPlayingFootball: 0,
@@ -41,6 +47,7 @@ const MOT = () => {
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [gameStarted, setGameStarted] = useState<boolean>(false);
   const [showThankYou, setShowThankYou] = useState<boolean>(false);
+  const [showResults, setShowResults] = useState<boolean>(false);
   const [showPracticeComplete, setShowPracticeComplete] =
     useState<boolean>(false); // To show practice complete dialog
 
@@ -48,6 +55,7 @@ const MOT = () => {
     dataRef.current.vts = vts;
     const data = dataRef.current;
     insertMOTData(data);
+    setShowResults(true);
   };
 
   const begin = (canvas: HTMLCanvasElement) => {
@@ -103,7 +111,7 @@ const MOT = () => {
   const startActualGame = () => {
     isPracticeRef.current = false;
     setIsRunning(false);
-    setVts(3);
+    setVts(startingVtsRef.current);
     isClickableRef.current = false;
     clickedBallsRef.current.clear();
     highlightedBallsRef.current = [];
@@ -275,6 +283,13 @@ const MOT = () => {
           showPracticeComplete={showPracticeComplete}
           setShowPracticeComplete={setShowPracticeComplete}
           startActualGame={startActualGame}
+        />
+        <ResultsDialog
+          showResults={showResults}
+          setShowResults={setShowResults}
+          scores={dataRef.current.scores}
+          practiceRounds={practiceTrialsRef.current}
+          vts={dataRef.current.vts}
         />
       </div>
     </div>
