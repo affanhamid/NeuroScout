@@ -6,7 +6,7 @@ import Profile from "./Profile";
 
 const Navbar = () => {
   return (
-    <nav className="flex px-10 md:px-32 items-center w-full py-10 md:py-5">
+    <nav className="flex px-10 md:px-32 items-center py-10 md:py-5 w-full">
       <div className="flex-1 md:flex-none">NeuroScout</div>
       <div className="hidden md:flex flex-1 justify-center">
         <ShadNavbar />

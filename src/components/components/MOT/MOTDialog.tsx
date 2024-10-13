@@ -13,6 +13,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useSession, signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
+import { HIGHLIGHT_COLOR } from "./Ball";
 
 interface MOTDialogProps {
   startGame: () => void;
@@ -69,7 +70,11 @@ export const MOTDialog: React.FC<MOTDialogProps> = ({ startGame }) => {
             )}
             {step === 2 && (
               <ul className="list-disc list-inside text-left">
-                <li>1. 4 balls will be highlighted in green for 1 second.</li>
+                <li>
+                  1. 4 balls will be highlighted in{" "}
+                  <span style={{ color: HIGHLIGHT_COLOR }}>green</span> for 1
+                  second.
+                </li>
                 <li>2. The balls will start moving around the screen.</li>
                 <li>3. Click the 4 balls that were highlighted.</li>
                 <li>
@@ -96,7 +101,7 @@ export const MOTDialog: React.FC<MOTDialogProps> = ({ startGame }) => {
               onClick={handleBack}
               className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600"
             >
-              {step > 1 ? "Back" : "Skip"}
+              {step > 1 ? "Back" : "Skip To Practice"}
             </Button>
             <Link href="/" className={`${step > 1 ? "hidden" : ""}`}>
               <Button className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600">
@@ -114,7 +119,7 @@ export const MOTDialog: React.FC<MOTDialogProps> = ({ startGame }) => {
                 {step < 3
                   ? "Next"
                   : session?.user
-                  ? "Start Playing"
+                  ? "Start Practice"
                   : "Log In With Google"}
               </span>
             </Button>
@@ -261,6 +266,43 @@ export const ThankYouDialog: React.FC<ThankYouDialogProps> = ({
             </Button>
           </DialogFooter>
         </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+interface PracticeCompleteDialogProps {
+  showPracticeComplete: boolean;
+  setShowPracticeComplete: React.Dispatch<React.SetStateAction<boolean>>;
+  startActualGame: () => void;
+}
+
+export const PracticeCompleteDialog: React.FC<PracticeCompleteDialogProps> = ({
+  showPracticeComplete,
+  setShowPracticeComplete,
+  startActualGame,
+}) => {
+  return (
+    <Dialog open={showPracticeComplete} onOpenChange={setShowPracticeComplete}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Practice Rounds Complete</DialogTitle>
+          <DialogDescription>
+            You have completed the practice rounds. Now, get ready to start the
+            actual game. Stay focused and give it your best shot!
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            onClick={() => {
+              setShowPracticeComplete(false);
+              startActualGame();
+            }}
+            className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600"
+          >
+            Start Actual Game
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
