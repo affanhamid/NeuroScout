@@ -150,6 +150,12 @@ const games = [
     description:
       "A game where the player has to track multiple objects bouncing around in an animation",
   },
+  {
+    title: "Memory Grid",
+    href: "/games/memory-grid",
+    description:
+      "A game where the player has to memorize locations and patterns of disappearing objects in a grid",
+  },
 ];
 
 const ShadNavbar = () => {

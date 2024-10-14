@@ -9,7 +9,7 @@ import {
   PracticeCompleteDialog,
   ResultsDialog,
 } from "./MOTDialog";
-import Countdown from "../Countdown";
+import Countdown from "../games/Countdown";
 import { Data, insertMOTData } from "@/database/MOT";
 
 const MOT = () => {
@@ -253,10 +253,8 @@ const MOT = () => {
         {gameStarted && (
           <Countdown
             onComplete={() => {
-              setTimeout(() => {
-                setGameStarted(false);
-                setIsRunning(true);
-              }, 1000);
+              setGameStarted(false);
+              setIsRunning(true);
             }}
           />
         )}
