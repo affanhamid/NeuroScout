@@ -6,7 +6,7 @@ export interface Data {
   vts: number;
   scores: number[];
   age: number;
-  yearsPlayingFootball: number;
+  highestLevel: string;
   timeToClicks: number[];
   email: string;
   screenWidth: number;
@@ -25,7 +25,7 @@ export async function insertMOTData(data: Data): Promise<void> {
     vts, 
     scores, 
     age, 
-    yearsPlayingFootball, 
+    highestLevel, 
     timeToClicks, 
     email, 
     screenWidth, 
@@ -38,7 +38,7 @@ export async function insertMOTData(data: Data): Promise<void> {
     ${data.vts}, 
     ${data.scores},
     ${data.age}, 
-    ${data.yearsPlayingFootball}, 
+    ${data.highestLevel}, 
     ${data.timeToClicks}, 
     ${data.email}, 
     ${data.screenWidth}, 
