@@ -19,7 +19,7 @@ const MemoryGrid = () => {
   const [clickable, setClickable] = useState<boolean>(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [score, setScore] = useState<number>(0);
-  const [triesLeft, setTriesLeft] = useState<number>(3);
+  const [triesLeft, setTriesLeft] = useState<number>(2);
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [level, setLevel] = useState<number>(1);
   const [gameStarted, setGameStarted] = useState<boolean>(false);

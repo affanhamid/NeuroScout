@@ -8,7 +8,9 @@ export interface Ball {
 }
 
 export const BASE_COLOR = "#FDDA0D";
-export const HIGHLIGHT_COLOR = "#2E8B57";
+export const HIGHLIGHT_COLOR = "#007FFF";
+export const WRONG_COLOR = "#FF0000";
+export const CORRECT_COLOR = "#00FF00";
 
 export const createBall = (
   x: number,
@@ -30,13 +32,30 @@ export const createBall = (
 export const drawBall = (
   ball: Ball,
   isHighlighted: boolean,
+  isWrongBall: boolean,
+  isCorrectBall: boolean,
   ctx: CanvasRenderingContext2D
 ): void => {
+  // Draw the ball
   ctx.beginPath();
   ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
   ctx.fillStyle = isHighlighted ? HIGHLIGHT_COLOR : ball.color;
   ctx.fill();
   ctx.closePath();
+
+  // Set the font size based on the ball radius
+  ctx.font = `${ball.radius}px Arial`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  // Draw tick or cross
+  if (isCorrectBall) {
+    ctx.fillStyle = "rgb(11, 218, 81)"; // Green color for tick
+    ctx.fillText("✓", ball.x, ball.y); // Draw a tick mark
+  } else if (isWrongBall) {
+    ctx.fillStyle = "red"; // Red color for cross
+    ctx.fillText("✕", ball.x, ball.y); // Draw a cross mark
+  }
 };
 
 // Create balls in different regions

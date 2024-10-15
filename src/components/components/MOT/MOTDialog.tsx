@@ -25,7 +25,7 @@ export const MOTDialog: React.FC<MOTDialogProps> = ({ startGame }) => {
   const [step, setStep] = React.useState<number>(1);
 
   const handleNext = () => {
-    if (step < 3) {
+    if (step < 7) {
       setStep(step + 1);
     } else {
       setOpen(false);
@@ -50,64 +50,81 @@ export const MOTDialog: React.FC<MOTDialogProps> = ({ startGame }) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-4xl">
             {step === 1 && (
               <>
                 <small>Welcome to</small> <br />
-                <span>The Multiple Objects Tracking Game</span>
+                <span>The Visual Tracking Game</span>
               </>
             )}
-            {step === 2 && "How to Play"}
-            {step === 3 && "Ready to Start"}
+            {step === 2 && "Focus on the Highlighted Targets"}
+            {step === 3 && "Track the Target Objects"}
+            {step === 4 && "Avoid Distractions"}
+            {step === 5 && "Select the Targets"}
+            {step === 6 && "Scoring"}
+            {step === 7 && "Difficulty Levels"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-white mt-5">
             {step === 1 && (
-              <>
-                Welcome! Track moving objects and identify which ones were
-                highlighted at the start. Play multiple rounds and score based
-                on correct identifications.
-              </>
+              <span className="">Follow these simple steps to get started</span>
             )}
             {step === 2 && (
-              <ul className="list-disc list-inside text-left">
-                <li>
-                  1. 4 balls will be highlighted in{" "}
-                  <span style={{ color: HIGHLIGHT_COLOR }}>green</span> for 1
-                  second.
-                </li>
-                <li>2. The balls will start moving around the screen.</li>
-                <li>3. Click the 4 balls that were highlighted.</li>
-                <li>
-                  4. Correct guesses increase speed; incorrect guesses decrease
-                  it.
-                </li>
-              </ul>
+              <span>
+                When the game begins, a set of yellow objects will appear on the
+                screen. Some of these objects will turn blue briefly to indicate
+                your targets. Pay close attention to these targets as they will
+                blend in with other objects once the tracking begins.
+              </span>
             )}
             {step === 3 && (
-              <div className="flex flex-col gap-3">
-                <span>You're ready to start! Stay focused and good luck!</span>
-                {!session?.user && (
-                  <b className="text-lg text-red-500">
-                    Please log in with your Google account to start the game
-                  </b>
-                )}
-              </div>
+              <span>
+                After the blue targets revert to their normal appearance, all
+                objects will begin to move around the screen. Your task is to
+                keep track of the original target objects as they move.
+              </span>
+            )}
+            {step === 4 && (
+              <span>
+                Other objects will be moving in random directions to distract
+                you. Stay focused on your target objects and try not to lose
+                track of them.
+              </span>
+            )}
+            {step === 5 && (
+              <span>
+                Once the objects stop moving, click on the objects you believe
+                were the original targets. Make sure you select all four of the
+                targets to submit your answer.
+              </span>
+            )}
+            {step === 6 && (
+              <span>
+                You’ll receive points based on how accurately you identify the
+                targets. The faster and more accurate you are, the higher your
+                score!
+              </span>
+            )}
+            {step === 7 && (
+              <span>
+                As you progress, the objects will start to move faster or slower
+                depending on your accuracy.
+              </span>
             )}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <div className="flex w-full justify-between">
+          <div className="flex w-full justify-between gap-5">
             <Button
               onClick={handleBack}
               className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600"
             >
-              {step > 1 ? "Back" : "Skip To Practice"}
+              {step > 1 ? "Back" : "Skip Instructions"}
             </Button>
-            <Link href="/" className={`${step > 1 ? "hidden" : ""}`}>
+            {/* <Link href="/" className={`${step > 1 ? "hidden" : ""}`}>
               <Button className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600">
-                Back to Home Page
+                Home Page
               </Button>
-            </Link>
+            </Link> */}
             <Button
               onClick={handleNext}
               className={`text-black ${
@@ -139,7 +156,7 @@ interface ThankYouDialogProps {
 
 interface Errors {
   age: string;
-  yearsPlayingFootball: string;
+  highestLevel: string;
 }
 
 export const ThankYouDialog: React.FC<ThankYouDialogProps> = ({
@@ -149,30 +166,28 @@ export const ThankYouDialog: React.FC<ThankYouDialogProps> = ({
   submit,
 }) => {
   const { data: session } = useSession();
-  const [yearsPlayingFootball, setYearsPlayingFootball] =
-    React.useState<string>("");
+  const [highestLevel, setHighestLevel] = React.useState<string>("");
   const [age, setAge] = React.useState<string>("");
   const [consent, setConsent] = React.useState<boolean>(false);
   const [errors, setErrors] = React.useState<Errors>({
     age: "",
-    yearsPlayingFootball: "",
+    highestLevel: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const ageValue = parseInt(age, 10);
-    const yearsPlayingValue = parseInt(yearsPlayingFootball, 10);
     let valid = true;
-    const newErrors: Errors = { age: "", yearsPlayingFootball: "" };
+    const newErrors: Errors = { age: "", highestLevel: "" };
 
     if (ageValue < 5 || ageValue > 100) {
       newErrors.age = "Please enter a valid age between 5 and 100.";
       valid = false;
     }
 
-    if (yearsPlayingValue < 0 || yearsPlayingValue > ageValue) {
-      newErrors.yearsPlayingFootball =
-        "Please enter a valid number of years playing football, which cannot exceed your age.";
+    if (!highestLevel) {
+      newErrors.highestLevel =
+        "Please select the highest level of football you've achieved.";
       valid = false;
     }
 
@@ -181,7 +196,7 @@ export const ThankYouDialog: React.FC<ThankYouDialogProps> = ({
     if (!valid) return;
 
     dataRef.current.age = ageValue;
-    dataRef.current.yearsPlayingFootball = yearsPlayingValue;
+    dataRef.current.highestLevel = highestLevel;
     dataRef.current.email = session?.user?.email as string;
     dataRef.current.screenWidth = window.innerWidth;
     dataRef.current.screenHeight = window.innerHeight;
@@ -201,23 +216,35 @@ export const ThankYouDialog: React.FC<ThankYouDialogProps> = ({
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
-              htmlFor="yearsPlayingFootball"
+              htmlFor="highestLevel"
               className="block text-sm font-medium text-white"
             >
-              How many years have you been playing football?
+              What's the highest level of football you've achieved?
             </label>
-            <input
-              type="number"
-              id="yearsPlayingFootball"
-              value={yearsPlayingFootball}
-              onChange={(e) => setYearsPlayingFootball(e.target.value)}
+            <select
+              id="highestLevel"
+              value={highestLevel}
+              onChange={(e) => setHighestLevel(e.target.value)}
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm appearance-none"
               required
-            />
-            {errors.yearsPlayingFootball && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.yearsPlayingFootball}
-              </p>
+            >
+              <option value="" disabled>
+                Select level
+              </option>
+              <option value="Never Played">Never Played</option>
+              <option value="Recreational">Recreational</option>
+              <option value="School Team">School Team</option>
+              <option value="Sunday League">Sunday League</option>
+              <option value="Grassroot Academy">Grassroot Academy</option>
+              <option value="University Team">University Team</option>
+              <option value="Regional or District Team">Regional Team</option>
+              <option value="Professional Academy">Professional Academy</option>
+              <option value="Semi-Professional">Semi-Professional</option>
+              <option value="Professional">Professional</option>
+              <option value="International">International</option>
+            </select>
+            {errors.highestLevel && (
+              <p className="text-red-500 text-sm mt-1">{errors.highestLevel}</p>
             )}
           </div>
           <div>
@@ -270,7 +297,6 @@ export const ThankYouDialog: React.FC<ThankYouDialogProps> = ({
     </Dialog>
   );
 };
-
 interface PracticeCompleteDialogProps {
   showPracticeComplete: boolean;
   setShowPracticeComplete: React.Dispatch<React.SetStateAction<boolean>>;
@@ -316,6 +342,43 @@ interface ResultsDialogProps {
   vts: number;
 }
 
+function calculatePerfectScore(length: number): number {
+  // Create an array of all 4's of length x
+  const scores = Array(length - 1).fill(4);
+
+  // Create an array for vts, starting from vts and increasing by 1 for each element
+  const vtsArray = Array.from({ length: length - 1 }, (_, index) => 3 + index);
+
+  // Calculate the dot product of the two arrays
+  const result = scores.reduce(
+    (acc, score, index) => acc + score * vtsArray[index],
+    0
+  );
+
+  return result;
+}
+
+function calculateScore(scores: number[]) {
+  let vts = 3;
+
+  const result = scores.reduce((acc, score) => {
+    const to_return = acc + score * vts;
+
+    console.log(vts);
+
+    if (score === 4) {
+      vts += 1;
+    } else {
+      if (vts > 2) {
+        vts -= 1;
+      }
+    }
+    return to_return;
+  }, 0);
+
+  return result;
+}
+
 export const ResultsDialog: React.FC<ResultsDialogProps> = ({
   showResults,
   setShowResults,
@@ -323,36 +386,43 @@ export const ResultsDialog: React.FC<ResultsDialogProps> = ({
   practiceRounds,
   vts,
 }) => {
-  const totalScore = scores.reduce((acc, score) => acc + score, 0);
+  const totalScore = scores
+    .slice(practiceRounds)
+    .reduce((acc, score) => acc + score, 0);
+  const perfectScore =
+    scores.length > practiceRounds
+      ? calculatePerfectScore(scores.length - practiceRounds)
+      : 1;
+  const result =
+    (calculateScore(scores.slice(practiceRounds, scores.length - 1)) /
+      perfectScore) *
+    100;
 
   return (
     <Dialog open={showResults} onOpenChange={setShowResults}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Your Game Results</DialogTitle>
-          <DialogDescription>
-            Here’s how you did during the game.
-          </DialogDescription>
+          <DialogTitle>Game Results</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 text-white">
-          <div>
-            <b>Total Score:</b> {totalScore}
-          </div>
-          <div>
-            <b>Final Speed (Visual Threshold Speed):</b> {vts}
-          </div>
-          <div>
-            <b>Scores per Round:</b>{" "}
-            {scores.slice(practiceRounds, scores.length).join(", ")}
+        <div className="space-y-4 text-white text-center text-xl mx-32">
+          <div className="flex flex-col gap-5">
+            <b>Final Score:</b>
+
+            <span className="text-green-600 text-3xl font-bold">
+              {Math.round(result)} / 100
+            </span>
           </div>
         </div>
         <DialogFooter className="flex w-full justify-between">
-          <Button
-            className="text-black bg-red-500 px-6 py-3 rounded-md hover:bg-red-600"
-            onClick={() => setShowResults(false)}
+          <Link
+            href="/"
+            className="text-black bg-red-500 px-6 py-3 rounded-md hover:bg-red-600 mx-auto text-lg font-bold"
+            onClick={() => {
+              setShowResults(false);
+            }}
           >
             Close
-          </Button>
+          </Link>
         </DialogFooter>
       </DialogContent>
     </Dialog>

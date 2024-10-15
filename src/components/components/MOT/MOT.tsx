@@ -18,12 +18,15 @@ const MOT = () => {
   const highlightedBallsRef = useRef<number[]>([]);
   const actualBallsRef = useRef<number[]>([]);
   const clickedBallsRef = useRef<Set<number>>(new Set());
+  const wrongBallsRef = useRef<number[]>([]);
+  const correctBallsRef = useRef<number[]>([]);
   const isClickableRef = useRef<boolean>(false);
   const trialsRef = useRef<number>(0);
   const practiceTrialsRef = useRef<number>(0);
   const totalPracticeTrialsRef = useRef<number>(2);
   const totalTrialsRef = useRef<number>(6);
   const isPracticeRef = useRef<boolean>(true);
+  const isPracticeCompleteRef = useRef<boolean>(false);
   const durationRef = useRef<number>(10);
   const ballRadiusRef = useRef<number>(70);
   const startingVtsRef = useRef<number>(3);
@@ -32,7 +35,7 @@ const MOT = () => {
     vts: startingVtsRef.current,
     scores: [],
     age: 0,
-    yearsPlayingFootball: 0,
+    highestLevel: "",
     timeToClicks: [],
     email: "",
     screenWidth: 0,
@@ -92,7 +95,13 @@ const MOT = () => {
     resolveCollisions(balls, currentSpeed);
 
     balls.forEach((ball, index) =>
-      drawBall(ball, highlightedBallsRef.current.includes(index), ctx)
+      drawBall(
+        ball,
+        highlightedBallsRef.current.includes(index),
+        wrongBallsRef.current && wrongBallsRef.current.includes(index),
+        correctBallsRef.current && correctBallsRef.current.includes(index),
+        ctx
+      )
     );
   };
 
@@ -105,11 +114,12 @@ const MOT = () => {
   };
 
   const handlePracticeComplete = () => {
-    setShowPracticeComplete(true); // Show practice complete dialog
+    setShowPracticeComplete(true);
   };
 
   const startActualGame = () => {
     isPracticeRef.current = false;
+    isPracticeCompleteRef.current = false;
     setIsRunning(false);
     setVts(startingVtsRef.current);
     isClickableRef.current = false;
@@ -121,7 +131,8 @@ const MOT = () => {
   };
 
   useEffect(() => {
-    if (!isRunning) return;
+    if (!isRunning || (isPracticeRef.current && isPracticeCompleteRef.current))
+      return;
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
 
@@ -169,24 +180,35 @@ const MOT = () => {
 
         if (distance < ball.radius) {
           ball.color = HIGHLIGHT_COLOR;
-          setTimeout(() => {
-            clickedBallsRef.current.add(index);
-            dataRef.current.timeToClicks.push(
-              Date.now() - gameEndTimeRef.current
+          clickedBallsRef.current.add(index);
+          dataRef.current.timeToClicks.push(
+            Date.now() - gameEndTimeRef.current
+          );
+
+          if (clickedBallsRef.current.size === 4) {
+            canvas.removeEventListener("click", handleClick);
+
+            const { score, wrongBalls, correctBalls } = calculateScore(
+              Array.from(clickedBallsRef.current),
+              actualBallsRef.current
             );
 
-            if (clickedBallsRef.current.size === 4) {
-              canvas.removeEventListener("click", handleClick);
+            wrongBallsRef.current = wrongBalls;
+            correctBallsRef.current = correctBalls;
 
-              const score = calculateScore(
-                Array.from(clickedBallsRef.current),
-                actualBallsRef.current
-              );
+            setTimeout(() => {
+              update(balls, currentSpeed, canvas, ctx);
+            }, 10);
+
+            setTimeout(() => {
               if (score === 4) {
                 setVts(vts + 1);
               } else {
-                setVts(vts - 1);
+                if (vts > 2) {
+                  setVts(vts - 1);
+                }
               }
+
               dataRef.current.scores.push(score);
 
               if (isPracticeRef.current) {
@@ -200,10 +222,21 @@ const MOT = () => {
                   highlightedBallsRef.current = [];
 
                   setTimeout(() => {
-                    setGameStarted(true);
+                    wrongBallsRef.current = [];
+                    correctBallsRef.current = [];
+                    setTimeout(() => {
+                      setGameStarted(true);
+                    }, 500);
                   }, 1000);
                 } else {
-                  handlePracticeComplete(); // Show practice complete dialog
+                  isPracticeCompleteRef.current = true; // Set flag to stop further game starts
+                  setTimeout(() => {
+                    wrongBallsRef.current = [];
+                    correctBallsRef.current = [];
+                    setTimeout(() => {
+                      handlePracticeComplete();
+                    }, 500);
+                  }, 1000);
                 }
               } else {
                 trialsRef.current += 1;
@@ -215,7 +248,11 @@ const MOT = () => {
                   highlightedBallsRef.current = [];
 
                   setTimeout(() => {
-                    setGameStarted(true);
+                    wrongBallsRef.current = [];
+                    correctBallsRef.current = [];
+                    setTimeout(() => {
+                      setGameStarted(true);
+                    }, 500);
                   }, 1000);
                 } else {
                   handleGameComplete();
@@ -227,8 +264,8 @@ const MOT = () => {
                   highlightedBallsRef.current = [];
                 }
               }
-            }
-          }, 500);
+            }, 500);
+          }
         }
       });
     }
@@ -253,8 +290,10 @@ const MOT = () => {
         {gameStarted && (
           <Countdown
             onComplete={() => {
-              setGameStarted(false);
               setIsRunning(true);
+              setTimeout(() => {
+                setGameStarted(false);
+              }, 10);
             }}
           />
         )}
