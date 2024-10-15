@@ -131,9 +131,9 @@ export const MOTDialog: React.FC<MOTDialogProps> = ({ startGame }) => {
                 session?.user ? "bg-green-500" : "bg-white"
               } px-6 py-3 rounded-md hover:bg-green-600 flex gap-3`}
             >
-              {step === 3 && !session?.user && <FcGoogle className="w-6 h-6" />}
+              {step === 7 && !session?.user && <FcGoogle className="w-6 h-6" />}
               <span>
-                {step < 3
+                {step < 7
                   ? "Next"
                   : session?.user
                   ? "Start Practice"
