@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Grid from "./Grid";
-import Countdown from "../games/Countdown";
+import Countdown from "../games/Game/Countdown";
 
 type CellType = {
   id: number;

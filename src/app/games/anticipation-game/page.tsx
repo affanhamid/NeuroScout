@@ -1,10 +1,10 @@
 import React from "react";
-import MOTGame from "@/components/components/MOT/MOTGame";
+import Anticipation from "@/components/components/Anticipation/Anticipation";
 
 const page = () => {
   return (
     <main>
-      <MOTGame />
+      <Anticipation />
     </main>
   );
 };

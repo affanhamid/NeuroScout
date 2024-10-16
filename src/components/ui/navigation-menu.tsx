@@ -156,6 +156,12 @@ const games = [
     description:
       "A game where the player has to memorize locations and patterns of disappearing objects in a grid",
   },
+  {
+    title: "Anticipation Game",
+    href: "/games/anticipation-game",
+    description:
+      "A game where the player has to anticipate the trajectory of multiple balls moving around",
+  },
 ];
 
 const ShadNavbar = () => {
