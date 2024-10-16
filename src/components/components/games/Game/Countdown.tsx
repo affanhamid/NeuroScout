@@ -9,10 +9,10 @@ const Countdown: React.FC<CountdownProps> = ({ onComplete }) => {
 
   useEffect(() => {
     if (count > 0) {
-      const timer = setTimeout(() => setCount(count - 1), 1000);
+      const timer = setTimeout(() => setCount(count - 1), 900);
       return () => clearTimeout(timer); // Clear the timeout if the component unmounts
     } else {
-      const timer = setTimeout(() => onComplete(), 1000);
+      const timer = setTimeout(() => onComplete(), 900);
       return () => clearTimeout(timer);
     }
   }, [count, onComplete]);
