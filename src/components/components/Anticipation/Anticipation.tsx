@@ -221,6 +221,7 @@ const AnticipationGame = () => {
 
       isHiddenRef.current = false;
       showResultsRef.current = true;
+      displayMessageRef.current = false;
 
       setTimeout(() => {
         setTrial((value) => value + 1);
