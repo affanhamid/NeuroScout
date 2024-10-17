@@ -26,7 +26,7 @@ const AnticipationGame = () => {
   const totalPracticeTrialsRef = useRef<number>(2);
   const totalTrialsRef = useRef<number>(6);
   const targetBallRef = useRef<number>(0);
-  const startingVtsRef = useRef<number>(7);
+  const startingVtsRef = useRef<number>(15);
   const isHiddenRef = useRef<boolean>(false);
   const dataRef = useRef({
     timeOfData: Date.now(),
@@ -62,7 +62,7 @@ const AnticipationGame = () => {
     }
     dataRef.current.ballSize = ballRadiusRef.current;
     showResultsRef.current = false;
-    const balls = createBalls(canvas, ballRadiusRef.current, 10);
+    const balls = createBalls(canvas, ballRadiusRef.current, 15);
 
     const randomIndex = Math.floor(Math.random() * balls.length);
     targetBallRef.current = randomIndex;
@@ -73,15 +73,13 @@ const AnticipationGame = () => {
     ball: Ball,
     ctx: CanvasRenderingContext2D,
     isHighlighted: boolean,
-    isHidden: boolean
+    isHidden: boolean,
+    index: number
   ): void => {
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-    ctx.fillStyle = isHidden
-      ? "#1B1B1B"
-      : isHighlighted
-      ? "#007FFF"
-      : ball.color;
+    ctx.fillStyle =
+      isHidden && ball ? "#1B1B1B" : isHighlighted ? "#007FFF" : ball.color;
     ctx.fill();
     ctx.closePath();
 
@@ -101,7 +99,13 @@ const AnticipationGame = () => {
     resolveCollisions(balls, currentSpeed);
 
     balls.forEach((ball, index) =>
-      drawBall(ball, ctx, targetBallRef.current === index, isHiddenRef.current)
+      drawBall(
+        ball,
+        ctx,
+        targetBallRef.current === index,
+        isHiddenRef.current,
+        index
+      )
     );
   };
 

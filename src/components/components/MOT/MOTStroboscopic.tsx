@@ -3,7 +3,6 @@ import React, { useRef, useState } from "react";
 import {
   Ball,
   createBalls,
-  drawBall,
   HIGHLIGHT_COLOR,
   resolveCollisions,
   resolveCollisionsWithWalls,
@@ -19,7 +18,13 @@ interface Params {
   vts: number;
 }
 
-const MOTGame = () => {
+const MOTStroboscopicGame = ({
+  strobeA,
+  strobeB,
+}: {
+  strobeA: number;
+  strobeB: number;
+}) => {
   const highlightedBallsRef = useRef<number[]>([]);
   const actualBallsRef = useRef<number[]>([]);
   const clickedBallsRef = useRef<Set<number>>(new Set());
@@ -46,13 +51,13 @@ const MOTGame = () => {
     duration: durationRef.current,
     practiceRounds: totalPracticeTrialsRef.current,
     trialRounds: totalTrialsRef.current,
-    isStrobe: false,
-    strobeA: 0,
-    strobeB: 0,
+    isStrobe: true,
+    strobeA: strobeA,
+    strobeB: strobeB,
   });
   const { data: session } = useSession();
-
   const [vts, setVts] = useState(startingVtsRef.current);
+  const isVisibleRef = useRef<boolean>(true);
 
   const setup = (canvas: HTMLCanvasElement) => {
     let currentSpeed = 0.01;
@@ -76,6 +81,36 @@ const MOTGame = () => {
     actualBallsRef.current = highlightedBallsRef.current;
 
     return { currentSpeed, balls };
+  };
+  const drawBall = (
+    ball: Ball,
+    isHighlighted: boolean,
+    ctx: CanvasRenderingContext2D,
+    isWrongBall?: boolean,
+    isCorrectBall?: boolean
+  ): void => {
+    // Draw the ball
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.fillStyle = isVisibleRef.current
+      ? isHighlighted
+        ? HIGHLIGHT_COLOR
+        : ball.color
+      : "#1B1B1B";
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.font = `${ball.radius}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    if (isCorrectBall) {
+      ctx.fillStyle = "rgb(11, 218, 81)";
+      ctx.fillText("✓", ball.x, ball.y);
+    } else if (isWrongBall) {
+      ctx.fillStyle = "red";
+      ctx.fillText("✕", ball.x, ball.y);
+    }
   };
 
   const update = (
@@ -147,12 +182,20 @@ const MOTGame = () => {
       highlightedBallsRef.current = [];
     }, 1000);
 
+    const strobeInterval = setInterval(() => {
+      isVisibleRef.current = false;
+      setTimeout(() => {
+        isVisibleRef.current = true;
+      }, strobeB);
+    }, strobeA + strobeB);
+
     const timerId = setTimeout(() => {
       if (animationFrameIdRef.current) {
         currentSpeed = 0;
       }
       isClickableRef.current = true;
       gameEndTimeRef.current = Date.now();
+      clearInterval(strobeInterval);
     }, durationRef.current * 1000);
 
     const handleClick = (event: MouseEvent) => {
@@ -250,4 +293,4 @@ const MOTGame = () => {
   );
 };
 
-export default MOTGame;
+export default MOTStroboscopicGame;
