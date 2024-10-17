@@ -20,12 +20,12 @@ const MOTGame = () => {
   const wrongBallsRef = useRef<number[]>([]);
   const correctBallsRef = useRef<number[]>([]);
   const isClickableRef = useRef<boolean>(false);
-  const durationRef = useRef<number>(1);
+  const durationRef = useRef<number>(10);
   const ballRadiusRef = useRef<number>(70);
   const startingVtsRef = useRef<number>(3);
   const gameEndTimeRef = useRef<number>(0);
-  const totalPracticeTrialsRef = useRef<number>(1);
-  const totalTrialsRef = useRef<number>(1);
+  const totalPracticeTrialsRef = useRef<number>(2);
+  const totalTrialsRef = useRef<number>(6);
   const dataRef = useRef<Data>({
     timeOfData: Date.now(),
     params: { vts: startingVtsRef.current },
