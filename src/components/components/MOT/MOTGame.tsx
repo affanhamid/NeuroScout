@@ -26,7 +26,7 @@ const MOTGame = () => {
   const wrongBallsRef = useRef<number[]>([]);
   const correctBallsRef = useRef<number[]>([]);
   const isClickableRef = useRef<boolean>(false);
-  const durationRef = useRef<number>(10);
+  const durationRef = useRef<number>(3);
   const ballRadiusRef = useRef<number>(70);
   const startingVtsRef = useRef<number>(3);
   const gameEndTimeRef = useRef<number>(0);
@@ -117,7 +117,9 @@ const MOTGame = () => {
     canvas: HTMLCanvasElement,
     animationFrameIdRef: React.MutableRefObject<number | null>,
     setTrial: React.Dispatch<React.SetStateAction<number>>,
-    setIsRunning: React.Dispatch<React.SetStateAction<boolean>>
+    setIsRunning: React.Dispatch<React.SetStateAction<boolean>>,
+    trial: number,
+    isPractice: boolean
   ) => {
     const ctx = canvas.getContext("2d")!;
 
@@ -138,7 +140,7 @@ const MOTGame = () => {
     animate();
 
     setTimeout(() => {
-      currentSpeed = dataRef.current.params.vts;
+      currentSpeed = vts;
       highlightedBallsRef.current = [];
     }, 1000);
 
@@ -183,10 +185,10 @@ const MOTGame = () => {
             }, 10);
 
             if (score === 4) {
-              setVts(vts + 1);
+              setVts((vts) => vts + 1);
             } else {
               if (vts > 2) {
-                setVts(vts - 1);
+                setVts((vts) => vts - 1);
               }
             }
             dataRef.current.scores.push(score);
@@ -199,6 +201,10 @@ const MOTGame = () => {
               correctBallsRef.current = [];
               setTimeout(() => {
                 setTrial((value) => value + 1);
+
+                if (isPractice && trial + 1 >= dataRef.current.practiceRounds) {
+                  setVts(dataRef.current.params.vts);
+                }
                 setIsRunning(false);
               }, 500);
             }, 1000);
