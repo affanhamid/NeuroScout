@@ -146,22 +146,34 @@ ListItem.displayName = "ListItem";
 const games = [
   {
     title: "Multiple Objects Tracking",
-    href: "/games/multiple-objects-tracking",
+    href: "/games/multiple-objects-tracking-normal",
     description:
       "A game where the player has to track multiple objects bouncing around in an animation",
   },
   {
-    title: "Memory Grid",
-    href: "/games/memory-grid",
+    title: "Multiple Objects Tracking Flash",
+    href: "/games/multiple-objects-tracking-flash",
     description:
-      "A game where the player has to memorize locations and patterns of disappearing objects in a grid",
+      "A game where the player has to track multiple objects bouncing around in an animation with flash",
   },
   {
-    title: "Anticipation Game",
-    href: "/games/anticipation-game",
+    title: "Multiple Objects Tracking Strobe",
+    href: "/games/multiple-objects-tracking-strobe",
     description:
-      "A game where the player has to anticipate the trajectory of multiple balls moving around",
+      "A game where the player has to track multiple objects bouncing around in an animation with stroboscopic vision",
   },
+  // {
+  //   title: "Memory Grid",
+  //   href: "/games/memory-grid",
+  //   description:
+  //     "A game where the player has to memorize locations and patterns of disappearing objects in a grid",
+  // },
+  // {
+  //   title: "Anticipation Game",
+  //   href: "/games/anticipation-game",
+  //   description:
+  //     "A game where the player has to anticipate the trajectory of multiple balls moving around",
+  // },
 ];
 
 const ShadNavbar = () => {
