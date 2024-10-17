@@ -24,7 +24,6 @@ interface GameInterface<TData, TParam> {
   render: (
     canvas: HTMLCanvasElement,
     animationFrameIdRef: React.MutableRefObject<number | null>,
-    setShowCountdown: React.Dispatch<React.SetStateAction<boolean>>,
     setTrial: React.Dispatch<React.SetStateAction<number>>,
     setIsRunning: React.Dispatch<React.SetStateAction<boolean>>
   ) => void;
@@ -102,13 +101,7 @@ const Game = <TData extends BaseTData<TParam>, TParam extends {}>({
   useEffect(() => {
     if (isRunning) {
       canvasRef.current &&
-        render(
-          canvasRef.current,
-          animationFrameIdRef,
-          setShowCountdown,
-          setTrial,
-          setIsRunning
-        );
+        render(canvasRef.current, animationFrameIdRef, setTrial, setIsRunning);
     } else {
       if (isPracticeRef.current) {
         if (trial === dataRef.current.practiceRounds + 1) {
