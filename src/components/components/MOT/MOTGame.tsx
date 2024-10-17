@@ -26,7 +26,7 @@ const MOTGame = () => {
   const wrongBallsRef = useRef<number[]>([]);
   const correctBallsRef = useRef<number[]>([]);
   const isClickableRef = useRef<boolean>(false);
-  const durationRef = useRef<number>(3);
+  const durationRef = useRef<number>(10);
   const ballRadiusRef = useRef<number>(70);
   const startingVtsRef = useRef<number>(3);
   const gameEndTimeRef = useRef<number>(0);
