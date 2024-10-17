@@ -41,7 +41,7 @@ const Profile = () => {
           )}
         </div>
       </div>
-      <div className="absolute top-full -translate-x-1/2 left-1/2 mt-2 bg-white text-background px-2 py-1 text-sm w-40 text-center rounded-lg hidden group-hover:block">
+      <div className="absolute top-full -translate-x-1/2 left-1/2 mt-2 bg-white text-background px-2 py-1 text-sm w-40 text-center rounded-lg hidden group-hover:block text-black">
         {session ? (
           <span>
             Signed in as{" "}
