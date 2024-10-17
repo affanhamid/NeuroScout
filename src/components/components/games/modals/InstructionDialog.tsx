@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
+import HomeButton from "./HomeButton";
 
 export interface InstructionStepInterface {
   title: React.ReactNode;

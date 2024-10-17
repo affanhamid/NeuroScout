@@ -1,12 +1,26 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { Cross2Icon } from "@radix-ui/react-icons";
+import { ArrowLeftIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 const Dialog = DialogPrimitive.Root;
 const DialogTrigger = DialogPrimitive.Trigger;
 const DialogPortal = DialogPrimitive.Portal;
 const DialogClose = DialogPrimitive.Close;
+
+const HomeButton = () => {
+  return (
+    <Link
+      className="fixed top-5 left-10 text-white flex items-center gap-2 text-xl z-[60] cursor-pointer pointer-events-auto group"
+      href="/"
+    >
+      <ArrowLeftIcon className="w-10 h-10 text-red-700 group-hover:-translate-x-3 transition-transform font-bold" />
+    </Link>
+  );
+};
+
+export default HomeButton;
 
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
@@ -29,11 +43,12 @@ const DialogContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay />
+    <HomeButton />
     <DialogPrimitive.Content
       ref={ref}
       onInteractOutside={(event) => event.preventDefault()} // Prevent closing when clicking outside
       className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid max-w-3xl w-max translate-x-[-50%] translate-y-[-50%] gap-6 rounded-lg border border-zinc-200 bg-zinc-900 p-8 shadow-lg duration-200 data-[state=open]:fade-in data-[state=closed]:fade-out",
+        "fixed left-[50%] top-[50%] z-50 grid max-w-3xl w-max translate-x-[-50%] translate-y-[-50%] gap-6 rounded-lg border border-zinc-200 bg-zinc-900 p-8 shadow-lg duration-200 data-[state=open]:fade-in data-[state=closed]:fade-out pointer-events-auto",
         className
       )}
       {...props}
