@@ -1,8 +1,14 @@
 "use client";
 import React, { useRef, useState } from "react";
-import { Ball, createBalls, drawBall, HIGHLIGHT_COLOR } from "./Ball";
-import { resolveCollisions, resolveCollisionsWithWalls } from "./collision";
-import { calculateScore } from "./scoring";
+import {
+  Ball,
+  createBalls,
+  drawBall,
+  HIGHLIGHT_COLOR,
+  resolveCollisions,
+  resolveCollisionsWithWalls,
+} from "../games/Ball";
+
 import { Data, insertMOTData } from "@/database/MOT";
 import { MOTCalculateScore } from "../games/scoring";
 import { instructions, formFields } from "./metaData";
@@ -82,17 +88,34 @@ const MOTGame = () => {
       drawBall(
         ball,
         highlightedBallsRef.current.includes(index),
+        ctx,
         wrongBallsRef.current && wrongBallsRef.current.includes(index),
-        correctBallsRef.current && correctBallsRef.current.includes(index),
-        ctx
+        correctBallsRef.current && correctBallsRef.current.includes(index)
       )
     );
+  };
+
+  const calculateScore = (
+    selected: number[],
+    actual: number[]
+  ): { score: number; wrongBalls: number[]; correctBalls: number[] } => {
+    let score = 0;
+    const wrongBalls: number[] = [];
+    const correctBalls: number[] = [];
+    selected.forEach((selectedBall) => {
+      if (actual.includes(selectedBall)) {
+        score++;
+        correctBalls.push(selectedBall);
+      } else {
+        wrongBalls.push(selectedBall);
+      }
+    });
+    return { score: score, wrongBalls: wrongBalls, correctBalls: correctBalls };
   };
 
   const render = (
     canvas: HTMLCanvasElement,
     animationFrameIdRef: React.MutableRefObject<number | null>,
-    setShowCountdown: React.Dispatch<React.SetStateAction<boolean>>,
     setTrial: React.Dispatch<React.SetStateAction<number>>,
     setIsRunning: React.Dispatch<React.SetStateAction<boolean>>
   ) => {
