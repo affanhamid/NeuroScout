@@ -3,7 +3,6 @@ import React, { useRef, useState } from "react";
 import {
   Ball,
   createBalls,
-  drawBall,
   HIGHLIGHT_COLOR,
   resolveCollisions,
   resolveCollisionsWithWalls,
@@ -66,7 +65,7 @@ const MOTGame = () => {
       ballRadiusRef.current = 60;
     }
     dataRef.current.ballSize = ballRadiusRef.current;
-    const balls = createBalls(canvas, ballRadiusRef.current);
+    const balls = createBalls(canvas, ballRadiusRef.current, 8);
 
     const uniqueIndices = new Set<number>();
     while (uniqueIndices.size < 4) {
@@ -88,7 +87,7 @@ const MOTGame = () => {
     resolveCollisions(balls, currentSpeed);
 
     balls.forEach((ball, index) =>
-      drawBall(
+      ball.drawBall(
         ball,
         highlightedBallsRef.current.includes(index),
         ctx,
