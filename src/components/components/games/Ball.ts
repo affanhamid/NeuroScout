@@ -1,62 +1,63 @@
-export interface Ball {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
-  color: string;
-}
-
 export const BASE_COLOR = "#FDDA0D";
 export const HIGHLIGHT_COLOR = "#007FFF";
 export const WRONG_COLOR = "#FF0000";
 export const CORRECT_COLOR = "#00FF00";
 
-export const createBall = (
-  x: number,
-  y: number,
-  angle: number,
-  ballRadius: number,
-  currentSpeed: number
-): Ball => {
-  return {
-    x: x,
-    y: y,
-    radius: ballRadius,
-    vx: Math.cos(angle) * currentSpeed,
-    vy: Math.sin(angle) * currentSpeed,
-    color: BASE_COLOR,
-  };
-};
+export class Ball {
+  x: number;
+  y: number;
+  angle: number;
+  radius: number;
+  vx: number;
+  vy: number;
+  color: string;
 
-export const drawBall = (
-  ball: Ball,
-  isHighlighted: boolean,
-  ctx: CanvasRenderingContext2D,
-  isWrongBall?: boolean,
-  isCorrectBall?: boolean
-): void => {
-  // Draw the ball
-  ctx.beginPath();
-  ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-  ctx.fillStyle = isHighlighted ? HIGHLIGHT_COLOR : ball.color;
-  ctx.fill();
-  ctx.closePath();
-
-  // Set the font size based on the ball radius
-  ctx.font = `${ball.radius}px Arial`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  // Draw tick or cross
-  if (isCorrectBall) {
-    ctx.fillStyle = "rgb(11, 218, 81)";
-    ctx.fillText("✓", ball.x, ball.y);
-  } else if (isWrongBall) {
-    ctx.fillStyle = "red";
-    ctx.fillText("✕", ball.x, ball.y);
+  constructor(
+    x: number,
+    y: number,
+    angle: number,
+    ballRadius: number,
+    currentSpeed: number,
+    color: string
+  ) {
+    this.x = x;
+    this.y = y;
+    this.angle = angle;
+    this.radius = ballRadius;
+    this.vx = Math.cos(this.angle) * currentSpeed;
+    this.vy = Math.sin(this.angle) * currentSpeed;
+    this.color = color;
   }
-};
+
+  drawBall(
+    ball: Ball,
+    isHighlighted: boolean,
+    ctx: CanvasRenderingContext2D,
+    isWrongBall?: boolean,
+    isCorrectBall?: boolean
+  ): void {
+    // Draw the ball
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.fillStyle = isHighlighted ? HIGHLIGHT_COLOR : ball.color;
+    ctx.fill();
+    ctx.closePath();
+
+    // Set the font size based on the ball radius
+    ctx.font = `${ball.radius}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    // Draw tick or cross
+    if (isCorrectBall) {
+      ctx.fillStyle = "rgb(11, 218, 81)";
+      ctx.fillText("✓", ball.x, ball.y);
+    } else if (isWrongBall) {
+      ctx.fillStyle = "red";
+      ctx.fillText("✕", ball.x, ball.y);
+    }
+  }
+}
 
 // Create balls in different regions
 const createRegions = (canvasWidth: number, canvasHeight: number) => [
@@ -73,7 +74,7 @@ const createRegions = (canvasWidth: number, canvasHeight: number) => [
 export const createBalls = (
   canvas: HTMLCanvasElement,
   ballRadius: number,
-  numberOfBalls: number = 8
+  numberOfBalls: number
 ): Ball[] => {
   const balls: Ball[] = [];
   const startingSpeed = 0.01;
@@ -87,18 +88,20 @@ export const createBalls = (
     const angle = Math.random() * 2 * Math.PI;
 
     balls.push(
-      createBall(
+      new Ball(
         randomRegion.x + randomX,
         randomRegion.y + randomY,
         angle,
         ballRadius,
-        startingSpeed
+        startingSpeed,
+        BASE_COLOR
       )
     );
   }
 
   return balls;
 };
+
 export const resolveCollisions = (
   balls: Ball[],
   currentSpeed: number
@@ -198,4 +201,119 @@ export const resolveCollisionsWithWalls = (
       ball.vy *= scale;
     }
   });
+};
+
+export class StrobeBall extends Ball {
+  strobeA: number;
+  strobeB: number;
+  isRandom: boolean;
+  isStrobe: boolean;
+  isVisible: boolean;
+  strobeInterval: NodeJS.Timeout | null = null;
+  constructor(
+    x: number,
+    y: number,
+    angle: number,
+    ballRadius: number,
+    currentSpeed: number,
+    strobeA: number,
+    strobeB: number,
+    isRandom: boolean,
+    isStrobe: boolean,
+    color: string
+  ) {
+    super(x, y, angle, ballRadius, currentSpeed, color);
+    this.strobeA = strobeA;
+    this.strobeB = strobeB;
+    this.isRandom = isRandom;
+    this.isStrobe = isStrobe;
+    this.isVisible = true;
+    if (isRandom) {
+      this.strobeA = Math.floor(Math.random() * strobeA) + 500;
+      this.strobeB = Math.floor(Math.random() * strobeB) + 500;
+    }
+    this.visibleInterval();
+  }
+
+  visibleInterval() {
+    this.strobeInterval = setInterval(() => {
+      this.isVisible = false;
+      setTimeout(() => {
+        this.isVisible = true;
+      }, this.strobeB);
+    }, this.strobeA + this.strobeB);
+  }
+
+  reset() {
+    this.strobeInterval && clearInterval(this.strobeInterval);
+  }
+
+  drawBall = (
+    ball: Ball,
+    isHighlighted: boolean,
+    ctx: CanvasRenderingContext2D,
+    isWrongBall?: boolean,
+    isCorrectBall?: boolean
+  ): void => {
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.fillStyle = this.isVisible
+      ? isHighlighted
+        ? HIGHLIGHT_COLOR
+        : ball.color
+      : "#1B1B1B";
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.font = `${ball.radius}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    if (isCorrectBall) {
+      ctx.fillStyle = "rgb(11, 218, 81)";
+      ctx.fillText("✓", ball.x, ball.y);
+    } else if (isWrongBall) {
+      ctx.fillStyle = "red";
+      ctx.fillText("✕", ball.x, ball.y);
+    }
+  };
+}
+
+export const createStrobeBalls = (
+  canvas: HTMLCanvasElement,
+  ballRadius: number,
+  numberOfBalls: number,
+  strobeA: number,
+  strobeB: number,
+  isRandom: boolean,
+  isStrobe: boolean
+): StrobeBall[] => {
+  const balls: StrobeBall[] = [];
+  const startingSpeed = 0.01;
+
+  const regions = createRegions(canvas.width, canvas.height);
+
+  for (let i = 0; i < numberOfBalls; i++) {
+    const randomRegion = regions[i % regions.length];
+    const randomX = Math.random() * 50 - 25;
+    const randomY = Math.random() * 50 - 25;
+    const angle = Math.random() * 2 * Math.PI;
+
+    balls.push(
+      new StrobeBall(
+        randomRegion.x + randomX,
+        randomRegion.y + randomY,
+        angle,
+        ballRadius,
+        startingSpeed,
+        strobeA,
+        strobeB,
+        isRandom,
+        isStrobe,
+        BASE_COLOR
+      )
+    );
+  }
+
+  return balls;
 };

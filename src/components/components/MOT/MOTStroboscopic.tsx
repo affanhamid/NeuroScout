@@ -1,8 +1,8 @@
 "use client";
 import React, { useRef, useState } from "react";
 import {
-  Ball,
-  createBalls,
+  StrobeBall,
+  createStrobeBalls,
   HIGHLIGHT_COLOR,
   resolveCollisions,
   resolveCollisionsWithWalls,
@@ -21,9 +21,11 @@ interface Params {
 const MOTStroboscopicGame = ({
   strobeA,
   strobeB,
+  isRandom,
 }: {
   strobeA: number;
   strobeB: number;
+  isRandom: boolean;
 }) => {
   const highlightedBallsRef = useRef<number[]>([]);
   const actualBallsRef = useRef<number[]>([]);
@@ -57,7 +59,6 @@ const MOTStroboscopicGame = ({
   });
   const { data: session } = useSession();
   const [vts, setVts] = useState(startingVtsRef.current);
-  const isVisibleRef = useRef<boolean>(true);
 
   const setup = (canvas: HTMLCanvasElement) => {
     let currentSpeed = 0.01;
@@ -71,7 +72,15 @@ const MOTStroboscopicGame = ({
       ballRadiusRef.current = 60;
     }
     dataRef.current.ballSize = ballRadiusRef.current;
-    const balls = createBalls(canvas, ballRadiusRef.current);
+    const balls = createStrobeBalls(
+      canvas,
+      ballRadiusRef.current,
+      8,
+      strobeA,
+      strobeB,
+      isRandom,
+      true
+    );
 
     const uniqueIndices = new Set<number>();
     while (uniqueIndices.size < 4) {
@@ -82,39 +91,9 @@ const MOTStroboscopicGame = ({
 
     return { currentSpeed, balls };
   };
-  const drawBall = (
-    ball: Ball,
-    isHighlighted: boolean,
-    ctx: CanvasRenderingContext2D,
-    isWrongBall?: boolean,
-    isCorrectBall?: boolean
-  ): void => {
-    // Draw the ball
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-    ctx.fillStyle = isVisibleRef.current
-      ? isHighlighted
-        ? HIGHLIGHT_COLOR
-        : ball.color
-      : "#1B1B1B";
-    ctx.fill();
-    ctx.closePath();
-
-    ctx.font = `${ball.radius}px Arial`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    if (isCorrectBall) {
-      ctx.fillStyle = "rgb(11, 218, 81)";
-      ctx.fillText("✓", ball.x, ball.y);
-    } else if (isWrongBall) {
-      ctx.fillStyle = "red";
-      ctx.fillText("✕", ball.x, ball.y);
-    }
-  };
 
   const update = (
-    balls: Ball[],
+    balls: StrobeBall[],
     currentSpeed: number,
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
@@ -123,7 +102,7 @@ const MOTStroboscopicGame = ({
     resolveCollisions(balls, currentSpeed);
 
     balls.forEach((ball, index) =>
-      drawBall(
+      ball.drawBall(
         ball,
         highlightedBallsRef.current.includes(index),
         ctx,
@@ -182,20 +161,13 @@ const MOTStroboscopicGame = ({
       highlightedBallsRef.current = [];
     }, 1000);
 
-    const strobeInterval = setInterval(() => {
-      isVisibleRef.current = false;
-      setTimeout(() => {
-        isVisibleRef.current = true;
-      }, strobeB);
-    }, strobeA + strobeB);
-
     const timerId = setTimeout(() => {
       if (animationFrameIdRef.current) {
         currentSpeed = 0;
       }
       isClickableRef.current = true;
       gameEndTimeRef.current = Date.now();
-      clearInterval(strobeInterval);
+      balls.forEach((ball) => ball.reset());
     }, durationRef.current * 1000);
 
     const handleClick = (event: MouseEvent) => {
