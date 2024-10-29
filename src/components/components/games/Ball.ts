@@ -290,7 +290,7 @@ export class StrobeBall extends Ball {
 
     // Colors to interpolate between
     const startColor = { r: 27, g: 27, b: 27 }; // Dark color for "off"
-    const endColor = { r: 253, g: 218, b: 13 }; // Brighter color for "on"
+    const endColor = { r: 247, g: 212, b: 7 }; // Brighter color for "on"
 
     // Calculate interpolated color
     const r = Math.floor(
