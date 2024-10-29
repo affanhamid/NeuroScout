@@ -29,17 +29,21 @@ export class Ball {
     this.color = color;
   }
 
+  getColor(): string {
+    return this.color;
+  }
+
   drawBall(
     ball: Ball,
     isHighlighted: boolean,
     ctx: CanvasRenderingContext2D,
-    isWrongBall?: boolean,
-    isCorrectBall?: boolean
+    isWrongBall: boolean | null,
+    isCorrectBall: boolean | null
   ): void {
     // Draw the ball
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-    ctx.fillStyle = isHighlighted ? HIGHLIGHT_COLOR : ball.color;
+    ctx.fillStyle = isHighlighted ? HIGHLIGHT_COLOR : this.getColor();
     ctx.fill();
     ctx.closePath();
 
@@ -202,15 +206,13 @@ export const resolveCollisionsWithWalls = (
     }
   });
 };
-
 export class StrobeBall extends Ball {
   strobeA: number;
   strobeB: number;
   isRandom: boolean;
   isStrobe: boolean;
-  isVisible: boolean;
   strobeInterval: NodeJS.Timeout | null = null;
-  lastStrobeTime: number = Date.now();
+  lastStrobeTime: number;
 
   constructor(
     x: number,
@@ -229,86 +231,80 @@ export class StrobeBall extends Ball {
     this.strobeB = strobeB;
     this.isRandom = isRandom;
     this.isStrobe = isStrobe;
-    this.isVisible = true;
+
     if (isRandom) {
       this.strobeA = Math.floor(Math.random() * strobeA) + 500;
       this.strobeB = Math.floor(Math.random() * strobeB) + 500;
     }
-    // this.visibleInterval();
+
+    // Initialize lastStrobeTime to simulate a 1-second delay
+    this.lastStrobeTime = Date.now() + 1000;
   }
 
   visibleInterval() {
     this.strobeInterval = setInterval(() => {
-      this.isVisible = false;
-      setTimeout(() => {
-        this.isVisible = true;
-      }, this.strobeB);
+      // After each strobe cycle, update `lastStrobeTime`
       this.lastStrobeTime = Date.now();
     }, this.strobeA + this.strobeB);
   }
 
   reset() {
-    this.strobeInterval && clearInterval(this.strobeInterval);
+    if (this.strobeInterval) clearInterval(this.strobeInterval);
   }
 
-  getGradientColor(): string {
-    // Total strobe cycle time
-    const cycleTime = this.strobeA + this.strobeB;
-    const elapsedTime = (Date.now() - this.lastStrobeTime) % cycleTime;
+  getColor(): string {
+    const currentTime = Date.now();
 
-    // Calculate oscillating progress between 0 and 1
-    const progress = elapsedTime / cycleTime;
-    const gradientProgress = progress < 0.5 ? progress * 2 : (1 - progress) * 2;
+    // Check if 1 second has passed since the initial delay
+    if (currentTime < this.lastStrobeTime) {
+      // Return the "off" color before the strobe starts
+      return this.color;
+    }
+
+    // Define peak and trough durations in milliseconds
+    const peakDuration = 1000;
+    const troughDuration = 1000;
+    const cycleTime = peakDuration + troughDuration;
+
+    const elapsedTime = (currentTime - this.lastStrobeTime) % cycleTime;
+
+    let sineWave;
+    const peakHoldFactor = 10;
+    const troughHoldFactor = 10;
+
+    if (elapsedTime < peakDuration) {
+      // First part of the cycle (peak)
+      const x = (elapsedTime / peakDuration) * Math.PI; // Adjust phase for the peak
+      sineWave = Math.sin(x);
+      sineWave = Math.pow(sineWave, 1 / peakHoldFactor); // Apply peak hold
+    } else {
+      // Second part of the cycle (trough)
+      const x = ((elapsedTime - peakDuration) / troughDuration) * Math.PI; // Adjust phase for the trough
+      sineWave = Math.sin(x);
+      sineWave = -Math.pow(Math.abs(sineWave), 1 / troughHoldFactor); // Apply trough hold
+    }
+
+    // sineWave = this.smoothstep((sineWave + 1) / 2) * 2 - 1;
+
+    const normalizedProgress = (sineWave + 1) / 2;
 
     // Colors to interpolate between
     const startColor = { r: 27, g: 27, b: 27 }; // Dark color for "off"
-    const endColor = { r: 255, g: 165, b: 0 }; // Original color or a brighter version for "on"
+    const endColor = { r: 253, g: 218, b: 13 }; // Brighter color for "on"
 
     // Calculate interpolated color
     const r = Math.floor(
-      startColor.r + (endColor.r - startColor.r) * gradientProgress
+      startColor.r + (endColor.r - startColor.r) * normalizedProgress
     );
     const g = Math.floor(
-      startColor.g + (endColor.g - startColor.g) * gradientProgress
+      startColor.g + (endColor.g - startColor.g) * normalizedProgress
     );
     const b = Math.floor(
-      startColor.b + (endColor.b - startColor.b) * gradientProgress
+      startColor.b + (endColor.b - startColor.b) * normalizedProgress
     );
 
     return `rgb(${r}, ${g}, ${b})`;
   }
-
-  drawBall = (
-    ball: Ball,
-    isHighlighted: boolean,
-    ctx: CanvasRenderingContext2D,
-    isWrongBall?: boolean,
-    isCorrectBall?: boolean
-  ): void => {
-    ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-
-    // Use gradient color if strobing is active
-    ctx.fillStyle = this.isVisible
-      ? isHighlighted
-        ? HIGHLIGHT_COLOR
-        : this.getGradientColor()
-      : "#1B1B1B";
-    ctx.fill();
-    ctx.closePath();
-
-    ctx.font = `${ball.radius}px Arial`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    if (isCorrectBall) {
-      ctx.fillStyle = "rgb(11, 218, 81)";
-      ctx.fillText("✓", ball.x, ball.y);
-    } else if (isWrongBall) {
-      ctx.fillStyle = "red";
-      ctx.fillText("✕", ball.x, ball.y);
-    }
-  };
 }
 
 export const createStrobeBalls = (
