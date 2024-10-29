@@ -210,6 +210,8 @@ export class StrobeBall extends Ball {
   isStrobe: boolean;
   isVisible: boolean;
   strobeInterval: NodeJS.Timeout | null = null;
+  lastStrobeTime: number = Date.now();
+
   constructor(
     x: number,
     y: number,
@@ -232,7 +234,7 @@ export class StrobeBall extends Ball {
       this.strobeA = Math.floor(Math.random() * strobeA) + 500;
       this.strobeB = Math.floor(Math.random() * strobeB) + 500;
     }
-    this.visibleInterval();
+    // this.visibleInterval();
   }
 
   visibleInterval() {
@@ -241,11 +243,39 @@ export class StrobeBall extends Ball {
       setTimeout(() => {
         this.isVisible = true;
       }, this.strobeB);
+      this.lastStrobeTime = Date.now();
     }, this.strobeA + this.strobeB);
   }
 
   reset() {
     this.strobeInterval && clearInterval(this.strobeInterval);
+  }
+
+  getGradientColor(): string {
+    // Total strobe cycle time
+    const cycleTime = this.strobeA + this.strobeB;
+    const elapsedTime = (Date.now() - this.lastStrobeTime) % cycleTime;
+
+    // Calculate oscillating progress between 0 and 1
+    const progress = elapsedTime / cycleTime;
+    const gradientProgress = progress < 0.5 ? progress * 2 : (1 - progress) * 2;
+
+    // Colors to interpolate between
+    const startColor = { r: 27, g: 27, b: 27 }; // Dark color for "off"
+    const endColor = { r: 255, g: 165, b: 0 }; // Original color or a brighter version for "on"
+
+    // Calculate interpolated color
+    const r = Math.floor(
+      startColor.r + (endColor.r - startColor.r) * gradientProgress
+    );
+    const g = Math.floor(
+      startColor.g + (endColor.g - startColor.g) * gradientProgress
+    );
+    const b = Math.floor(
+      startColor.b + (endColor.b - startColor.b) * gradientProgress
+    );
+
+    return `rgb(${r}, ${g}, ${b})`;
   }
 
   drawBall = (
@@ -257,10 +287,12 @@ export class StrobeBall extends Ball {
   ): void => {
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+
+    // Use gradient color if strobing is active
     ctx.fillStyle = this.isVisible
       ? isHighlighted
         ? HIGHLIGHT_COLOR
-        : ball.color
+        : this.getGradientColor()
       : "#1B1B1B";
     ctx.fill();
     ctx.closePath();
