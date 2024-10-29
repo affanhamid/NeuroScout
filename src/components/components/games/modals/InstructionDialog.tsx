@@ -1,5 +1,4 @@
 "use client";
-import { useSession, signIn } from "next-auth/react";
 
 import * as React from "react";
 import {
@@ -12,7 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
-import HomeButton from "./HomeButton";
 
 export interface InstructionStepInterface {
   title: React.ReactNode;
@@ -32,7 +30,6 @@ export const InstructionDialog: React.FC<InstructionDialogProps> = ({
   steps,
   onStartPractice,
 }) => {
-  const { data: session } = useSession();
   const [stepIndex, setStepIndex] = React.useState<number>(0);
 
   const isLastStep = stepIndex === steps.length - 1;
@@ -40,7 +37,7 @@ export const InstructionDialog: React.FC<InstructionDialogProps> = ({
   const handleNext = () => {
     if (isLastStep) {
       onClose();
-      session?.user ? onStartPractice() : signIn("auth0");
+      onStartPractice();
     } else {
       setStepIndex(stepIndex + 1);
     }
@@ -51,7 +48,7 @@ export const InstructionDialog: React.FC<InstructionDialogProps> = ({
       setStepIndex(stepIndex - 1);
     } else {
       onClose();
-      session?.user ? onStartPractice() : signIn("auth0");
+      onStartPractice();
     }
   };
 
@@ -76,18 +73,9 @@ export const InstructionDialog: React.FC<InstructionDialogProps> = ({
             </Button>
             <Button
               onClick={handleNext}
-              className={`text-black ${
-                session?.user ? "bg-green-500" : "bg-white"
-              } px-6 py-3 rounded-md hover:bg-green-600 flex gap-3`}
+              className={`text-black ${"bg-green-500"} px-6 py-3 rounded-md hover:bg-green-600 flex gap-3`}
             >
-              {isLastStep && !session?.user && <FcGoogle className="w-6 h-6" />}
-              <span>
-                {isLastStep
-                  ? session?.user
-                    ? "Start Practice"
-                    : "Login"
-                  : "Next"}
-              </span>
+              <span>{isLastStep ? "Start Practice" : "Next"}</span>
             </Button>
           </div>
         </DialogFooter>
