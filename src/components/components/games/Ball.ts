@@ -209,7 +209,6 @@ export const resolveCollisionsWithWalls = (
 export class StrobeBall extends Ball {
   strobeA: number;
   strobeB: number;
-  isRandom: boolean;
   isStrobe: boolean;
   strobeInterval: NodeJS.Timeout | null = null;
   lastStrobeTime: number;
@@ -222,20 +221,13 @@ export class StrobeBall extends Ball {
     currentSpeed: number,
     strobeA: number,
     strobeB: number,
-    isRandom: boolean,
     isStrobe: boolean,
     color: string
   ) {
     super(x, y, angle, ballRadius, currentSpeed, color);
     this.strobeA = strobeA;
     this.strobeB = strobeB;
-    this.isRandom = isRandom;
     this.isStrobe = isStrobe;
-
-    if (isRandom) {
-      this.strobeA = Math.floor(Math.random() * strobeA) + 500;
-      this.strobeB = Math.floor(Math.random() * strobeB) + 500;
-    }
 
     // Initialize lastStrobeTime to simulate a 1-second delay
     this.lastStrobeTime = Date.now() + 1000;
@@ -304,6 +296,52 @@ export class StrobeBall extends Ball {
     );
 
     return `rgb(${r}, ${g}, ${b})`;
+  }
+}
+
+export class FlashBall extends Ball {
+  strobeA: number;
+  strobeB: number;
+  isStrobe: boolean;
+  strobeInterval: NodeJS.Timeout | null = null;
+  lastStrobeTime: number;
+
+  constructor(
+    x: number,
+    y: number,
+    angle: number,
+    ballRadius: number,
+    currentSpeed: number,
+    strobeA: number,
+    strobeB: number,
+    isStrobe: boolean,
+    color: string
+  ) {
+    super(x, y, angle, ballRadius, currentSpeed, color);
+    this.strobeA = strobeA;
+    this.strobeB = strobeB;
+    this.isStrobe = isStrobe;
+
+    this.strobeA = Math.floor(Math.random() * strobeA) + 500;
+    this.strobeB = Math.floor(Math.random() * strobeB) + 500;
+
+    // Initialize lastStrobeTime to simulate a 1-second delay
+    this.lastStrobeTime = Date.now() + 1000;
+  }
+
+  visibleInterval() {
+    this.strobeInterval = setInterval(() => {
+      // After each strobe cycle, update `lastStrobeTime`
+      this.lastStrobeTime = Date.now();
+    }, this.strobeA + this.strobeB);
+  }
+
+  reset() {
+    if (this.strobeInterval) clearInterval(this.strobeInterval);
+  }
+
+  getColor(): string {
+    return this.color;
   }
 }
 
