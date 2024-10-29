@@ -55,7 +55,8 @@ const MOTGame = () => {
 
   const setup = (canvas: HTMLCanvasElement) => {
     let currentSpeed = 0.01;
-    ballRadiusRef.current = Math.max(Math.round(window.innerWidth / 24), 50);
+    ballRadiusRef.current = Math.max(Math.round(window.innerWidth / 25), 40);
+    console.log(ballRadiusRef.current);
 
     dataRef.current.ballSize = ballRadiusRef.current;
     const balls = createBalls(canvas, ballRadiusRef.current, 8);

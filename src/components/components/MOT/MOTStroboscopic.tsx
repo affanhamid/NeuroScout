@@ -12,7 +12,7 @@ import { Data, insertMOTData } from "@/database/MOT";
 import { MOTCalculateScore } from "../games/scoring";
 import { instructions, formFields } from "./metaData";
 import Game from "../games/Game/Game";
-import { useSession } from "next-auth/react";
+// import { useSession } from "next-auth/react";
 
 interface Params {
   vts: number;
@@ -57,7 +57,6 @@ const MOTStroboscopicGame = ({
     strobeA: strobeA,
     strobeB: strobeB,
   });
-  const { data: session } = useSession();
   const [vts, setVts] = useState(startingVtsRef.current);
 
   const setup = (canvas: HTMLCanvasElement) => {
@@ -236,7 +235,7 @@ const MOTStroboscopicGame = ({
   const submitData = async (formData: Record<string, any>) => {
     dataRef.current.age = parseInt(formData.age);
     dataRef.current.highestLevel = formData.highestLevel;
-    dataRef.current.email = session?.user?.email as string;
+    dataRef.current.email = "";
     dataRef.current.screenWidth = window.innerWidth;
     dataRef.current.screenHeight = window.innerHeight;
     dataRef.current.params.vts = vts;
