@@ -62,15 +62,7 @@ const MOTStroboscopicGame = ({
 
   const setup = (canvas: HTMLCanvasElement) => {
     let currentSpeed = 0.01;
-    if (window.innerWidth < 768) {
-      ballRadiusRef.current = 40;
-    } else if (window.innerWidth < 1024) {
-      ballRadiusRef.current = 50;
-    } else if (window.innerWidth < 1440) {
-      ballRadiusRef.current = 50;
-    } else {
-      ballRadiusRef.current = 60;
-    }
+    ballRadiusRef.current = Math.max(Math.round(window.innerWidth / 24), 50);
     dataRef.current.ballSize = ballRadiusRef.current;
     const balls = createStrobeBalls(
       canvas,
