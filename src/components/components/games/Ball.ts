@@ -262,8 +262,8 @@ export class StrobeBall extends Ball {
     }
 
     // Define peak and trough durations in milliseconds
-    const peakDuration = 1000;
-    const troughDuration = 1000;
+    const peakDuration = this.strobeA;
+    const troughDuration = this.strobeB;
     const cycleTime = peakDuration + troughDuration;
 
     const elapsedTime = (currentTime - this.lastStrobeTime) % cycleTime;
