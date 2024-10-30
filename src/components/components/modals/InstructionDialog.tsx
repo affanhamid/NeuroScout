@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { FcGoogle } from "react-icons/fc";
 
 export interface InstructionStepInterface {
   title: React.ReactNode;
@@ -21,23 +20,20 @@ interface InstructionDialogProps {
   show: boolean;
   onClose: () => void;
   steps: InstructionStepInterface[];
-  onStartPractice: () => void;
 }
 
-export const InstructionDialog: React.FC<InstructionDialogProps> = ({
+export const InstructionDialog = ({
   show,
   onClose,
   steps,
-  onStartPractice,
-}) => {
-  const [stepIndex, setStepIndex] = React.useState<number>(0);
+}: InstructionDialogProps) => {
+  const [stepIndex, setStepIndex] = useState<number>(0);
 
   const isLastStep = stepIndex === steps.length - 1;
 
   const handleNext = () => {
     if (isLastStep) {
       onClose();
-      onStartPractice();
     } else {
       setStepIndex(stepIndex + 1);
     }
@@ -48,12 +44,15 @@ export const InstructionDialog: React.FC<InstructionDialogProps> = ({
       setStepIndex(stepIndex - 1);
     } else {
       onClose();
-      onStartPractice();
     }
   };
 
+  useEffect(() => {
+    setStepIndex(0);
+  }, [show]);
+
   return (
-    <Dialog open={show} onOpenChange={onClose}>
+    <Dialog open={show}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-4xl">
