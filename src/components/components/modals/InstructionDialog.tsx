@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowRightIcon, ArrowLeftIcon } from "@radix-ui/react-icons";
+
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -12,8 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 export interface InstructionStepInterface {
-  title: React.ReactNode;
-  description: React.ReactNode;
+  tsx: JSX.Element;
 }
 
 interface InstructionDialogProps {
@@ -42,8 +43,6 @@ export const InstructionDialog = ({
   const handleBack = () => {
     if (stepIndex > 0) {
       setStepIndex(stepIndex - 1);
-    } else {
-      onClose();
     }
   };
 
@@ -54,30 +53,35 @@ export const InstructionDialog = ({
   return (
     <Dialog open={show}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-4xl">
-            {steps[stepIndex].title}
-          </DialogTitle>
+        <DialogHeader className="relative">
           <DialogDescription className="text-white mt-5">
-            {steps[stepIndex].description}
+            {steps[stepIndex].tsx}
           </DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <div className="flex w-full justify-between gap-5">
-            <Button
-              onClick={handleBack}
-              className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600"
-            >
-              {stepIndex > 0 ? "Back" : "Skip Instructions"}
-            </Button>
+          <div className="absolute top-0 left-0 right-0 bottom-0 flex  justify-between items-center">
+            {stepIndex > 0 && (
+              <Button
+                onClick={handleBack}
+                className="group absolute right-[110%] text-green-500 bg-transparent border-none shadow-none"
+              >
+                <ArrowLeftIcon className="w-7 h-7" />
+              </Button>
+            )}
             <Button
               onClick={handleNext}
-              className={`text-black ${"bg-green-500"} px-6 py-3 rounded-md hover:bg-green-600 flex gap-3`}
+              className={`absolute left-[110%] text-green-500 bg-transparent border-none shadow-none outline-none ${
+                isLastStep ? "bg-green-500 text-black hover:bg-green-600" : ""
+              }`}
             >
-              <span>{isLastStep ? "Start Practice" : "Next"}</span>
+              <span>
+                {isLastStep ? (
+                  <span className="w-full h-full text-bg-green-500">Begin</span>
+                ) : (
+                  <ArrowRightIcon className="w-7 h-7" />
+                )}
+              </span>
             </Button>
           </div>
-        </DialogFooter>
+        </DialogHeader>
       </DialogContent>
     </Dialog>
   );

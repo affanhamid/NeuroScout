@@ -32,6 +32,7 @@ export class Ball {
   getColor(): string {
     return this.color;
   }
+
   reset() {}
 
   drawBall(
@@ -179,9 +180,9 @@ export const resolveCollisionsWithWalls = (
 export class StrobeBall extends Ball {
   strobeA: number;
   strobeB: number;
-  isStrobe: boolean;
   strobeInterval: NodeJS.Timeout | null = null;
   lastStrobeTime: number;
+  shouldStrobe: boolean;
   constructor(
     x: number,
     y: number,
@@ -190,26 +191,19 @@ export class StrobeBall extends Ball {
     currentSpeed: number,
     color: string,
     strobeA: number,
-    strobeB: number,
-    isStrobe: boolean
+    strobeB: number
   ) {
     super(x, y, angle, ballRadius, currentSpeed, color);
     this.strobeA = strobeA;
     this.strobeB = strobeB;
-    this.isStrobe = isStrobe;
 
     // Initialize lastStrobeTime to simulate a 1-second delay
     this.lastStrobeTime = Date.now() + 1000;
-  }
-
-  visibleInterval() {
-    this.strobeInterval = setInterval(() => {
-      this.lastStrobeTime = Date.now();
-    }, this.strobeA + this.strobeB);
+    this.shouldStrobe = true;
   }
 
   reset() {
-    if (this.strobeInterval) clearInterval(this.strobeInterval);
+    this.shouldStrobe = false;
   }
 
   getColor(): string {
@@ -263,7 +257,49 @@ export class StrobeBall extends Ball {
       startColor.b + (endColor.b - startColor.b) * normalizedProgress
     );
 
-    return `rgb(${r}, ${g}, ${b})`;
+    return this.shouldStrobe ? `rgb(${r}, ${g}, ${b})` : this.color;
+  }
+}
+
+export class FlashBall extends Ball {
+  strobeInterval: NodeJS.Timeout | null = null;
+  isVisible: boolean;
+  visibleTime: number;
+  invisibleTime: number;
+  constructor(
+    x: number,
+    y: number,
+    angle: number,
+    ballRadius: number,
+    currentSpeed: number,
+    color: string
+  ) {
+    super(x, y, angle, ballRadius, currentSpeed, color);
+
+    // Initialize lastStrobeTime to simulate a 1-second delay
+    this.isVisible = true;
+    this.visibleTime = Math.floor(Math.random() * 1000) + 100;
+    this.invisibleTime = Math.floor(Math.random() * 100);
+    this.interval();
+  }
+
+  interval() {
+    this.strobeInterval = setInterval(() => {
+      this.isVisible = false;
+      setTimeout(() => {
+        this.isVisible = true;
+      }, this.invisibleTime);
+    }, this.invisibleTime + this.visibleTime + 1000);
+  }
+
+  reset() {
+    clearInterval(this.strobeInterval!);
+  }
+
+  getColor(): string {
+    const currentTime = Date.now();
+
+    return this.isVisible ? this.color : "transparent";
   }
 }
 
