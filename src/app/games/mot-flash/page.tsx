@@ -1,10 +1,10 @@
 import React from "react";
-import StroboscopicMOTGame from "@/components/components/MOT/MOTStroboscopic";
+import MOTFlashGame from "@/components/components/MOT/MOTFlash";
 
 const page = () => {
   return (
     <main>
-      <StroboscopicMOTGame strobeA={1000} strobeB={100} isRandom={true} />
+      <MOTFlashGame strobeA={1000} strobeB={100} isRandom={true} />
     </main>
   );
 };

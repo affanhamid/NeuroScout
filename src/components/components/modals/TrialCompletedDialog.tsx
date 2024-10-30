@@ -25,14 +25,11 @@ export const TrialCompletedDialog: React.FC<TrialCopmletedDialogProps> = ({
 }) => {
   return (
     <Dialog open={show}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Start next trial</DialogTitle>
-          <DialogDescription>
-            Click on "Show Instructions Again" to read the instructions again
-          </DialogDescription>
+      <DialogContent className="bg-game-background border-none">
+        <DialogHeader className="bg-game-background border-none">
+          <DialogTitle className="text-white">Start Next Round</DialogTitle>
         </DialogHeader>
-        <DialogFooter className="flex gap-5 justify-between">
+        <DialogDescription className="flex justify-between gap-10">
           <Button
             onClick={onOpenInstructions}
             className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600"
@@ -45,7 +42,7 @@ export const TrialCompletedDialog: React.FC<TrialCopmletedDialogProps> = ({
           >
             Start Trial
           </Button>
-        </DialogFooter>
+        </DialogDescription>
       </DialogContent>
     </Dialog>
   );

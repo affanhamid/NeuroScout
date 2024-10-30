@@ -17,7 +17,6 @@ interface MOTStroboscopicGameProps {
 class MOTStroboscopicGame extends MOTGame {
   strobeA: number;
   strobeB: number;
-  isRandom: boolean;
 
   state: MOTGameState = {
     ...this.state,
@@ -27,7 +26,6 @@ class MOTStroboscopicGame extends MOTGame {
     super(props.gameInterface);
     this.strobeA = props.strobeA;
     this.strobeB = props.strobeB;
-    this.isRandom = props.isRandom;
 
     // Modify the dataRef to include strobe properties
     this.dataRef.current!.isStrobe = true;
@@ -42,8 +40,7 @@ class MOTStroboscopicGame extends MOTGame {
       8,
       StrobeBall,
       this.strobeA,
-      this.strobeB,
-      this.isRandom
+      this.strobeB
     );
   }
 }
