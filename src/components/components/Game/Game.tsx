@@ -209,11 +209,15 @@ class Game<
         />
         <PracticeCompleteDialog
           show={showPracticeComplete}
-          onClose={() => this.setState({ showPracticeComplete: false })}
-          onStartGame={() => this.setState({ showCountdown: true })}
+          onClose={() =>
+            this.setState({ showPracticeComplete: false, showCountdown: true })
+          }
         />
         <TrialCompletedDialog
           show={showTrialComplete}
+          onOpenInstructions={() =>
+            this.setState({ showInstructions: true, showTrialComplete: false })
+          }
           onClose={() =>
             this.setState({ showTrialComplete: false, showCountdown: true })
           }

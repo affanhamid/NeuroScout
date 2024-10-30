@@ -15,13 +15,11 @@ import { Button } from "@/components/ui/button";
 interface PracticeCompleteDialogProps {
   show: boolean;
   onClose: () => void;
-  onStartGame: () => void;
 }
 
 export const PracticeCompleteDialog: React.FC<PracticeCompleteDialogProps> = ({
   show,
   onClose,
-  onStartGame,
 }) => {
   return (
     <Dialog open={show} onOpenChange={onClose}>
@@ -37,7 +35,6 @@ export const PracticeCompleteDialog: React.FC<PracticeCompleteDialogProps> = ({
           <Button
             onClick={() => {
               onClose();
-              onStartGame();
             }}
             className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600"
           >
