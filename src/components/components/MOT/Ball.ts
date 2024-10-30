@@ -375,7 +375,6 @@ export const createStrobeBalls = (
         strobeA,
         strobeB,
         isRandom,
-        isStrobe,
         BASE_COLOR
       )
     );

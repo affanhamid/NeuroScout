@@ -6,11 +6,14 @@ import {
   ThankYouDialog,
   ResultsDialog,
 } from "../modals";
-import Countdown from "./Countdown";
+
+import Countdown from "../Countdown/Countdown";
+
 import type {
   InstructionStepInterface,
   FormFieldInterface,
 } from "../modals/Types";
+import { TrialCompletedDialog } from "../modals/TrialCompletedDialog";
 
 export interface GameInterface<TData, TParam> {
   submitData: (formData: Record<string, any>) => Promise<void>;
@@ -40,6 +43,7 @@ export interface GameState {
   showResults: boolean;
   showPracticeComplete: boolean;
   showCountdown: boolean;
+  showTrialComplete: boolean;
 }
 
 interface BaseTData<TParam> {
@@ -73,6 +77,7 @@ class Game<
       showResults: false,
       showPracticeComplete: false,
       showCountdown: false,
+      showTrialComplete: false,
     };
 
     if (this.isPracticeRef.current === null) {
@@ -118,7 +123,7 @@ class Game<
         this.isPracticeRef.current = false;
         this.setState({ trial: 1, showPracticeComplete: true });
       } else {
-        trial !== 1 && this.setState({ showCountdown: true });
+        trial !== 1 && this.setState({ showTrialComplete: true });
       }
     } else {
       if (
@@ -127,7 +132,7 @@ class Game<
       ) {
         this.setState({ showThankYou: true });
       } else {
-        this.setState({ showCountdown: true });
+        this.setState({ showTrialComplete: true });
       }
     }
   }
@@ -165,6 +170,7 @@ class Game<
       showResults,
       showPracticeComplete,
       showCountdown,
+      showTrialComplete,
       isRunning,
       trial,
     } = this.state;
@@ -183,14 +189,12 @@ class Game<
             />
           </div>
         )}
-        {!isRunning && (
-          <div className="absolute top-10 right-10 text-white text-2xl">
-            {this.isPracticeRef.current && dataRef?.current?.trialRounds
-              ? `Practice Trial: ${trial}/${dataRef.current.practiceRounds}`
-              : dataRef?.current?.trialRounds &&
-                `Trial: ${trial}/${dataRef.current.trialRounds}`}
-          </div>
-        )}
+        <div className="absolute top-10 right-10 text-white text-2xl text-left">
+          {this.isPracticeRef.current && dataRef?.current?.trialRounds
+            ? `Practice Trial: ${trial}/${dataRef.current.practiceRounds}`
+            : dataRef?.current?.trialRounds &&
+              `Trial: ${trial}/${dataRef.current.trialRounds}`}
+        </div>
         <InstructionDialog
           show={showInstructions}
           onClose={() => this.setState({ showInstructions: false })}
@@ -207,6 +211,12 @@ class Game<
           show={showPracticeComplete}
           onClose={() => this.setState({ showPracticeComplete: false })}
           onStartGame={() => this.setState({ showCountdown: true })}
+        />
+        <TrialCompletedDialog
+          show={showTrialComplete}
+          onClose={() =>
+            this.setState({ showTrialComplete: false, showCountdown: true })
+          }
         />
         <ResultsDialog<TParam>
           show={showResults}

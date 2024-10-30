@@ -6,12 +6,12 @@ import {
   HIGHLIGHT_COLOR,
   resolveCollisions,
   resolveCollisionsWithWalls,
-} from "../games/Ball";
+} from "./Ball";
 
 import { Data, insertMOTData } from "@/database/MOT";
-import { MOTCalculateScore } from "../games/scoring";
+import { MOTCalculateScore } from "./scoring";
 import { instructions, formFields } from "./metaData";
-import Game, { GameInterface, GameState } from "../games/Game/Game";
+import Game, { GameInterface, GameState } from "../Game/Game";
 
 export interface MOTParams {
   vts: number;
@@ -223,7 +223,7 @@ class MOTGame extends Game<Data, MOTParams> {
 
                 if (
                   isPractice &&
-                  trial + 1 >= this.dataRef.current!.practiceRounds
+                  trial + 1 > this.dataRef.current!.practiceRounds
                 ) {
                   this.setState({
                     vts: this.startingVtsRef.current!,
@@ -260,6 +260,9 @@ class MOTGame extends Game<Data, MOTParams> {
   render() {
     return (
       <div>
+        <div className="absolute top-20 right-10 text-white text-2xl text-left">
+          {`Current Speed: ${this.state.vts}`}
+        </div>
         <Game<Data, MOTParams>
           submitData={this.submitData}
           instructions={instructions}

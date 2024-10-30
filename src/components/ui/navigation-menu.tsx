@@ -146,19 +146,19 @@ ListItem.displayName = "ListItem";
 const games = [
   {
     title: "Multiple Objects Tracking",
-    href: "/games/multiple-objects-tracking-normal",
+    href: "/games/mot",
     description:
       "A game where the player has to track multiple objects bouncing around in an animation",
   },
   {
     title: "Multiple Objects Tracking Flash",
-    href: "/games/multiple-objects-tracking-flash",
+    href: "/games/mot-flash",
     description:
       "A game where the player has to track multiple objects bouncing around in an animation with flash",
   },
   {
     title: "Multiple Objects Tracking Strobe",
-    href: "/games/multiple-objects-tracking-strobe",
+    href: "/games/mot-strobe",
     description:
       "A game where the player has to track multiple objects bouncing around in an animation with stroboscopic vision",
   },
