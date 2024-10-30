@@ -6,10 +6,10 @@ import {
   HIGHLIGHT_COLOR,
   resolveCollisions,
   resolveCollisionsWithWalls,
-} from "../games/Ball";
+} from "./Ball";
 
 import { Data, insertMOTData } from "@/database/MOT";
-import { GameInterface } from "../games/Game/Game";
+import { GameInterface } from "../Game/Game";
 import MOTGame from "./MOTGame";
 import { MOTGameState, MOTParams } from "./MOTGame";
 

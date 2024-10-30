@@ -7,11 +7,11 @@ import {
   HIGHLIGHT_COLOR,
   resolveCollisions,
   resolveCollisionsWithWalls,
-} from "../games/Ball";
+} from "../MOT/Ball";
 
 import { Data, insertAnticipationData } from "@/database/Anticipation";
 import { instructions, formFields } from "./metaData";
-import Game from "../games/Game/Game";
+import Game from "../Game/Game";
 import { useSession } from "next-auth/react";
 
 interface Params {
