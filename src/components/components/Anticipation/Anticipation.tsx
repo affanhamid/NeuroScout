@@ -3,7 +3,6 @@ import React, { useRef, useState } from "react";
 import {
   Ball,
   createBalls,
-  createBall,
   HIGHLIGHT_COLOR,
   resolveCollisions,
   resolveCollisionsWithWalls,
@@ -12,7 +11,6 @@ import {
 import { Data, insertAnticipationData } from "@/database/Anticipation";
 import { instructions, formFields } from "./metaData";
 import Game from "../Game/Game";
-import { useSession } from "next-auth/react";
 
 interface Params {
   vts: number;
@@ -47,7 +45,6 @@ const AnticipationGame = () => {
   const [vts, setVts] = useState(startingVtsRef.current);
   const showResultsRef = useRef<boolean>(false);
   const displayMessageRef = useRef<boolean>(false);
-  const { data: session } = useSession();
 
   const setup = (canvas: HTMLCanvasElement) => {
     let currentSpeed = 0.01;
@@ -62,7 +59,7 @@ const AnticipationGame = () => {
     }
     dataRef.current.ballSize = ballRadiusRef.current;
     showResultsRef.current = false;
-    const balls = createBalls(canvas, ballRadiusRef.current, 15);
+    const balls = createBalls(canvas, ballRadiusRef.current, 15, Ball);
 
     const randomIndex = Math.floor(Math.random() * balls.length);
     targetBallRef.current = randomIndex;

@@ -1,14 +1,8 @@
 "use client";
 import React from "react";
-import {
-  StrobeBall,
-  createStrobeBalls,
-  HIGHLIGHT_COLOR,
-  resolveCollisions,
-  resolveCollisionsWithWalls,
-} from "./Ball";
+import { StrobeBall, createBalls } from "./Ball";
 
-import { Data, insertMOTData } from "@/database/MOT";
+import { Data } from "@/database/MOT";
 import { GameInterface } from "../Game/Game";
 import MOTGame from "./MOTGame";
 import { MOTGameState, MOTParams } from "./MOTGame";
@@ -19,18 +13,13 @@ interface MOTStroboscopicGameProps {
   strobeB: number;
   isRandom: boolean;
 }
-export interface MOTStroboscopicGameState extends MOTGameState {
-  strobeA: number;
-  strobeB: number;
-  isRandom: boolean;
-}
 
 class MOTStroboscopicGame extends MOTGame {
   strobeA: number;
   strobeB: number;
   isRandom: boolean;
 
-  state: MOTStroboscopicGameState = {
+  state: MOTGameState = {
     ...this.state,
   };
 
@@ -46,34 +35,17 @@ class MOTStroboscopicGame extends MOTGame {
     this.dataRef.current!.strobeB = this.strobeB;
   }
 
-  setup = (canvas: HTMLCanvasElement) => {
-    let currentSpeed = 0.01;
-    this.ballRadiusRef.current = Math.max(
-      Math.round(window.innerWidth / 24),
-      50
-    );
-    this.dataRef.current!.ballSize = this.ballRadiusRef.current!;
-
-    // Use createStrobeBalls with strobe-specific settings
-    const balls = createStrobeBalls(
+  createBalls(canvas: HTMLCanvasElement) {
+    return createBalls(
       canvas,
       this.ballRadiusRef.current!,
       8,
+      StrobeBall,
       this.strobeA,
       this.strobeB,
-      this.isRandom,
-      true
+      this.isRandom
     );
-
-    const uniqueIndices = new Set<number>();
-    while (uniqueIndices.size < 4) {
-      uniqueIndices.add(Math.floor(Math.random() * balls.length));
-    }
-    this.highlightedBallsRef.current = Array.from(uniqueIndices);
-    this.actualBallsRef.current = this.highlightedBallsRef.current;
-
-    return { currentSpeed, balls };
-  };
+  }
 }
 
 export default MOTStroboscopicGame;

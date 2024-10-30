@@ -32,6 +32,7 @@ export class Ball {
   getColor(): string {
     return this.color;
   }
+  reset() {}
 
   drawBall(
     ball: Ball,
@@ -74,37 +75,6 @@ const createRegions = (canvasWidth: number, canvasHeight: number) => [
   { x: canvasWidth * 0.5, y: canvasHeight * 0.25 },
   { x: canvasWidth * 0.5, y: canvasHeight * 0.75 },
 ];
-
-export const createBalls = (
-  canvas: HTMLCanvasElement,
-  ballRadius: number,
-  numberOfBalls: number
-): Ball[] => {
-  const balls: Ball[] = [];
-  const startingSpeed = 0.01;
-
-  const regions = createRegions(canvas.width, canvas.height);
-
-  for (let i = 0; i < numberOfBalls; i++) {
-    const randomRegion = regions[i % regions.length];
-    const randomX = Math.random() * 50 - 25;
-    const randomY = Math.random() * 50 - 25;
-    const angle = Math.random() * 2 * Math.PI;
-
-    balls.push(
-      new Ball(
-        randomRegion.x + randomX,
-        randomRegion.y + randomY,
-        angle,
-        ballRadius,
-        startingSpeed,
-        BASE_COLOR
-      )
-    );
-  }
-
-  return balls;
-};
 
 export const resolveCollisions = (
   balls: Ball[],
@@ -212,17 +182,16 @@ export class StrobeBall extends Ball {
   isStrobe: boolean;
   strobeInterval: NodeJS.Timeout | null = null;
   lastStrobeTime: number;
-
   constructor(
     x: number,
     y: number,
     angle: number,
     ballRadius: number,
     currentSpeed: number,
+    color: string,
     strobeA: number,
     strobeB: number,
-    isStrobe: boolean,
-    color: string
+    isStrobe: boolean
   ) {
     super(x, y, angle, ballRadius, currentSpeed, color);
     this.strobeA = strobeA;
@@ -235,7 +204,6 @@ export class StrobeBall extends Ball {
 
   visibleInterval() {
     this.strobeInterval = setInterval(() => {
-      // After each strobe cycle, update `lastStrobeTime`
       this.lastStrobeTime = Date.now();
     }, this.strobeA + this.strobeB);
   }
@@ -299,62 +267,14 @@ export class StrobeBall extends Ball {
   }
 }
 
-export class FlashBall extends Ball {
-  strobeA: number;
-  strobeB: number;
-  isStrobe: boolean;
-  strobeInterval: NodeJS.Timeout | null = null;
-  lastStrobeTime: number;
-
-  constructor(
-    x: number,
-    y: number,
-    angle: number,
-    ballRadius: number,
-    currentSpeed: number,
-    strobeA: number,
-    strobeB: number,
-    isStrobe: boolean,
-    color: string
-  ) {
-    super(x, y, angle, ballRadius, currentSpeed, color);
-    this.strobeA = strobeA;
-    this.strobeB = strobeB;
-    this.isStrobe = isStrobe;
-
-    this.strobeA = Math.floor(Math.random() * strobeA) + 500;
-    this.strobeB = Math.floor(Math.random() * strobeB) + 500;
-
-    // Initialize lastStrobeTime to simulate a 1-second delay
-    this.lastStrobeTime = Date.now() + 1000;
-  }
-
-  visibleInterval() {
-    this.strobeInterval = setInterval(() => {
-      // After each strobe cycle, update `lastStrobeTime`
-      this.lastStrobeTime = Date.now();
-    }, this.strobeA + this.strobeB);
-  }
-
-  reset() {
-    if (this.strobeInterval) clearInterval(this.strobeInterval);
-  }
-
-  getColor(): string {
-    return this.color;
-  }
-}
-
-export const createStrobeBalls = (
+export const createBalls = <T extends Ball>(
   canvas: HTMLCanvasElement,
   ballRadius: number,
   numberOfBalls: number,
-  strobeA: number,
-  strobeB: number,
-  isRandom: boolean,
-  isStrobe: boolean
-): StrobeBall[] => {
-  const balls: StrobeBall[] = [];
+  BallClass: new (...args: any[]) => T,
+  ...extraArgs: any[]
+): T[] => {
+  const balls: T[] = [];
   const startingSpeed = 0.01;
 
   const regions = createRegions(canvas.width, canvas.height);
@@ -366,16 +286,14 @@ export const createStrobeBalls = (
     const angle = Math.random() * 2 * Math.PI;
 
     balls.push(
-      new StrobeBall(
+      new BallClass(
         randomRegion.x + randomX,
         randomRegion.y + randomY,
         angle,
         ballRadius,
         startingSpeed,
-        strobeA,
-        strobeB,
-        isRandom,
-        BASE_COLOR
+        BASE_COLOR,
+        ...extraArgs
       )
     );
   }
