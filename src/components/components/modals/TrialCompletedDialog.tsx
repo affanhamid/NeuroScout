@@ -15,14 +15,16 @@ import { Button } from "@/components/ui/button";
 interface TrialCopmletedDialogProps {
   show: boolean;
   onClose: () => void;
+  onOpenInstructions: () => void;
 }
 
 export const TrialCompletedDialog: React.FC<TrialCopmletedDialogProps> = ({
   show,
   onClose,
+  onOpenInstructions,
 }) => {
   return (
-    <Dialog open={show} onOpenChange={onClose}>
+    <Dialog open={show}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Start next trial</DialogTitle>
@@ -32,17 +34,13 @@ export const TrialCompletedDialog: React.FC<TrialCopmletedDialogProps> = ({
         </DialogHeader>
         <DialogFooter className="flex gap-5 justify-between">
           <Button
-            onClick={() => {
-              onClose();
-            }}
+            onClick={onOpenInstructions}
             className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600"
           >
             Show Instructions Again
           </Button>
           <Button
-            onClick={() => {
-              onClose();
-            }}
+            onClick={onClose}
             className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600"
           >
             Start Trial
