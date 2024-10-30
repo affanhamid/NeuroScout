@@ -197,9 +197,10 @@ class Game<
         </div>
         <InstructionDialog
           show={showInstructions}
-          onClose={() => this.setState({ showInstructions: false })}
+          onClose={() =>
+            this.setState({ showInstructions: false, showCountdown: true })
+          }
           steps={instructions.steps}
-          onStartPractice={() => this.setState({ showCountdown: true })}
         />
         <ThankYouDialog
           show={showThankYou}
