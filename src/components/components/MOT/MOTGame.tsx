@@ -76,6 +76,10 @@ class MOTGame extends Game<Data, MOTParams> {
     };
   }
 
+  createBalls(canvas: HTMLCanvasElement) {
+    return createBalls(canvas, this.ballRadiusRef.current!, 8, Ball);
+  }
+
   setup = (canvas: HTMLCanvasElement) => {
     let currentSpeed = 0.01;
     this.ballRadiusRef.current = Math.max(
@@ -84,7 +88,7 @@ class MOTGame extends Game<Data, MOTParams> {
     );
 
     this.dataRef.current!.ballSize = this.ballRadiusRef.current!;
-    const balls = createBalls(canvas, this.ballRadiusRef.current!, 8);
+    const balls = this.createBalls(canvas);
 
     const uniqueIndices = new Set<number>();
     while (uniqueIndices.size < 4) {
@@ -171,6 +175,7 @@ class MOTGame extends Game<Data, MOTParams> {
       }
       this.isClickableRef.current = true;
       this.gameEndTimeRef.current = Date.now();
+      balls.forEach((ball) => ball.reset());
     }, this.durationRef.current! * 1000);
 
     const handleClick = (event: MouseEvent) => {
