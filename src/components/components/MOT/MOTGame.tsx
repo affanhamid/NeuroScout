@@ -269,7 +269,7 @@ class MOTGame extends Game<MOT_Data, MOTParams> {
   };
 
   submitData = async (formData: Record<string, any>) => {
-    const tableName = this.onBeforeSubmit(this.dataRef.current!);
+    const tableName = this.onBeforeSubmit(formData);
     console.log("submitting data to table", tableName);
     try {
       const response = await fetch("/api/add-mot-data", {
