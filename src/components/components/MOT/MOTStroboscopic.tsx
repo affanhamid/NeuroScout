@@ -1,37 +1,69 @@
 "use client";
-import React from "react";
+import { MutableRefObject, createRef } from "react";
 import { StrobeBall, createBalls } from "./Ball";
 
-import { Data } from "@/database/MOT";
+import { MOT_Strobe_Data } from "@/db/Types";
 import { GameInterface } from "../Game/Game";
 import MOTGame from "./MOTGame";
 import { MOTGameState, MOTParams } from "./MOTGame";
 
-interface MOTStroboscopicGameProps {
-  gameInterface: GameInterface<Data, MOTParams>;
-  strobeA: number;
-  strobeB: number;
-  isRandom: boolean;
-}
-
 class MOTStroboscopicGame extends MOTGame {
-  strobeA: number;
-  strobeB: number;
+  dataRef: MutableRefObject<MOT_Strobe_Data | null> = createRef();
 
   state: MOTGameState = {
     ...this.state,
   };
+  setParams = async () => {
+    try {
+      const response = await fetch("/api/get-mot-strobe-params");
+      const result = await response.json();
+      this.durationRef.current = result[0].duration;
+      this.startingVtsRef.current = result[0].starting_vts;
+      this.totalPracticeTrialsRef.current = result[0].practice_trials;
+      this.totalTrialsRef.current = result[0].trials;
 
-  constructor(props: MOTStroboscopicGameProps) {
-    super(props.gameInterface);
-    this.strobeA = props.strobeA;
-    this.strobeB = props.strobeB;
+      this.highlightedBallsRef.current = [];
+      this.actualBallsRef.current = [];
+      this.clickedBallsRef.current = new Set();
+      this.wrongBallsRef.current = [];
+      this.correctBallsRef.current = [];
+      this.isClickableRef.current = false;
+      this.ballRadiusRef.current = 70;
+      this.gameEndTimeRef.current = 0;
+      this.dataRef.current = {
+        timeOfData: new Date(),
+        params: { vts: result[0].starting_vts },
+        scores: [],
+        age: 0,
+        highestLevel: "",
+        timeToClicks: [],
+        screenWidth: 0,
+        screenHeight: 0,
+        ballSize: 0,
+        duration: result[0].duration,
+        numPracticeRounds: result[0].practice_trials,
+        trialRounds: result[0].trials,
+        strobeA: result[0].strobe_a,
+        strobeB: result[0].strobe_b,
+      };
+    } catch (error) {
+      console.error("Error fetching MOT params:", error);
+    }
+  };
 
-    // Modify the dataRef to include strobe properties
-    this.dataRef.current!.isStrobe = true;
-    this.dataRef.current!.strobeA = this.strobeA;
-    this.dataRef.current!.strobeB = this.strobeB;
+  constructor(props: GameInterface<MOT_Strobe_Data, MOTParams>) {
+    super(props);
+    this.setParams();
   }
+
+  onBeforeSubmit = (formData: Record<string, any>) => {
+    this.dataRef.current!.age = parseInt(formData.age);
+    this.dataRef.current!.highestLevel = formData.highestLevel;
+    this.dataRef.current!.screenWidth = window.innerWidth;
+    this.dataRef.current!.screenHeight = window.innerHeight;
+    this.dataRef.current!.params.vts = this.state.vts;
+    return "MOT_STROBE_DATA";
+  };
 
   createBalls(canvas: HTMLCanvasElement) {
     return createBalls(
@@ -39,8 +71,8 @@ class MOTStroboscopicGame extends MOTGame {
       this.ballRadiusRef.current!,
       8,
       StrobeBall,
-      this.strobeA,
-      this.strobeB
+      this.dataRef.current!.strobeA,
+      this.dataRef.current!.strobeB
     );
   }
 }

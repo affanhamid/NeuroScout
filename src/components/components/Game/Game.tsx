@@ -48,13 +48,12 @@ export interface GameState {
 
 interface BaseTData<TParam> {
   scores: number[];
-  practiceRounds: number;
+  numPracticeRounds: number;
   trialRounds: number;
   params: TParam;
   age: number;
   screenWidth: number;
   screenHeight: number;
-  email: string;
   highestLevel: string;
 }
 
@@ -117,8 +116,8 @@ class Game<
 
     if (this.isPracticeRef.current) {
       if (
-        dataRef?.current?.practiceRounds &&
-        trial === dataRef?.current?.practiceRounds + 1
+        dataRef?.current?.numPracticeRounds &&
+        trial === dataRef?.current?.numPracticeRounds + 1
       ) {
         this.isPracticeRef.current = false;
         this.setState({ trial: 1, showPracticeComplete: true });
@@ -191,7 +190,7 @@ class Game<
         )}
         <div className="absolute top-10 right-10 text-white text-2xl text-left">
           {this.isPracticeRef.current && dataRef?.current?.trialRounds
-            ? `Practice Trial: ${trial}/${dataRef.current.practiceRounds}`
+            ? `Practice Trial: ${trial}/${dataRef.current.numPracticeRounds}`
             : dataRef?.current?.trialRounds &&
               `Trial: ${trial}/${dataRef.current.trialRounds}`}
         </div>
@@ -227,7 +226,7 @@ class Game<
           show={showResults}
           onClose={() => this.setState({ showResults: false })}
           scores={dataRef?.current?.scores || []}
-          practiceRounds={dataRef?.current?.practiceRounds || 0}
+          practiceRounds={dataRef?.current?.numPracticeRounds || 0}
           params={dataRef?.current?.params as TParam}
           calculateScore={calculateScores}
         />
