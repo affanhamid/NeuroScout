@@ -272,14 +272,15 @@ export class FlashBall extends Ball {
     angle: number,
     ballRadius: number,
     currentSpeed: number,
-    color: string
+    color: string,
+    visibleTime: number,
+    invisibleTime: number
   ) {
     super(x, y, angle, ballRadius, currentSpeed, color);
 
-    // Initialize lastStrobeTime to simulate a 1-second delay
     this.isVisible = true;
-    this.visibleTime = Math.floor(Math.random() * 1000) + 100;
-    this.invisibleTime = Math.floor(Math.random() * 100);
+    this.visibleTime = Math.floor(Math.random() * visibleTime) + 100;
+    this.invisibleTime = Math.floor(Math.random() * invisibleTime);
     this.interval();
   }
 
@@ -297,8 +298,6 @@ export class FlashBall extends Ball {
   }
 
   getColor(): string {
-    const currentTime = Date.now();
-
     return this.isVisible ? this.color : "transparent";
   }
 }

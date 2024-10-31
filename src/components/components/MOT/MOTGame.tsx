@@ -8,7 +8,7 @@ import {
   resolveCollisionsWithWalls,
 } from "./Ball";
 
-import { Data, insertMOTData } from "@/database/MOT";
+import { MOT_Data } from "@/db/Types";
 import { MOTCalculateScore } from "./scoring";
 import { instructions, formFields } from "./metaData";
 import Game, { GameInterface, GameState } from "../Game/Game";
@@ -21,7 +21,7 @@ export interface MOTGameState extends GameState {
   vts: number;
 }
 
-class MOTGame extends Game<Data, MOTParams> {
+class MOTGame extends Game<MOT_Data, MOTParams> {
   highlightedBallsRef: MutableRefObject<number[] | null> =
     createRef<number[]>();
   actualBallsRef: MutableRefObject<number[] | null> = createRef();
@@ -35,45 +35,52 @@ class MOTGame extends Game<Data, MOTParams> {
   gameEndTimeRef: MutableRefObject<number | null> = createRef();
   totalPracticeTrialsRef: MutableRefObject<number | null> = createRef();
   totalTrialsRef: MutableRefObject<number | null> = createRef();
-  dataRef: MutableRefObject<Data | null> = createRef();
+  dataRef: MutableRefObject<MOT_Data | null> = createRef();
 
   state: MOTGameState = {
     ...this.state, // Initialize inherited state
     vts: 3, // Add vts specifically for MOTGame
   };
 
-  constructor(props: GameInterface<Data, MOTParams>) {
+  setParams = async () => {
+    try {
+      const response = await fetch("/api/get-mot-params");
+      const result = await response.json();
+      this.durationRef.current = result[0].duration;
+      this.startingVtsRef.current = result[0].starting_vts;
+      this.totalPracticeTrialsRef.current = result[0].practice_trials;
+      this.totalTrialsRef.current = result[0].trials;
+
+      this.highlightedBallsRef.current = [];
+      this.actualBallsRef.current = [];
+      this.clickedBallsRef.current = new Set();
+      this.wrongBallsRef.current = [];
+      this.correctBallsRef.current = [];
+      this.isClickableRef.current = false;
+      this.ballRadiusRef.current = 70;
+      this.gameEndTimeRef.current = 0;
+      this.dataRef.current = {
+        timeOfData: new Date(),
+        params: { vts: result[0].starting_vts },
+        scores: [],
+        age: 0,
+        highestLevel: "",
+        timeToClicks: [],
+        screenWidth: 0,
+        screenHeight: 0,
+        ballSize: 0,
+        duration: result[0].duration,
+        numPracticeRounds: result[0].practice_trials,
+        trialRounds: result[0].trials,
+      };
+    } catch (error) {
+      console.error("Error fetching MOT params:", error);
+    }
+  };
+
+  constructor(props: GameInterface<MOT_Data, MOTParams>) {
     super(props);
-    this.highlightedBallsRef.current = [];
-    this.actualBallsRef.current = [];
-    this.clickedBallsRef.current = new Set();
-    this.wrongBallsRef.current = [];
-    this.correctBallsRef.current = [];
-    this.isClickableRef.current = false;
-    this.durationRef.current = 10;
-    this.ballRadiusRef.current = 70;
-    this.startingVtsRef.current = 3;
-    this.gameEndTimeRef.current = 0;
-    this.totalPracticeTrialsRef.current = 2;
-    this.totalTrialsRef.current = 6;
-    this.dataRef.current = {
-      timeOfData: Date.now(),
-      params: { vts: this.startingVtsRef.current },
-      scores: [],
-      age: 0,
-      highestLevel: "",
-      timeToClicks: [],
-      email: "",
-      screenWidth: 0,
-      screenHeight: 0,
-      ballSize: 0,
-      duration: this.durationRef.current,
-      practiceRounds: this.totalPracticeTrialsRef.current,
-      trialRounds: this.totalTrialsRef.current,
-      isStrobe: false,
-      strobeA: 0,
-      strobeB: 0,
-    };
+    this.setParams();
   }
 
   createBalls(canvas: HTMLCanvasElement) {
@@ -228,7 +235,7 @@ class MOTGame extends Game<Data, MOTParams> {
 
                 if (
                   isPractice &&
-                  trial + 1 > this.dataRef.current!.practiceRounds
+                  trial + 1 > this.dataRef.current!.numPracticeRounds
                 ) {
                   this.setState({
                     vts: this.startingVtsRef.current!,
@@ -252,14 +259,36 @@ class MOTGame extends Game<Data, MOTParams> {
     };
   };
 
-  submitData = async (formData: Record<string, any>) => {
+  onBeforeSubmit = (formData: Record<string, any>) => {
     this.dataRef.current!.age = parseInt(formData.age);
     this.dataRef.current!.highestLevel = formData.highestLevel;
-    this.dataRef.current!.email = "";
     this.dataRef.current!.screenWidth = window.innerWidth;
     this.dataRef.current!.screenHeight = window.innerHeight;
     this.dataRef.current!.params.vts = this.state.vts;
-    insertMOTData(this.dataRef.current!);
+    return "MOT_DATA";
+  };
+
+  submitData = async (formData: Record<string, any>) => {
+    const tableName = this.onBeforeSubmit(this.dataRef.current!);
+    console.log("submitting data to table", tableName);
+    try {
+      const response = await fetch("/api/add-mot-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...this.dataRef.current!, table: tableName }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        console.log("Data added successfully:", result.message);
+      } else {
+        console.error("Failed to add data:", result.message);
+      }
+    } catch (error) {
+      console.error("Error submitting data:", error);
+    }
   };
 
   render() {
@@ -268,7 +297,7 @@ class MOTGame extends Game<Data, MOTParams> {
         <div className="absolute top-20 right-10 text-white text-2xl text-left">
           {`Current Speed: ${this.state.vts}`}
         </div>
-        <Game<Data, MOTParams>
+        <Game<MOT_Data, MOTParams>
           submitData={this.submitData}
           instructions={instructions}
           formFields={formFields}

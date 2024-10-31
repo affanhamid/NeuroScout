@@ -1,6 +1,8 @@
+"use client";
 import Navbar from "@/components/components/Navbar";
 import MOTGameImage from "@/public/MOT.png";
 import Image from "next/image";
+import * as schema from "@/drizzle/schema";
 
 export default function Home() {
   return (
@@ -13,7 +15,41 @@ export default function Home() {
           cognitive abilities to unlock your football potential. Are you ready
           to level up?
         </p>
-        <button className="bg-white text-purple-600 py-3 px-6 rounded-lg font-semibold">
+        <button
+          className="bg-white text-purple-600 py-3 px-6 rounded-lg font-semibold"
+          onClick={async () => {
+            try {
+              const response = await fetch("/api/add-mot-data", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  timeOfData: new Date(),
+                  params: { vts: 3 },
+                  scores: [1, 2, 3],
+                  age: 10,
+                  highestLevel: "high",
+                  timeToClicks: [1, 2, 3],
+                  screenWidth: 100,
+                  screenHeight: 100,
+                  ballSize: 100,
+                  duration: 10,
+                  numPracticeRounds: 1,
+                }),
+              });
+
+              const result = await response.json();
+              if (result.success) {
+                console.log("Data added successfully:", result.message);
+              } else {
+                console.error("Failed to add data:", result.message);
+              }
+            } catch (error) {
+              console.error("Error submitting data:", error);
+            }
+          }}
+        >
           Get Started
         </button>
       </section>

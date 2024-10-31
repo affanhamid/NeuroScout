@@ -4,7 +4,7 @@ import MOTFlashGame from "@/components/components/MOT/MOTFlash";
 const page = () => {
   return (
     <main>
-      <MOTFlashGame strobeA={1000} strobeB={100} isRandom={true} />
+      <MOTFlashGame />
     </main>
   );
 };
