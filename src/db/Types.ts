@@ -49,6 +49,6 @@ export interface MOT_Flash_Data {
   duration: number;
   numPracticeRounds: number;
   trialRounds: number;
-  visibleTime: number;
-  invisibleTime: number;
+  randomnessMean: number;
+  randomnessStd: number;
 }

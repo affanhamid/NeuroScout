@@ -16,7 +16,6 @@ import type {
 import { TrialCompletedDialog } from "../modals/TrialCompletedDialog";
 
 export interface GameInterface<TData, TParam> {
-  submitData: (formData: Record<string, any>) => Promise<void>;
   instructions: { steps: InstructionStepInterface[] };
   formFields: FormFieldInterface[];
   calculateScores: (
@@ -24,15 +23,6 @@ export interface GameInterface<TData, TParam> {
     params: TParam,
     practiceRounds: number
   ) => { currentScore: number; perfectScore: number };
-  render: (
-    canvas: HTMLCanvasElement,
-    animationFrameIdRef: React.MutableRefObject<number | null>,
-    setTrial: (trial: number) => void,
-    setIsRunning: (isRunning: boolean) => void,
-    trial: number,
-    isPractice: boolean
-  ) => void;
-  dataRef: React.MutableRefObject<TData | null>;
 }
 
 export interface GameState {
@@ -62,12 +52,14 @@ class Game<
   TParam extends {}
 > extends Component<GameInterface<TData, TParam>, GameState> {
   canvasRef = createRef<HTMLCanvasElement>();
-  animationFrameIdRef = createRef<number | null>();
+  animationFrameIdRef: MutableRefObject<number | null> = createRef();
   isPracticeRef: MutableRefObject<boolean | null> = createRef<boolean | null>();
+  dataRef: MutableRefObject<TData | null> = createRef();
+  renderGame: () => void = () => {};
+  submitData: (formData: Record<string, any>) => Promise<void> = async () => {};
 
   constructor(props: GameInterface<TData, TParam>) {
     super(props);
-
     this.state = {
       trial: 1,
       isRunning: false,
@@ -93,15 +85,7 @@ class Game<
     prevState: GameState
   ) {
     if (prevState.isRunning !== this.state.isRunning && this.state.isRunning) {
-      this.canvasRef.current &&
-        this.props.render(
-          this.canvasRef.current,
-          this.animationFrameIdRef,
-          (trial) => this.setState({ trial }), // Updated to avoid functional state
-          (isRunning) => this.setState({ isRunning }),
-          this.state.trial,
-          this.isPracticeRef.current!
-        );
+      this.canvasRef.current && this.renderGame();
     } else if (
       prevState.isRunning !== this.state.isRunning &&
       !this.state.isRunning
@@ -112,12 +96,11 @@ class Game<
 
   handleTrialCompletion() {
     const { trial } = this.state;
-    const { dataRef } = this.props;
 
     if (this.isPracticeRef.current) {
       if (
-        dataRef?.current?.numPracticeRounds &&
-        trial === dataRef?.current?.numPracticeRounds + 1
+        this.dataRef?.current?.numPracticeRounds &&
+        trial === this.dataRef?.current?.numPracticeRounds + 1
       ) {
         this.isPracticeRef.current = false;
         this.setState({ trial: 1, showPracticeComplete: true });
@@ -126,8 +109,8 @@ class Game<
       }
     } else {
       if (
-        dataRef?.current?.trialRounds &&
-        trial === dataRef?.current?.trialRounds + 1
+        this.dataRef?.current?.trialRounds &&
+        trial === this.dataRef?.current?.trialRounds + 1
       ) {
         this.setState({ showThankYou: true });
       } else {
@@ -137,8 +120,7 @@ class Game<
   }
 
   onSubmit = async (formData: Record<string, any>) => {
-    const { submitData, dataRef } = this.props;
-    dataRef.current && (await submitData(formData));
+    this.dataRef.current && (await this.submitData(formData));
     this.setState({ showResults: true });
   };
 
@@ -146,20 +128,8 @@ class Game<
     this.setState({ isRunning: true });
   };
 
-  startPractice = () => {
-    this.startGame();
-  };
-
-  startActualGame = () => {
-    this.startGame();
-  };
-
   onCountdownComplete = () => {
-    if (this.isPracticeRef.current) {
-      this.startPractice();
-    } else {
-      this.startActualGame();
-    }
+    this.startGame();
   };
 
   render() {
@@ -170,10 +140,9 @@ class Game<
       showPracticeComplete,
       showCountdown,
       showTrialComplete,
-      isRunning,
       trial,
     } = this.state;
-    const { instructions, formFields, dataRef, calculateScores } = this.props;
+    const { instructions, formFields, calculateScores } = this.props;
 
     return (
       <div className="bg-game-background h-screen w-screen flex flex-col items-center justify-center">
@@ -189,10 +158,10 @@ class Game<
           </div>
         )}
         <div className="absolute top-10 right-10 text-white text-2xl text-left">
-          {this.isPracticeRef.current && dataRef?.current?.trialRounds
-            ? `Practice Trial: ${trial}/${dataRef.current.numPracticeRounds}`
-            : dataRef?.current?.trialRounds &&
-              `Trial: ${trial}/${dataRef.current.trialRounds}`}
+          {this.isPracticeRef.current && this.dataRef?.current?.trialRounds
+            ? `Practice Trial: ${trial}/${this.dataRef.current.numPracticeRounds}`
+            : this.dataRef?.current?.trialRounds &&
+              `Trial: ${trial}/${this.dataRef.current.trialRounds}`}
         </div>
         <InstructionDialog
           show={showInstructions}
@@ -225,9 +194,9 @@ class Game<
         <ResultsDialog<TParam>
           show={showResults}
           onClose={() => this.setState({ showResults: false })}
-          scores={dataRef?.current?.scores || []}
-          practiceRounds={dataRef?.current?.numPracticeRounds || 0}
-          params={dataRef?.current?.params as TParam}
+          scores={this.dataRef?.current?.scores || []}
+          practiceRounds={this.dataRef?.current?.numPracticeRounds || 0}
+          params={this.dataRef?.current?.params as TParam}
           calculateScore={calculateScores}
         />
       </div>

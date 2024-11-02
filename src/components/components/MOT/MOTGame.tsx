@@ -9,8 +9,6 @@ import {
 } from "./Ball";
 
 import { MOT_Data } from "@/db/Types";
-import { MOTCalculateScore } from "./scoring";
-import { instructions, formFields } from "./metaData";
 import Game, { GameInterface, GameState } from "../Game/Game";
 
 export interface MOTParams {
@@ -21,35 +19,32 @@ export interface MOTGameState extends GameState {
   vts: number;
 }
 
-class MOTGame extends Game<MOT_Data, MOTParams> {
+class MOTGame<BallType extends Ball> extends Game<MOT_Data, MOTParams> {
   highlightedBallsRef: MutableRefObject<number[] | null> =
     createRef<number[]>();
+  ballsRef: MutableRefObject<BallType[] | null> = createRef();
   actualBallsRef: MutableRefObject<number[] | null> = createRef();
   clickedBallsRef: MutableRefObject<Set<number> | null> = createRef();
   wrongBallsRef: MutableRefObject<number[] | null> = createRef();
   correctBallsRef: MutableRefObject<number[] | null> = createRef();
   isClickableRef: MutableRefObject<boolean | null> = createRef();
-  durationRef: MutableRefObject<number | null> = createRef();
   ballRadiusRef: MutableRefObject<number | null> = createRef();
   startingVtsRef: MutableRefObject<number | null> = createRef();
   gameEndTimeRef: MutableRefObject<number | null> = createRef();
-  totalPracticeTrialsRef: MutableRefObject<number | null> = createRef();
-  totalTrialsRef: MutableRefObject<number | null> = createRef();
   dataRef: MutableRefObject<MOT_Data | null> = createRef();
+  ctxRef: MutableRefObject<CanvasRenderingContext2D | null> = createRef();
+  tableName: string = "MOT_DATA";
 
   state: MOTGameState = {
-    ...this.state, // Initialize inherited state
-    vts: 3, // Add vts specifically for MOTGame
+    ...this.state,
+    vts: 3,
   };
 
   setParams = async () => {
     try {
       const response = await fetch("/api/get-mot-params");
       const result = await response.json();
-      this.durationRef.current = result[0].duration;
       this.startingVtsRef.current = result[0].starting_vts;
-      this.totalPracticeTrialsRef.current = result[0].practice_trials;
-      this.totalTrialsRef.current = result[0].trials;
 
       this.highlightedBallsRef.current = [];
       this.actualBallsRef.current = [];
@@ -80,16 +75,20 @@ class MOTGame extends Game<MOT_Data, MOTParams> {
 
   constructor(props: GameInterface<MOT_Data, MOTParams>) {
     super(props);
+
     this.setParams();
   }
 
-  clickEventDuringGame() {}
-
-  createBalls(canvas: HTMLCanvasElement) {
-    return createBalls(canvas, this.ballRadiusRef.current!, 8, Ball);
+  createBalls() {
+    this.ballsRef.current = createBalls(
+      this.canvasRef.current!,
+      this.ballRadiusRef.current!,
+      8,
+      Ball
+    ) as BallType[];
   }
 
-  setup = (canvas: HTMLCanvasElement) => {
+  setup = () => {
     let currentSpeed = 0.01;
     this.ballRadiusRef.current = Math.max(
       Math.round(window.innerWidth / 27),
@@ -97,32 +96,29 @@ class MOTGame extends Game<MOT_Data, MOTParams> {
     );
 
     this.dataRef.current!.ballSize = this.ballRadiusRef.current!;
-    const balls = this.createBalls(canvas);
+    this.createBalls();
 
     const uniqueIndices = new Set<number>();
     while (uniqueIndices.size < 4) {
-      uniqueIndices.add(Math.floor(Math.random() * balls.length));
+      uniqueIndices.add(
+        Math.floor(Math.random() * this.ballsRef.current!.length)
+      );
     }
     this.highlightedBallsRef.current = Array.from(uniqueIndices);
     this.actualBallsRef.current = this.highlightedBallsRef.current;
 
-    return { currentSpeed, balls };
+    return { currentSpeed };
   };
 
-  update = (
-    balls: Ball[],
-    currentSpeed: number,
-    canvas: HTMLCanvasElement,
-    ctx: CanvasRenderingContext2D
-  ) => {
-    resolveCollisionsWithWalls(balls, currentSpeed, canvas);
+  update = (balls: BallType[], currentSpeed: number) => {
+    resolveCollisionsWithWalls(balls, currentSpeed, this.canvasRef.current!);
     resolveCollisions(balls, currentSpeed);
 
     balls.forEach((ball, index) =>
       ball.drawBall(
         ball,
         this.highlightedBallsRef.current!.includes(index),
-        ctx,
+        this.ctxRef.current!,
         this.wrongBallsRef.current &&
           this.wrongBallsRef.current!.includes(index),
         this.correctBallsRef.current &&
@@ -149,29 +145,61 @@ class MOTGame extends Game<MOT_Data, MOTParams> {
     return { score: score, wrongBalls: wrongBalls, correctBalls: correctBalls };
   };
 
-  renderGame = (
-    canvas: HTMLCanvasElement,
-    animationFrameIdRef: React.MutableRefObject<number | null>,
-    setTrial: (trial: number) => void,
-    setIsRunning: (isRunning: boolean) => void,
-    trial: number,
-    isPractice: boolean
-  ) => {
-    const ctx = canvas.getContext("2d")!;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+  clickEventDuringGame(
+    event: MouseEvent,
+    balls: BallType[],
+    canvas: HTMLCanvasElement
+  ) {}
 
-    let { currentSpeed, balls } = this.setup(canvas);
+  renderGame = () => {
+    this.ctxRef.current = this.canvasRef.current!.getContext("2d")!;
+    this.canvasRef.current!.width = window.innerWidth;
+    this.canvasRef.current!.height = window.innerHeight;
+
+    let { currentSpeed } = this.setup();
+    const balls = this.ballsRef.current!;
+
+    var stop = false;
+    var frameCount = 0;
+    var fps: number;
+    var fpsInterval: number;
+    var startTime: number;
+    var now: number;
+    var then: number;
+    var elapsed: number;
+
+    function startAnimating(fps: number) {
+      fpsInterval = 1000 / fps;
+      then = Date.now();
+      startTime = then;
+      animate();
+    }
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#1B1B1B";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      this.update(balls, currentSpeed, canvas, ctx);
+      this.animationFrameIdRef.current = requestAnimationFrame(animate);
 
-      animationFrameIdRef.current = requestAnimationFrame(animate);
+      now = Date.now();
+      elapsed = now - then;
+
+      if (elapsed > fpsInterval) {
+        this.ctxRef.current!.clearRect(
+          0,
+          0,
+          this.canvasRef.current!.width,
+          this.canvasRef.current!.height
+        );
+        this.ctxRef.current!.fillStyle = "#1B1B1B";
+        this.ctxRef.current!.fillRect(
+          0,
+          0,
+          this.canvasRef.current!.width,
+          this.canvasRef.current!.height
+        );
+        this.update(balls, currentSpeed);
+        then = now - (elapsed % fpsInterval);
+      }
     };
-    animate();
+    startAnimating(120);
 
     setTimeout(() => {
       currentSpeed = this.state.vts;
@@ -179,21 +207,24 @@ class MOTGame extends Game<MOT_Data, MOTParams> {
     }, 1000);
 
     const timerId = setTimeout(() => {
-      if (animationFrameIdRef.current) {
+      if (this.animationFrameIdRef.current) {
         currentSpeed = 0;
       }
-      this.isClickableRef.current = true;
+      this.canvasRef.current!.addEventListener("click", clickEventAfterGame);
       this.gameEndTimeRef.current = Date.now();
-      balls.forEach((ball) => ball.reset());
-    }, this.durationRef.current! * 1000);
+      this.ballsRef.current!.forEach((ball) => ball.reset());
+      this.canvasRef.current!.removeEventListener(
+        "click",
+        clickEventDuringGame
+      );
+    }, this.dataRef.current!.duration * 1000);
 
-    const handleClick = (event: MouseEvent) => {
-      if (!this.isClickableRef.current) return;
-      const rect = canvas.getBoundingClientRect();
+    const clickEventAfterGame = (event: MouseEvent) => {
+      const rect = this.canvasRef.current!.getBoundingClientRect();
       const mouseX = event.clientX - rect.left;
       const mouseY = event.clientY - rect.top;
 
-      balls.forEach((ball, index) => {
+      this.ballsRef.current!.forEach((ball, index) => {
         const dx = mouseX - ball.x;
         const dy = mouseY - ball.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -205,7 +236,10 @@ class MOTGame extends Game<MOT_Data, MOTParams> {
           );
 
           if (this.clickedBallsRef.current!.size === 4) {
-            canvas.removeEventListener("click", handleClick);
+            this.canvasRef.current!.removeEventListener(
+              "click",
+              clickEventAfterGame
+            );
 
             const { score, wrongBalls, correctBalls } = this.calculateScore(
               Array.from(this.clickedBallsRef.current!),
@@ -216,7 +250,7 @@ class MOTGame extends Game<MOT_Data, MOTParams> {
             this.correctBallsRef.current = correctBalls;
 
             setTimeout(() => {
-              this.update(balls, currentSpeed, canvas, ctx);
+              this.update(balls, currentSpeed);
             }, 10);
 
             if (score === 4) {
@@ -233,17 +267,17 @@ class MOTGame extends Game<MOT_Data, MOTParams> {
               this.wrongBallsRef.current = [];
               this.correctBallsRef.current = [];
               setTimeout(() => {
-                setTrial(trial + 1);
+                this.setState({ trial: this.state.trial + 1 });
 
                 if (
-                  isPractice &&
-                  trial + 1 > this.dataRef.current!.numPracticeRounds
+                  this.isPracticeRef.current &&
+                  this.state.trial + 1 > this.dataRef.current!.numPracticeRounds
                 ) {
                   this.setState({
                     vts: this.startingVtsRef.current!,
                   } as MOTGameState);
                 }
-                setIsRunning(false);
+                this.setState({ isRunning: false });
               }, 500);
             }, 1000);
           }
@@ -251,36 +285,45 @@ class MOTGame extends Game<MOT_Data, MOTParams> {
       });
     };
 
-    canvas.addEventListener("click", handleClick);
-    canvas.addEventListener("click", this.clickEventDuringGame);
+    const clickEventDuringGame = (event: MouseEvent) => {
+      this.clickEventDuringGame(
+        event,
+        this.ballsRef.current!,
+        this.canvasRef.current!
+      );
+    };
+
+    this.canvasRef.current!.addEventListener("click", clickEventDuringGame);
 
     return () => {
-      if (animationFrameIdRef.current) {
-        cancelAnimationFrame(animationFrameIdRef.current);
+      if (this.animationFrameIdRef.current) {
+        cancelAnimationFrame(this.animationFrameIdRef.current);
       }
       clearTimeout(timerId);
     };
   };
 
-  onBeforeSubmit = (formData: Record<string, any>) => {
+  addFormData = (formData: Record<string, any>) => {
     this.dataRef.current!.age = parseInt(formData.age);
     this.dataRef.current!.highestLevel = formData.highestLevel;
     this.dataRef.current!.screenWidth = window.innerWidth;
     this.dataRef.current!.screenHeight = window.innerHeight;
     this.dataRef.current!.params.vts = this.state.vts;
-    return "MOT_DATA";
   };
 
   submitData = async (formData: Record<string, any>) => {
-    const tableName = this.onBeforeSubmit(formData);
-    console.log("submitting data to table", tableName);
+    this.addFormData(formData);
+    console.log("submitting data to table", this.tableName);
     try {
       const response = await fetch("/api/add-mot-data", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...this.dataRef.current!, table: tableName }),
+        body: JSON.stringify({
+          ...this.dataRef.current!,
+          table: this.tableName,
+        }),
       });
 
       const result = await response.json();
@@ -293,24 +336,6 @@ class MOTGame extends Game<MOT_Data, MOTParams> {
       console.error("Error submitting data:", error);
     }
   };
-
-  render() {
-    return (
-      <div>
-        <div className="absolute top-20 right-10 text-white text-2xl text-left">
-          {`Current Speed: ${this.state.vts}`}
-        </div>
-        <Game<MOT_Data, MOTParams>
-          submitData={this.submitData}
-          instructions={instructions}
-          formFields={formFields}
-          calculateScores={MOTCalculateScore}
-          render={this.renderGame}
-          dataRef={this.dataRef}
-        />
-      </div>
-    );
-  }
 }
 
 export default MOTGame;
