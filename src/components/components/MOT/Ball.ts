@@ -1,3 +1,5 @@
+import { MutableRefObject } from "react";
+
 export const BASE_COLOR = "#FDDA0D";
 export const HIGHLIGHT_COLOR = "#007FFF";
 export const FLASH_COLOR = "#00FF00";
@@ -151,8 +153,8 @@ export const resolveCollisionsWithWalls = (
 
     // Bounce off the walls, ensuring the ball doesn't get stuck in the wall
     if (ball.x - ball.radius < 0) {
-      ball.x = ball.radius; // Reset position
-      ball.vx *= -1; // Reverse velocity
+      ball.x = ball.radius;
+      ball.vx *= -1;
     }
     if (ball.x + ball.radius > canvas.width) {
       ball.x = canvas.width - ball.radius;
@@ -265,6 +267,8 @@ export class StrobeBall extends Ball {
 export class FlashBall extends Ball {
   strobeInterval: NodeJS.Timeout | null = null;
   isFlashed: boolean;
+  reactionTimesRef: MutableRefObject<number[]>;
+  isReset: boolean;
   constructor(
     x: number,
     y: number,
@@ -272,15 +276,28 @@ export class FlashBall extends Ball {
     ballRadius: number,
     currentSpeed: number,
     color: string,
-    reactionTimes: number[]
+    reactionTimesRef: MutableRefObject<number[]>
   ) {
     super(x, y, angle, ballRadius, currentSpeed, color);
-
+    this.reactionTimesRef = reactionTimesRef;
     this.isFlashed = false;
+    this.isReset = false;
   }
 
   flash() {
     this.isFlashed = true;
+    this.reactionTimesRef.current.push(Date.now());
+  }
+
+  reset() {
+    this.isFlashed = false;
+    this.isReset = true;
+  }
+
+  click(flashNextBall: () => void) {
+    this.isFlashed = false;
+    this.reactionTimesRef.current.push(Date.now());
+    !this.isReset && flashNextBall();
   }
 
   getColor(): string {

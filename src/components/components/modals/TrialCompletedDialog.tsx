@@ -40,7 +40,7 @@ export const TrialCompletedDialog: React.FC<TrialCopmletedDialogProps> = ({
             onClick={onClose}
             className="text-black bg-green-500 px-6 py-3 rounded-md hover:bg-green-600"
           >
-            Start Trial
+            Start Round
           </Button>
         </DialogDescription>
       </DialogContent>
