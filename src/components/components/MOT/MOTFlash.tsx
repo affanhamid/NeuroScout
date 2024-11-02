@@ -9,6 +9,7 @@ import { MOTGameState, MOTParams } from "./MOTGame";
 
 class MOTFlashGame extends MOTGame {
   dataRef: MutableRefObject<MOT_Flash_Data | null> = createRef();
+  reactionsTimesRef: MutableRefObject<number[] | null> = createRef();
 
   state: MOTGameState = {
     ...this.state,
@@ -66,15 +67,39 @@ class MOTFlashGame extends MOTGame {
     return "MOT_FLASH_DATA";
   };
 
+  selectRandomBallToFlash = (balls: FlashBall[]) => {
+    const randomBall = balls[Math.floor(Math.random() * balls.length)];
+    console.log(randomBall);
+    randomBall.flash();
+    return randomBall;
+  };
+
+  clickEventDuringGame(event: MouseEvent, canvas: HTMLCanvasElement) {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    this.balls.forEach((ball, index) => {
+      const dx = mouseX - ball.x;
+      const dy = mouseY - ball.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance < ball.radius) {
+      }
+    });
+  }
+
   createBalls(canvas: HTMLCanvasElement) {
-    return createBalls(
+    const balls = createBalls(
       canvas,
       this.ballRadiusRef.current!,
       8,
       FlashBall,
-      this.dataRef.current!.visibleTime,
-      this.dataRef.current!.invisibleTime
+      this.reactionsTimesRef.current!
     );
+    setTimeout(() => {
+      this.selectRandomBallToFlash(balls);
+    }, 1000);
+    this.balls = balls;
   }
 }
 
