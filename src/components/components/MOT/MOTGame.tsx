@@ -159,47 +159,25 @@ class MOTGame<BallType extends Ball> extends Game<MOT_Data, MOTParams> {
     let { currentSpeed } = this.setup();
     const balls = this.ballsRef.current!;
 
-    var stop = false;
-    var frameCount = 0;
-    var fps: number;
-    var fpsInterval: number;
-    var startTime: number;
-    var now: number;
-    var then: number;
-    var elapsed: number;
-
-    function startAnimating(fps: number) {
-      fpsInterval = 1000 / fps;
-      then = Date.now();
-      startTime = then;
-      animate();
-    }
-
     const animate = () => {
       this.animationFrameIdRef.current = requestAnimationFrame(animate);
 
-      now = Date.now();
-      elapsed = now - then;
-
-      if (elapsed > fpsInterval) {
-        this.ctxRef.current!.clearRect(
-          0,
-          0,
-          this.canvasRef.current!.width,
-          this.canvasRef.current!.height
-        );
-        this.ctxRef.current!.fillStyle = "#1B1B1B";
-        this.ctxRef.current!.fillRect(
-          0,
-          0,
-          this.canvasRef.current!.width,
-          this.canvasRef.current!.height
-        );
-        this.update(balls, currentSpeed);
-        then = now - (elapsed % fpsInterval);
-      }
+      this.ctxRef.current!.clearRect(
+        0,
+        0,
+        this.canvasRef.current!.width,
+        this.canvasRef.current!.height
+      );
+      this.ctxRef.current!.fillStyle = "#1B1B1B";
+      this.ctxRef.current!.fillRect(
+        0,
+        0,
+        this.canvasRef.current!.width,
+        this.canvasRef.current!.height
+      );
+      this.update(balls, currentSpeed);
     };
-    startAnimating(120);
+    animate();
 
     setTimeout(() => {
       currentSpeed = this.state.vts;
