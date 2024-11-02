@@ -83,6 +83,8 @@ class MOTGame extends Game<MOT_Data, MOTParams> {
     this.setParams();
   }
 
+  clickEventDuringGame() {}
+
   createBalls(canvas: HTMLCanvasElement) {
     return createBalls(canvas, this.ballRadiusRef.current!, 8, Ball);
   }
@@ -250,6 +252,7 @@ class MOTGame extends Game<MOT_Data, MOTParams> {
     };
 
     canvas.addEventListener("click", handleClick);
+    canvas.addEventListener("click", this.clickEventDuringGame);
 
     return () => {
       if (animationFrameIdRef.current) {

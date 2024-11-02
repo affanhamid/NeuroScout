@@ -1,5 +1,6 @@
 export const BASE_COLOR = "#FDDA0D";
 export const HIGHLIGHT_COLOR = "#007FFF";
+export const FLASH_COLOR = "#00FF00";
 export const WRONG_COLOR = "#FF0000";
 export const CORRECT_COLOR = "#00FF00";
 
@@ -263,9 +264,7 @@ export class StrobeBall extends Ball {
 
 export class FlashBall extends Ball {
   strobeInterval: NodeJS.Timeout | null = null;
-  isVisible: boolean;
-  visibleTime: number;
-  invisibleTime: number;
+  isFlashed: boolean;
   constructor(
     x: number,
     y: number,
@@ -273,32 +272,19 @@ export class FlashBall extends Ball {
     ballRadius: number,
     currentSpeed: number,
     color: string,
-    visibleTime: number,
-    invisibleTime: number
+    reactionTimes: number[]
   ) {
     super(x, y, angle, ballRadius, currentSpeed, color);
 
-    this.isVisible = true;
-    this.visibleTime = Math.floor(Math.random() * visibleTime) + 100;
-    this.invisibleTime = Math.floor(Math.random() * invisibleTime);
-    this.interval();
+    this.isFlashed = false;
   }
 
-  interval() {
-    this.strobeInterval = setInterval(() => {
-      this.isVisible = false;
-      setTimeout(() => {
-        this.isVisible = true;
-      }, this.invisibleTime);
-    }, this.invisibleTime + this.visibleTime + 1000);
-  }
-
-  reset() {
-    clearInterval(this.strobeInterval!);
+  flash() {
+    this.isFlashed = true;
   }
 
   getColor(): string {
-    return this.isVisible ? this.color : "transparent";
+    return this.isFlashed ? FLASH_COLOR : this.color;
   }
 }
 
