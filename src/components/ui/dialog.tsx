@@ -9,7 +9,7 @@ const DialogTrigger = DialogPrimitive.Trigger;
 const DialogPortal = DialogPrimitive.Portal;
 const DialogClose = DialogPrimitive.Close;
 
-const HomeButton = () => {
+const HomeButton = React.forwardRef(() => {
   return (
     <Link
       className="fixed top-5 left-10 text-white flex items-center gap-2 text-xl z-[60] cursor-pointer pointer-events-auto group"
@@ -18,9 +18,7 @@ const HomeButton = () => {
       <ArrowLeftIcon className="w-10 h-10 text-red-700 group-hover:-translate-x-3 transition-transform font-bold" />
     </Link>
   );
-};
-
-export default HomeButton;
+});
 
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,

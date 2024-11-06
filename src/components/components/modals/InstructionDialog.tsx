@@ -54,6 +54,7 @@ export const InstructionDialog = ({
     <Dialog open={show}>
       <DialogContent className="border-none bg-game-background shadow-none">
         <DialogHeader className="relative">
+          <DialogTitle></DialogTitle>
           <DialogDescription className="text-white">
             {steps[stepIndex].tsx}
           </DialogDescription>
