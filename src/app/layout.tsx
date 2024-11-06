@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { getSession } from "./api/auth/[...nextauth]/auth";
+import Providers from "./providers";
 
 export const metadata: Metadata = {
   title: "NeuroScout",
@@ -12,11 +14,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getSession();
   return (
     <html lang="en">
       <body>
-        <main>{children}</main>
-        {/* <Navbar /> */}
+        <Providers session={session}>
+          <main>{children}</main>
+        </Providers>
       </body>
     </html>
   );

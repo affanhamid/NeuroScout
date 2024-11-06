@@ -16,7 +16,7 @@ class TNTStroboscopicGame extends TNTGame<StrobeBall> {
   };
   setParams = async () => {
     try {
-      const response = await fetch("/api/get-tnt-strobe-params");
+      const response = await fetch("/api/get-data?dataTable=TNT_STROBE_PARAMS");
       const result = await response.json();
       this.startingVtsRef.current = result[0].starting_vts;
       this.dataRef.current!.strobeA = result[0].strobe_a;
