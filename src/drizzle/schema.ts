@@ -71,6 +71,4 @@ export const TNT_FLASH_PARAMS = pgTable("TNT_FLASH_PARAMS", {
   starting_vts: integer("starting_vts").notNull(),
   practice_trials: integer("practice_trials").notNull(),
   trials: integer("trials").notNull(),
-  visible_time: real("visible_time").notNull(),
-  invisible_time: real("invisible_time").notNull(),
 });
