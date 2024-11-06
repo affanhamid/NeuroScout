@@ -1,6 +1,6 @@
 "use client";
 import Navbar from "@/components/components/Navbar";
-import MOTGameImage from "@/public/MOT.png";
+import TNTGameImage from "@/public/TNT.png";
 import Image from "next/image";
 import * as schema from "@/drizzle/schema";
 
@@ -15,43 +15,6 @@ export default function Home() {
           cognitive abilities to unlock your football potential. Are you ready
           to level up?
         </p>
-        <button
-          className="bg-white text-purple-600 py-3 px-6 rounded-lg font-semibold"
-          onClick={async () => {
-            try {
-              const response = await fetch("/api/add-mot-data", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  timeOfData: new Date(),
-                  params: { vts: 3 },
-                  scores: [1, 2, 3],
-                  age: 10,
-                  highestLevel: "high",
-                  timeToClicks: [1, 2, 3],
-                  screenWidth: 100,
-                  screenHeight: 100,
-                  ballSize: 100,
-                  duration: 10,
-                  numPracticeRounds: 1,
-                }),
-              });
-
-              const result = await response.json();
-              if (result.success) {
-                console.log("Data added successfully:", result.message);
-              } else {
-                console.error("Failed to add data:", result.message);
-              }
-            } catch (error) {
-              console.error("Error submitting data:", error);
-            }
-          }}
-        >
-          Get Started
-        </button>
       </section>
 
       <section className="py-20 bg-white text-gray-800">
@@ -96,7 +59,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row md:space-x-10">
             <div className="flex-1 mb-10 md:mb-0">
               <Image
-                src={MOTGameImage}
+                src={TNTGameImage}
                 alt="How NeuroScout Works"
                 className="w-full h-auto rounded-lg shadow-md"
               />

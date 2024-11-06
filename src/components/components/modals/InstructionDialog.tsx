@@ -52,12 +52,12 @@ export const InstructionDialog = ({
 
   return (
     <Dialog open={show}>
-      <DialogContent>
+      <DialogContent className="border-none bg-game-background shadow-none">
         <DialogHeader className="relative">
-          <DialogDescription className="text-white mt-5">
+          <DialogDescription className="text-white">
             {steps[stepIndex].tsx}
           </DialogDescription>
-          <div className="absolute top-0 left-0 right-0 bottom-0 flex  justify-between items-center">
+          <div className="absolute top-0 left-0 right-0 bottom-0 flex justify-between items-center">
             {stepIndex > 0 && (
               <Button
                 onClick={handleBack}
@@ -68,7 +68,8 @@ export const InstructionDialog = ({
             )}
             <Button
               onClick={handleNext}
-              className={`absolute left-[110%] text-green-500 bg-transparent border-none shadow-none outline-none ${
+              style={{ outline: "none", boxShadow: "none" }}
+              className={`absolute left-[110%] text-green-500 bg-transparent border-none shadow-none outline-none focus:outline-none focus:ring-0 ${
                 isLastStep ? "bg-green-500 text-black hover:bg-green-600" : ""
               }`}
             >
