@@ -2,7 +2,7 @@ import "@/drizzle/envConfig";
 import { drizzle } from "drizzle-orm/vercel-postgres";
 import { sql, createPool } from "@vercel/postgres";
 import * as schema from "../drizzle/schema";
-import { MOT_Data, MOT_Flash_Data, MOT_Strobe_Data } from "@/db/Types";
+import { TNT_Data, TNT_Flash_Data, TNT_Strobe_Data } from "@/db/Types";
 
 const connectionString = process.env.POSTGRES_URL;
 if (!connectionString) {
@@ -15,13 +15,13 @@ export const db = drizzle(client, {
   schema,
 });
 
-export const addMOTData = async (data: MOT_Data) => {
+export const addTNTData = async (data: TNT_Data) => {
   const timeOfData =
     typeof data.timeOfData === "string"
       ? new Date(data.timeOfData)
       : data.timeOfData;
 
-  const result = await db.insert(schema.MOT_DATA).values({
+  const result = await db.insert(schema.TNT_DATA).values({
     time_of_data: timeOfData,
     vts: data.params.vts,
     scores: data.scores,
@@ -37,13 +37,13 @@ export const addMOTData = async (data: MOT_Data) => {
   console.log(result);
 };
 
-export async function addMOTStrobeData(data: MOT_Strobe_Data) {
+export async function addTNTStrobeData(data: TNT_Strobe_Data) {
   const timeOfData =
     typeof data.timeOfData === "string"
       ? new Date(data.timeOfData)
       : data.timeOfData;
 
-  await db.insert(schema.MOT_STROBE_DATA).values({
+  await db.insert(schema.TNT_STROBE_DATA).values({
     time_of_data: timeOfData,
     vts: data.params.vts,
     scores: data.scores,
@@ -60,13 +60,13 @@ export async function addMOTStrobeData(data: MOT_Strobe_Data) {
   });
 }
 
-export async function addMOTFlashData(data: MOT_Flash_Data) {
+export async function addTNTFlashData(data: TNT_Flash_Data) {
   const timeOfData =
     typeof data.timeOfData === "string"
       ? new Date(data.timeOfData)
       : data.timeOfData;
 
-  await db.insert(schema.MOT_FLASH_DATA).values({
+  await db.insert(schema.TNT_FLASH_DATA).values({
     time_of_data: timeOfData,
     vts: data.params.vts,
     scores: data.scores,
@@ -78,22 +78,20 @@ export async function addMOTFlashData(data: MOT_Flash_Data) {
     ball_size: data.ballSize,
     duration: data.duration,
     num_practice_rounds: data.numPracticeRounds,
-    visible_time: data.visibleTime,
-    invisible_time: data.invisibleTime,
   });
 }
 
-export async function getMOTParams() {
-  const result = await db.select().from(schema.MOT_PARAMS);
+export async function getTNTParams() {
+  const result = await db.select().from(schema.TNT_PARAMS);
   return result;
 }
 
-export async function getMOTStrobeParams() {
-  const result = await db.select().from(schema.MOT_STROBE_PARAMS);
+export async function getTNTStrobeParams() {
+  const result = await db.select().from(schema.TNT_STROBE_PARAMS);
   return result;
 }
 
-export async function getMOTFlashParams() {
-  const result = await db.select().from(schema.MOT_FLASH_PARAMS);
+export async function getTNTFlashParams() {
+  const result = await db.select().from(schema.TNT_FLASH_PARAMS);
   return result;
 }

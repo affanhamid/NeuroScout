@@ -1,6 +1,6 @@
 import { pgTable, timestamp, integer, text, real } from "drizzle-orm/pg-core";
 
-export const MOT_DATA = pgTable("MOT_DATA", {
+export const TNT_DATA = pgTable("TNT_DATA", {
   time_of_data: timestamp("time_of_data").notNull(),
   vts: integer("vts").notNull(),
   scores: real("scores").array().notNull(),
@@ -14,7 +14,7 @@ export const MOT_DATA = pgTable("MOT_DATA", {
   num_practice_rounds: integer("num_practice_rounds").notNull(),
 });
 
-export const MOT_STROBE_DATA = pgTable("MOT_STROBE_DATA", {
+export const TNT_STROBE_DATA = pgTable("TNT_STROBE_DATA", {
   time_of_data: timestamp("time_of_data").notNull(),
   vts: integer("vts").notNull(),
   scores: real("scores").array().notNull(),
@@ -30,7 +30,7 @@ export const MOT_STROBE_DATA = pgTable("MOT_STROBE_DATA", {
   strobe_b: real("strobe_b").notNull(),
 });
 
-export const MOT_FLASH_DATA = pgTable("MOT_FLASH_DATA", {
+export const TNT_FLASH_DATA = pgTable("TNT_FLASH_DATA", {
   time_of_data: timestamp("time_of_data").notNull(),
   vts: integer("vts").notNull(),
   scores: real("scores").array().notNull(),
@@ -42,11 +42,9 @@ export const MOT_FLASH_DATA = pgTable("MOT_FLASH_DATA", {
   ball_size: real("ball_size").notNull(),
   duration: real("duration").notNull(),
   num_practice_rounds: integer("num_practice_rounds").notNull(),
-  visible_time: real("visible_time").notNull(),
-  invisible_time: real("invisible_time").notNull(),
 });
 
-export const MOT_PARAMS = pgTable("MOT_PARAMS", {
+export const TNT_PARAMS = pgTable("TNT_PARAMS", {
   number_of_balls: integer("number_of_balls").notNull(),
   target_balls: integer("target_balls").notNull(),
   duration: integer("duration").notNull(),
@@ -55,7 +53,7 @@ export const MOT_PARAMS = pgTable("MOT_PARAMS", {
   trials: integer("trials").notNull(),
 });
 
-export const MOT_STROBE_PARAMS = pgTable("MOT_STROBE_PARAMS", {
+export const TNT_STROBE_PARAMS = pgTable("TNT_STROBE_PARAMS", {
   number_of_balls: integer("number_of_balls").notNull(),
   target_balls: integer("target_balls").notNull(),
   duration: integer("duration").notNull(),
@@ -66,7 +64,7 @@ export const MOT_STROBE_PARAMS = pgTable("MOT_STROBE_PARAMS", {
   strobe_b: real("strobe_b").notNull(),
 });
 
-export const MOT_FLASH_PARAMS = pgTable("MOT_FLASH_PARAMS", {
+export const TNT_FLASH_PARAMS = pgTable("TNT_FLASH_PARAMS", {
   number_of_balls: integer("number_of_balls").notNull(),
   target_balls: integer("target_balls").notNull(),
   duration: integer("duration").notNull(),

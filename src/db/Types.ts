@@ -1,4 +1,4 @@
-export interface MOT_Data {
+export interface TNT_Data {
   timeOfData: Date;
   params: {
     vts: number;
@@ -15,7 +15,7 @@ export interface MOT_Data {
   trialRounds: number;
 }
 
-export interface MOT_Strobe_Data {
+export interface TNT_Strobe_Data {
   timeOfData: Date;
   params: {
     vts: number;
@@ -34,7 +34,7 @@ export interface MOT_Strobe_Data {
   strobeB: number;
 }
 
-export interface MOT_Flash_Data {
+export interface TNT_Flash_Data {
   timeOfData: Date;
   params: {
     vts: number;
