@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { getTNTParams } from "@/db/db";
+import { getTables } from "@/db/db";
 
 export async function GET() {
   try {
-    const result = await getTNTParams();
+    const result = await getTables();
 
     return NextResponse.json(result);
   } catch (error) {

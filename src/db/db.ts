@@ -95,3 +95,27 @@ export async function getTNTFlashParams() {
   const result = await db.select().from(schema.TNT_FLASH_PARAMS);
   return result;
 }
+
+export async function getParams(tableName: string) {
+  const result = await db
+    .select()
+    .from(schema[tableName as keyof typeof schema]);
+  return result;
+}
+
+export async function getData(tableName: string) {
+  const result = await db
+    .select()
+    .from(schema[tableName as keyof typeof schema]);
+  return result;
+}
+
+export async function getTables() {
+  const tables = await db.execute(`
+  SELECT table_name
+  FROM information_schema.tables
+  WHERE table_schema = 'public'
+  AND table_type = 'BASE TABLE';
+`);
+  return tables.rows.map((row) => row.table_name);
+}
