@@ -119,7 +119,7 @@ class TNTFlashGame extends TNTGame<FlashBall> {
     );
 
     this.selectRandomBallToFlash();
-
+    this.shouldFlashRef.current = true;
     setTimeout(() => {
       this.shouldFlashRef.current = false;
     }, this.dataRef.current!.duration * 1000 - 2000);
