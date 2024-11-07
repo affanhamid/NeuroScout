@@ -1,6 +1,17 @@
-import { pgTable, timestamp, integer, text, real } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  timestamp,
+  integer,
+  text,
+  real,
+  boolean,
+  serial,
+} from "drizzle-orm/pg-core";
+
+// Data
 
 export const TNT_DATA = pgTable("TNT_DATA", {
+  id: serial("id").primaryKey(),
   time_of_data: timestamp("time_of_data").notNull(),
   vts: integer("vts").notNull(),
   scores: real("scores").array().notNull(),
@@ -15,6 +26,7 @@ export const TNT_DATA = pgTable("TNT_DATA", {
 });
 
 export const TNT_STROBE_DATA = pgTable("TNT_STROBE_DATA", {
+  id: serial("id").primaryKey(),
   time_of_data: timestamp("time_of_data").notNull(),
   vts: integer("vts").notNull(),
   scores: real("scores").array().notNull(),
@@ -31,6 +43,7 @@ export const TNT_STROBE_DATA = pgTable("TNT_STROBE_DATA", {
 });
 
 export const TNT_FLASH_DATA = pgTable("TNT_FLASH_DATA", {
+  id: serial("id").primaryKey(),
   time_of_data: timestamp("time_of_data").notNull(),
   vts: integer("vts").notNull(),
   scores: real("scores").array().notNull(),
@@ -44,31 +57,39 @@ export const TNT_FLASH_DATA = pgTable("TNT_FLASH_DATA", {
   num_practice_rounds: integer("num_practice_rounds").notNull(),
 });
 
+// Params
+
 export const TNT_PARAMS = pgTable("TNT_PARAMS", {
-  number_of_balls: integer("number_of_balls").notNull(),
-  target_balls: integer("target_balls").notNull(),
+  id: serial("id").primaryKey(),
+  numberOfBalls: integer("number_of_balls").notNull(),
+  targetBalls: integer("target_balls").notNull(),
   duration: integer("duration").notNull(),
-  starting_vts: integer("starting_vts").notNull(),
-  practice_trials: integer("practice_trials").notNull(),
+  startingVTS: integer("starting_vts").notNull(),
+  practiceTrials: integer("practice_trials").notNull(),
   trials: integer("trials").notNull(),
+  inUse: boolean("in_use").default(false),
 });
 
 export const TNT_STROBE_PARAMS = pgTable("TNT_STROBE_PARAMS", {
-  number_of_balls: integer("number_of_balls").notNull(),
-  target_balls: integer("target_balls").notNull(),
+  id: serial("id").primaryKey(),
+  numberOfBalls: integer("number_of_balls").notNull(),
+  targetBalls: integer("target_balls").notNull(),
   duration: integer("duration").notNull(),
-  starting_vts: integer("starting_vts").notNull(),
-  practice_trials: integer("practice_trials").notNull(),
+  startingVts: integer("starting_vts").notNull(),
+  practiceTrials: integer("practice_trials").notNull(),
   trials: integer("trials").notNull(),
-  strobe_a: real("strobe_a").notNull(),
-  strobe_b: real("strobe_b").notNull(),
+  strobeA: real("strobe_a").notNull(),
+  strobeB: real("strobe_b").notNull(),
+  inUse: boolean("in_use").default(false),
 });
 
 export const TNT_FLASH_PARAMS = pgTable("TNT_FLASH_PARAMS", {
-  number_of_balls: integer("number_of_balls").notNull(),
-  target_balls: integer("target_balls").notNull(),
+  id: serial("id").primaryKey(),
+  numberOfBalls: integer("number_of_balls").notNull(),
+  targetBalls: integer("target_balls").notNull(),
   duration: integer("duration").notNull(),
-  starting_vts: integer("starting_vts").notNull(),
-  practice_trials: integer("practice_trials").notNull(),
+  startingVts: integer("starting_vts").notNull(),
+  practiceTrials: integer("practice_trials").notNull(),
   trials: integer("trials").notNull(),
+  inUse: boolean("in_use").default(false),
 });
