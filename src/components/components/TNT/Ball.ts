@@ -38,6 +38,27 @@ export class Ball {
 
   reset() {}
 
+  addMarks(
+    ball: Ball,
+    ctx: CanvasRenderingContext2D,
+    isWrongBall: boolean | null,
+    isCorrectBall: boolean | null
+  ): void {
+    // Set the font size based on the ball radius
+    ctx.font = `${ball.radius}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    // Draw tick or cross
+    if (isCorrectBall) {
+      ctx.fillStyle = "rgb(11, 218, 81)";
+      ctx.fillText("✓", ball.x, ball.y);
+    } else if (isWrongBall) {
+      ctx.fillStyle = "red";
+      ctx.fillText("✕", ball.x, ball.y);
+    }
+  }
+
   drawBall(
     ball: Ball,
     isHighlighted: boolean,
@@ -52,19 +73,7 @@ export class Ball {
     ctx.fill();
     ctx.closePath();
 
-    // Set the font size based on the ball radius
-    ctx.font = `${ball.radius}px Arial`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    // Draw tick or cross
-    if (isCorrectBall) {
-      ctx.fillStyle = "rgb(11, 218, 81)";
-      ctx.fillText("✓", ball.x, ball.y);
-    } else if (isWrongBall) {
-      ctx.fillStyle = "red";
-      ctx.fillText("✕", ball.x, ball.y);
-    }
+    this.addMarks(ball, ctx, isWrongBall, isCorrectBall);
   }
 }
 
@@ -242,7 +251,6 @@ export class StrobeBall extends Ball {
     }
 
     // sineWave = this.smoothstep((sineWave + 1) / 2) * 2 - 1;
-
     const normalizedProgress = (sineWave + 1) / 2;
 
     // Colors to interpolate between
@@ -268,7 +276,10 @@ export class FlashBall extends Ball {
   strobeInterval: NodeJS.Timeout | null = null;
   isFlashed: boolean;
   reactionTimesRef: MutableRefObject<number[]>;
-  isReset: boolean;
+  glowIntensity: number;
+  maxGlowIntensity: number;
+  shadowSize: number;
+
   constructor(
     x: number,
     y: number,
@@ -281,27 +292,88 @@ export class FlashBall extends Ball {
     super(x, y, angle, ballRadius, currentSpeed, color);
     this.reactionTimesRef = reactionTimesRef;
     this.isFlashed = false;
-    this.isReset = false;
+    this.glowIntensity = 0;
+    this.maxGlowIntensity = 1;
+    this.shadowSize = 0; // Initialize shadow size
+  }
+
+  reset() {
+    this.isFlashed = false;
+    this.glowIntensity = 0;
+    this.shadowSize = 0;
+    if (this.strobeInterval) {
+      clearInterval(this.strobeInterval);
+      this.strobeInterval = null;
+    }
   }
 
   flash() {
     this.isFlashed = true;
     this.reactionTimesRef.current.push(Date.now());
+    this.increaseGlow();
   }
 
-  reset() {
+  increaseGlow() {
+    this.glowIntensity = 0;
+    this.shadowSize = 10; // Start with initial shadow size
+
+    // Gradually increase the shadow size for a bigger glow effect
+    this.strobeInterval = setInterval(() => {
+      if (this.shadowSize < 50) {
+        // Set max shadow size
+        this.shadowSize += 1; // Increase shadow size over time
+      } else {
+        clearInterval(this.strobeInterval!); // Stop when max shadow size is reached
+      }
+    }, 100); // Adjust interval timing for smoother growth
+  }
+
+  resetGlow() {
     this.isFlashed = false;
-    this.isReset = true;
+    this.glowIntensity = 0;
+    this.shadowSize = 0; // Reset shadow size
+    clearInterval(this.strobeInterval!);
   }
 
   click(flashNextBall: () => void) {
     this.isFlashed = false;
+    this.resetGlow();
     this.reactionTimesRef.current.push(Date.now());
-    !this.isReset && flashNextBall();
+    flashNextBall();
   }
 
   getColor(): string {
-    return this.isFlashed ? FLASH_COLOR : this.color;
+    return this.color;
+  }
+
+  drawBall(
+    ball: Ball,
+    isHighlighted: boolean,
+    ctx: CanvasRenderingContext2D,
+    isWrongBall: boolean | null,
+    isCorrectBall: boolean | null
+  ): void {
+    ctx.save(); // Save the canvas state
+
+    // Apply an expanding shadow if the ball is in the "flashed" state
+    if (this.isFlashed) {
+      ctx.shadowBlur = this.shadowSize; // Use expanding shadow size
+      ctx.shadowColor = this.color; // Maintain constant color for the shadow
+    }
+
+    // Draw the ball
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.fillStyle = isHighlighted ? HIGHLIGHT_COLOR : this.getColor();
+    ctx.fill();
+    ctx.closePath();
+
+    // Reset shadow settings to avoid affecting other canvas elements
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = "transparent";
+    ctx.restore(); // Restore canvas state
+
+    this.addMarks(ball, ctx, isWrongBall, isCorrectBall);
   }
 }
 
