@@ -64,7 +64,7 @@ export const TNT_PARAMS = pgTable("TNT_PARAMS", {
   numberOfBalls: integer("number_of_balls").notNull(),
   targetBalls: integer("target_balls").notNull(),
   duration: integer("duration").notNull(),
-  startingVTS: integer("starting_vts").notNull(),
+  startingVts: integer("starting_vts").notNull(),
   practiceTrials: integer("practice_trials").notNull(),
   trials: integer("trials").notNull(),
   inUse: boolean("in_use").default(false),

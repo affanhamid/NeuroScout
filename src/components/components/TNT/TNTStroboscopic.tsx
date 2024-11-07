@@ -35,13 +35,13 @@ class TNTStroboscopicGame extends TNTGame<StrobeBall> {
     try {
       const response = await fetch("/api/get-data?dataTable=TNT_STROBE_PARAMS");
       const result = await response.json();
-      this.startingVtsRef.current = result[0].starting_vts;
+      this.startingVtsRef.current = result[0].startingVts;
       this.dataRef.current!.strobeA = result[0].strobeA;
       this.dataRef.current!.strobeB = result[0].strobeB;
       this.dataRef.current!.duration = result[0].duration;
-      this.dataRef.current!.numPracticeRounds = result[0].practice_trials;
-      this.dataRef.current!.trialRounds = result[0].practice_trials;
-      this.dataRef.current!.params.vts = result[0].starting_vts;
+      this.dataRef.current!.numPracticeRounds = result[0].practiceTrials;
+      this.dataRef.current!.trialRounds = result[0].trials;
+      this.dataRef.current!.params.vts = result[0].startingVts;
     } catch (error) {
       console.error("Error fetching TNT params:", error);
     }
