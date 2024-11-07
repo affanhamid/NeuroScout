@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addTNTData, addTNTFlashData, addTNTStrobeData } from "@/db/db";
+import { addTNTData, addTNTFlashData, addTNTStrobeData } from "@/db";
 
 export async function POST(request: Request) {
   try {

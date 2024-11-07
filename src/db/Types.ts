@@ -52,3 +52,12 @@ export interface TNT_Flash_Data {
   randomnessMean: number;
   randomnessStd: number;
 }
+
+export interface TNT_Params {
+  numberOfBalls: number;
+  targetBalls: number;
+  duration: number;
+  startingVTS: number;
+  practiceTrials: number;
+  trials: number;
+}
