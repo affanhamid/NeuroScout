@@ -22,17 +22,30 @@ export interface TNTGameState extends GameState {
 class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
   highlightedBallsRef: MutableRefObject<number[] | null> =
     createRef<number[]>();
-  ballsRef: MutableRefObject<BallType[] | null> = createRef();
-  actualBallsRef: MutableRefObject<number[] | null> = createRef();
-  clickedBallsRef: MutableRefObject<Set<number> | null> = createRef();
-  wrongBallsRef: MutableRefObject<number[] | null> = createRef();
-  correctBallsRef: MutableRefObject<number[] | null> = createRef();
-  isClickableRef: MutableRefObject<boolean | null> = createRef();
-  ballRadiusRef: MutableRefObject<number | null> = createRef();
-  startingVtsRef: MutableRefObject<number | null> = createRef();
-  gameEndTimeRef: MutableRefObject<number | null> = createRef();
-  dataRef: MutableRefObject<TNT_Data | null> = createRef();
-  ctxRef: MutableRefObject<CanvasRenderingContext2D | null> = createRef();
+  ballsRef: MutableRefObject<BallType[]> = { current: [] };
+  actualBallsRef: MutableRefObject<number[]> = { current: [] };
+  clickedBallsRef: MutableRefObject<Set<number>> = { current: new Set() };
+  wrongBallsRef: MutableRefObject<number[]> = { current: [] };
+  correctBallsRef: MutableRefObject<number[]> = { current: [] };
+  isClickableRef: MutableRefObject<boolean> = { current: false };
+  startingVtsRef: MutableRefObject<number> = { current: 0 };
+  gameEndTimeRef: MutableRefObject<number> = { current: 0 };
+  dataRef: MutableRefObject<TNT_Data> = {
+    current: {
+      timeOfData: new Date(),
+      params: { vts: 0 },
+      scores: [],
+      age: 0,
+      highestLevel: "",
+      timeToClicks: [],
+      screenWidth: 0,
+      screenHeight: 0,
+      ballSize: 0,
+      duration: 0,
+      numPracticeRounds: 0,
+      trialRounds: 0,
+    },
+  };
   tableName: string = "TNT_DATA";
 
   state: TNTGameState = {
@@ -44,45 +57,33 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
     try {
       const response = await fetch("/api/get-data?dataTable=TNT_PARAMS");
       const result = await response.json();
-      this.startingVtsRef.current = result[0].starting_vts;
+      this.startingVtsRef.current = result[0].startingVts;
 
-      this.highlightedBallsRef.current = [];
-      this.actualBallsRef.current = [];
-      this.clickedBallsRef.current = new Set();
-      this.wrongBallsRef.current = [];
-      this.correctBallsRef.current = [];
-      this.isClickableRef.current = false;
-      this.ballRadiusRef.current = 70;
       this.gameEndTimeRef.current = 0;
-      this.dataRef.current = {
-        timeOfData: new Date(),
-        params: { vts: result[0].starting_vts },
-        scores: [],
-        age: 0,
-        highestLevel: "",
-        timeToClicks: [],
-        screenWidth: 0,
-        screenHeight: 0,
-        ballSize: 0,
-        duration: result[0].duration,
-        numPracticeRounds: result[0].practice_trials,
-        trialRounds: result[0].trials,
-      };
+      this.dataRef!.current!.params.vts = result[0].startingVts;
+      this.dataRef!.current!.duration = result[0].duration;
+      this.dataRef!.current!.numPracticeRounds = result[0].practiceTrials;
+      this.dataRef!.current!.trialRounds = result[0].trials;
     } catch (error) {
       console.error("Error fetching TNT params:", error);
     }
   };
 
-  constructor(props: GameInterface<TNT_Data, TNTParams>) {
+  constructor(
+    props: GameInterface<TNT_Data, TNTParams>,
+    fetchParams: boolean = true
+  ) {
     super(props);
 
-    this.setParams();
+    if (fetchParams !== false) {
+      this.setParams();
+    }
   }
 
   createBalls() {
     this.ballsRef.current = createBalls(
       this.canvasRef.current!,
-      this.ballRadiusRef.current!,
+      this.dataRef.current!.ballSize,
       8,
       Ball
     ) as BallType[];
@@ -90,12 +91,11 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
 
   setup = () => {
     let currentSpeed = 0.01;
-    this.ballRadiusRef.current = Math.max(
+    this.dataRef.current!.ballSize = Math.max(
       Math.round(window.innerWidth / 27),
       40
     );
 
-    this.dataRef.current!.ballSize = this.ballRadiusRef.current!;
     this.createBalls();
 
     const uniqueIndices = new Set<number>();

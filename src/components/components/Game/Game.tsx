@@ -52,8 +52,9 @@ class Game<
   TParam extends {}
 > extends Component<GameInterface<TData, TParam>, GameState> {
   canvasRef = createRef<HTMLCanvasElement>();
-  animationFrameIdRef: MutableRefObject<number | null> = createRef();
-  isPracticeRef: MutableRefObject<boolean | null> = createRef<boolean | null>();
+  ctxRef: MutableRefObject<CanvasRenderingContext2D | null> = createRef();
+  animationFrameIdRef: MutableRefObject<number> = { current: 0 };
+  isPracticeRef: MutableRefObject<boolean> = { current: false };
   dataRef: MutableRefObject<TData | null> = createRef();
   renderGame: () => void = () => {};
   submitData: (formData: Record<string, any>) => Promise<void> = async () => {};

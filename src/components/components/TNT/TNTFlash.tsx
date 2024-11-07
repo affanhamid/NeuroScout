@@ -8,8 +8,28 @@ import TNTGame from "./TNT";
 import { TNTGameState, TNTParams } from "./TNT";
 
 class TNTFlashGame extends TNTGame<FlashBall> {
-  dataRef: MutableRefObject<TNT_Flash_Data | null> = createRef();
-  reactionsTimesRef: MutableRefObject<number[] | null> = createRef();
+  dataRef: MutableRefObject<TNT_Flash_Data> = {
+    current: {
+      timeOfData: new Date(),
+      params: {
+        vts: 0,
+      },
+      scores: [],
+      age: 0,
+      highestLevel: "",
+      timeToClicks: [],
+      screenWidth: 0,
+      screenHeight: 0,
+      ballSize: 0,
+      duration: 0,
+      numPracticeRounds: 0,
+      trialRounds: 0,
+      randomnessMean: 0,
+      randomnessStd: 0,
+    },
+  };
+  shouldFlashRef: MutableRefObject<boolean> = { current: true };
+  reactionsTimesRef: MutableRefObject<number[]> = { current: [] };
 
   state: TNTGameState = {
     ...this.state,
@@ -19,7 +39,6 @@ class TNTFlashGame extends TNTGame<FlashBall> {
     try {
       const response = await fetch("/api/get-data?dataTable=TNT_FLASH_PARAMS");
       const result = await response.json();
-      console.log(result);
       this.startingVtsRef.current = result[0].startingVts;
 
       this.reactionsTimesRef.current = [];
@@ -31,14 +50,14 @@ class TNTFlashGame extends TNTGame<FlashBall> {
       this.dataRef.current!.numPracticeRounds = result[0].practiceTrials;
       this.dataRef.current!.trialRounds = result[0].trials;
       this.dataRef.current!.params.vts = result[0].startingVts;
-      console.log("dataRef: ", this.dataRef.current);
+      this.shouldFlashRef.current = true;
     } catch (error) {
-      console.error("Error fetching tnt params:", error);
+      console.error("Error fetching tnt flash params:", error);
     }
   };
 
   constructor(props: GameInterface<TNT_Flash_Data, TNTParams>) {
-    super(props);
+    super(props, false);
     this.setParams();
   }
 
@@ -63,7 +82,9 @@ class TNTFlashGame extends TNTGame<FlashBall> {
         this.ballsRef.current![
           Math.floor(Math.random() * this.ballsRef.current!.length)
         ];
-      randomBall.flash();
+      if (this.shouldFlashRef.current) {
+        randomBall.flash();
+      }
     }, 3000 + this.randomGaussian(this.dataRef.current!.randomnessMean, this.dataRef.current!.randomnessStd));
   };
 
@@ -91,13 +112,17 @@ class TNTFlashGame extends TNTGame<FlashBall> {
   createBalls() {
     this.ballsRef.current = createBalls(
       this.canvasRef.current!,
-      this.ballRadiusRef.current!,
+      this.dataRef.current!.ballSize,
       8,
       FlashBall,
       this.reactionsTimesRef
     );
 
     this.selectRandomBallToFlash();
+
+    setTimeout(() => {
+      this.shouldFlashRef.current = false;
+    }, this.dataRef.current!.duration * 1000 - 2000);
   }
 }
 

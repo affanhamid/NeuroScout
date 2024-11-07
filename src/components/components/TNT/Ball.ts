@@ -219,6 +219,7 @@ export class StrobeBall extends Ball {
   }
 
   getColor(): string {
+    console.log(this.color);
     const currentTime = Date.now();
 
     // Check if 1 second has passed since the initial delay

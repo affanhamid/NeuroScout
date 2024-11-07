@@ -37,7 +37,6 @@ const Admin = () => {
       });
 
       const data: string[] = await response.json();
-      console.log(data);
       setTables(data);
       setSelectedParam(data[0]);
       setTimeout(() => {
