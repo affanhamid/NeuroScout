@@ -1,5 +1,5 @@
 "use client";
-import { MutableRefObject, createRef } from "react";
+import { MutableRefObject } from "react";
 import { StrobeBall, createBalls } from "./Ball";
 
 import { TNT_Strobe_Data } from "@/db/Types";
@@ -8,7 +8,24 @@ import TNTGame from "./TNT";
 import { TNTGameState, TNTParams } from "./TNT";
 
 class TNTStroboscopicGame extends TNTGame<StrobeBall> {
-  dataRef: MutableRefObject<TNT_Strobe_Data | null> = createRef();
+  dataRef: MutableRefObject<TNT_Strobe_Data> = {
+    current: {
+      timeOfData: new Date(),
+      params: { vts: 0 },
+      scores: [],
+      age: 0,
+      highestLevel: "",
+      timeToClicks: [],
+      screenWidth: 0,
+      screenHeight: 0,
+      ballSize: 0,
+      duration: 0,
+      numPracticeRounds: 0,
+      trialRounds: 0,
+      strobeA: 0,
+      strobeB: 0,
+    },
+  };
   tableName: string = "TNT_STROBE_DATA";
 
   state: TNTGameState = {
@@ -19,8 +36,8 @@ class TNTStroboscopicGame extends TNTGame<StrobeBall> {
       const response = await fetch("/api/get-data?dataTable=TNT_STROBE_PARAMS");
       const result = await response.json();
       this.startingVtsRef.current = result[0].starting_vts;
-      this.dataRef.current!.strobeA = result[0].strobe_a;
-      this.dataRef.current!.strobeB = result[0].strobe_b;
+      this.dataRef.current!.strobeA = result[0].strobeA;
+      this.dataRef.current!.strobeB = result[0].strobeB;
       this.dataRef.current!.duration = result[0].duration;
       this.dataRef.current!.numPracticeRounds = result[0].practice_trials;
       this.dataRef.current!.trialRounds = result[0].practice_trials;
@@ -31,7 +48,7 @@ class TNTStroboscopicGame extends TNTGame<StrobeBall> {
   };
 
   constructor(props: GameInterface<TNT_Strobe_Data, TNTParams>) {
-    super(props);
+    super(props, false);
     this.setParams();
   }
 
@@ -46,7 +63,7 @@ class TNTStroboscopicGame extends TNTGame<StrobeBall> {
   createBalls() {
     this.ballsRef.current = createBalls(
       this.canvasRef.current!,
-      this.ballRadiusRef.current!,
+      this.dataRef.current!.ballSize,
       8,
       StrobeBall,
       this.dataRef.current!.strobeA,
