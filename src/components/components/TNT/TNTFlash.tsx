@@ -19,7 +19,8 @@ class TNTFlashGame extends TNTGame<FlashBall> {
     try {
       const response = await fetch("/api/get-data?dataTable=TNT_FLASH_PARAMS");
       const result = await response.json();
-      this.startingVtsRef.current = result[0].starting_vts;
+      console.log(result);
+      this.startingVtsRef.current = result[0].startingVts;
 
       this.reactionsTimesRef.current = [];
 
@@ -27,9 +28,10 @@ class TNTFlashGame extends TNTGame<FlashBall> {
       this.dataRef.current!.randomnessStd = 500;
 
       this.dataRef.current!.duration = result[0].duration;
-      this.dataRef.current!.numPracticeRounds = result[0].practice_trials;
-      this.dataRef.current!.trialRounds = result[0].practice_trials;
-      this.dataRef.current!.params.vts = result[0].starting_vts;
+      this.dataRef.current!.numPracticeRounds = result[0].practiceTrials;
+      this.dataRef.current!.trialRounds = result[0].trials;
+      this.dataRef.current!.params.vts = result[0].startingVts;
+      console.log("dataRef: ", this.dataRef.current);
     } catch (error) {
       console.error("Error fetching tnt params:", error);
     }
