@@ -54,7 +54,7 @@ class Game<
   canvasRef = createRef<HTMLCanvasElement>();
   ctxRef: MutableRefObject<CanvasRenderingContext2D | null> = createRef();
   animationFrameIdRef: MutableRefObject<number> = { current: 0 };
-  isPracticeRef: MutableRefObject<boolean> = { current: false };
+  isPracticeRef: MutableRefObject<boolean> = { current: true };
   dataRef: MutableRefObject<TData | null> = createRef();
   renderGame: () => void = () => {};
   submitData: (formData: Record<string, any>) => Promise<void> = async () => {};

@@ -57,6 +57,7 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
     try {
       const response = await fetch("/api/get-data?dataTable=TNT_PARAMS");
       const result = await response.json();
+      console.log(result);
       this.startingVtsRef.current = result[0].startingVts;
 
       this.gameEndTimeRef.current = 0;
@@ -64,6 +65,7 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
       this.dataRef!.current!.duration = result[0].duration;
       this.dataRef!.current!.numPracticeRounds = result[0].practiceTrials;
       this.dataRef!.current!.trialRounds = result[0].trials;
+      console.log(this.dataRef!.current);
     } catch (error) {
       console.error("Error fetching TNT params:", error);
     }
