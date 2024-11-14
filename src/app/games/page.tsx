@@ -4,9 +4,13 @@ import Link from "next/link";
 import React from "react";
 
 const page = async () => {
-  const result = await fetch(
-    "http://localhost:3000/api/data/get-data?dataTable=GAMES",
-  );
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const result = await fetch(`${baseUrl}/api/data/get-data?dataTable=GAMES`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
   const games = await result.json();
   console.log(games);
   return (
