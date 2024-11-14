@@ -87,7 +87,7 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
     this.ballsRef.current = createBalls(
       this.canvasRef.current!,
       this.dataRef.current!.ballSize,
-      8,
+      1,
       Ball,
     ) as BallType[];
   }
@@ -102,7 +102,7 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
     this.createBalls();
 
     const uniqueIndices = new Set<number>();
-    while (uniqueIndices.size < 4) {
+    while (uniqueIndices.size < 1) {
       uniqueIndices.add(
         Math.floor(Math.random() * this.ballsRef.current!.length),
       );
