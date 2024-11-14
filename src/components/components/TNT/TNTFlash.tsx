@@ -1,11 +1,15 @@
 "use client";
-import { MutableRefObject, createRef } from "react";
-import { FlashBall, HIGHLIGHT_COLOR, createBalls } from "./Ball";
-
-import { TNT_Flash_Data } from "@/db/Types";
+import { MutableRefObject } from "react";
+import { FlashBall, createBalls } from "./Ball";
+import { TNT_FLASH_DATA } from "@/drizzle/schema";
 import { GameInterface } from "../Game/Game";
 import TNTGame from "./TNT";
 import { TNTGameState, TNTParams } from "./TNT";
+import { InferInsertModel } from "drizzle-orm";
+
+type TNT_Flash_Data = InferInsertModel<typeof TNT_FLASH_DATA> & {
+  params: TNTParams;
+};
 
 class TNTFlashGame extends TNTGame<FlashBall> {
   dataRef: MutableRefObject<TNT_Flash_Data> = {
@@ -23,7 +27,7 @@ class TNTFlashGame extends TNTGame<FlashBall> {
       ballSize: 0,
       duration: 0,
       numPracticeRounds: 0,
-      trialRounds: 0,
+      numTrialRounds: 0,
       randomnessMean: 0,
       randomnessStd: 0,
     },
@@ -37,7 +41,9 @@ class TNTFlashGame extends TNTGame<FlashBall> {
 
   setParams = async () => {
     try {
-      const response = await fetch("/api/get-data?dataTable=TNT_FLASH_PARAMS");
+      const response = await fetch(
+        "/api/data/get-data?dataTable=TNT_FLASH_PARAMS"
+      );
       const result = await response.json();
       this.startingVtsRef.current = result[0].startingVts;
 
@@ -48,7 +54,7 @@ class TNTFlashGame extends TNTGame<FlashBall> {
 
       this.dataRef.current!.duration = result[0].duration;
       this.dataRef.current!.numPracticeRounds = result[0].practiceTrials;
-      this.dataRef.current!.trialRounds = result[0].trials;
+      this.dataRef.current!.numTrialRounds = result[0].trials;
       this.dataRef.current!.params.vts = result[0].startingVts;
       this.shouldFlashRef.current = true;
     } catch (error) {
