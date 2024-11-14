@@ -6,8 +6,15 @@ import { InstructionStepInterface } from "@/components/components/modals/Instruc
 import Image from "next/image";
 
 const page = async () => {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const response = await fetch(
-    "http://localhost:3000/api/data/get-data?dataTable=TNT_INSTRUCTIONS",
+    `${baseUrl}/api/data/get-data?dataTable=TNT_INSTRUCTIONS`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    },
   );
   const steps: { link: string }[] = await response.json();
   const instructionSteps: InstructionStepInterface[] = steps.map(
