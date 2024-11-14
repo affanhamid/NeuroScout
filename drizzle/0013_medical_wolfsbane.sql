@@ -1,0 +1,1 @@
+ALTER TABLE "GAMES" ADD COLUMN "image_link" text NOT NULL;

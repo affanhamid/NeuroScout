@@ -153,7 +153,8 @@ export const resolveCollisions = (
 export const resolveCollisionsWithWalls = (
   balls: Ball[],
   currentSpeed: number,
-  canvas: HTMLCanvasElement
+  width: number,
+  height: number
 ) => {
   balls.forEach((ball) => {
     // Move the ball
@@ -165,16 +166,16 @@ export const resolveCollisionsWithWalls = (
       ball.x = ball.radius;
       ball.vx *= -1;
     }
-    if (ball.x + ball.radius > canvas.width) {
-      ball.x = canvas.width - ball.radius;
+    if (ball.x + ball.radius > width) {
+      ball.x = width - ball.radius;
       ball.vx *= -1;
     }
     if (ball.y - ball.radius < 0) {
       ball.y = ball.radius;
       ball.vy *= -1;
     }
-    if (ball.y + ball.radius > canvas.height) {
-      ball.y = canvas.height - ball.radius;
+    if (ball.y + ball.radius > height) {
+      ball.y = height - ball.radius;
       ball.vy *= -1;
     }
 
@@ -219,7 +220,7 @@ export class StrobeBall extends Ball {
   }
 
   getColor(): string {
-    console.log(this.color);
+    console.log(this.x);
     const currentTime = Date.now();
 
     // Check if 1 second has passed since the initial delay

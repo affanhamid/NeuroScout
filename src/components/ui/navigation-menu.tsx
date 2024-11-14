@@ -194,7 +194,7 @@ const ShadNavbar = () => {
                       NeuroScout
                     </div>
                     <p className="text-sm leading-tight text-muted-foreground">
-                      A data-analyst tool to assess cognitive ability
+                      A data-analysis tool to assess cognitive ability
                     </p>
                   </a>
                 </NavigationMenuLink>
@@ -214,16 +214,10 @@ const ShadNavbar = () => {
         <NavigationMenuItem>
           <NavigationMenuTrigger>Games</NavigationMenuTrigger>
           <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-              {games.map((component) => (
-                <ListItem
-                  key={component.title}
-                  title={component.title}
-                  href={component.href}
-                >
-                  {component.description}
-                </ListItem>
-              ))}
+            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px]lg:w-[600px] ">
+              <ListItem href="/games" title="Gallery">
+                Take a look at the games we provide
+              </ListItem>
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>

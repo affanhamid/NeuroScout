@@ -1,12 +1,15 @@
 "use client";
 import { MutableRefObject } from "react";
 import { StrobeBall, createBalls } from "./Ball";
-
-import { TNT_Strobe_Data } from "@/db/Types";
 import { GameInterface } from "../Game/Game";
 import TNTGame from "./TNT";
 import { TNTGameState, TNTParams } from "./TNT";
+import { InferInsertModel } from "drizzle-orm";
+import { TNT_STROBE_DATA } from "@/drizzle/schema";
 
+type TNT_Strobe_Data = InferInsertModel<typeof TNT_STROBE_DATA> & {
+  params: TNTParams;
+};
 class TNTStroboscopicGame extends TNTGame<StrobeBall> {
   dataRef: MutableRefObject<TNT_Strobe_Data> = {
     current: {
@@ -21,7 +24,7 @@ class TNTStroboscopicGame extends TNTGame<StrobeBall> {
       ballSize: 0,
       duration: 0,
       numPracticeRounds: 0,
-      trialRounds: 0,
+      numTrialRounds: 0,
       strobeA: 0,
       strobeB: 0,
     },
@@ -33,14 +36,16 @@ class TNTStroboscopicGame extends TNTGame<StrobeBall> {
   };
   setParams = async () => {
     try {
-      const response = await fetch("/api/get-data?dataTable=TNT_STROBE_PARAMS");
+      const response = await fetch(
+        "/api/data/get-data?dataTable=TNT_STROBE_PARAMS"
+      );
       const result = await response.json();
       this.startingVtsRef.current = result[0].startingVts;
       this.dataRef.current!.strobeA = result[0].strobeA;
       this.dataRef.current!.strobeB = result[0].strobeB;
       this.dataRef.current!.duration = result[0].duration;
       this.dataRef.current!.numPracticeRounds = result[0].practiceTrials;
-      this.dataRef.current!.trialRounds = result[0].trials;
+      this.dataRef.current!.numTrialRounds = result[0].trials;
       this.dataRef.current!.params.vts = result[0].startingVts;
     } catch (error) {
       console.error("Error fetching TNT params:", error);

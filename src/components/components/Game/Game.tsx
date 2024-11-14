@@ -16,7 +16,7 @@ import type {
 import { TrialCompletedDialog } from "../modals/TrialCompletedDialog";
 
 export interface GameInterface<TData, TParam> {
-  instructions: { steps: InstructionStepInterface[] };
+  instructions: InstructionStepInterface[];
   formFields: FormFieldInterface[];
   calculateScores: (
     scores: number[],
@@ -39,7 +39,7 @@ export interface GameState {
 interface BaseTData<TParam> {
   scores: number[];
   numPracticeRounds: number;
-  trialRounds: number;
+  numTrialRounds: number;
   params: TParam;
   age: number;
   screenWidth: number;
@@ -110,8 +110,8 @@ class Game<
       }
     } else {
       if (
-        this.dataRef?.current?.trialRounds &&
-        trial === this.dataRef?.current?.trialRounds + 1
+        this.dataRef?.current?.numTrialRounds &&
+        trial === this.dataRef?.current?.numTrialRounds + 1
       ) {
         this.setState({ showThankYou: true });
       } else {
@@ -159,17 +159,17 @@ class Game<
           </div>
         )}
         <div className="absolute top-10 right-10 text-white text-2xl text-left">
-          {this.isPracticeRef.current && this.dataRef?.current?.trialRounds
+          {this.isPracticeRef.current && this.dataRef?.current?.numTrialRounds
             ? `Practice Trial: ${trial}/${this.dataRef.current.numPracticeRounds}`
-            : this.dataRef?.current?.trialRounds &&
-              `Trial: ${trial}/${this.dataRef.current.trialRounds}`}
+            : this.dataRef?.current?.numTrialRounds &&
+              `Trial: ${trial}/${this.dataRef.current.numTrialRounds}`}
         </div>
         <InstructionDialog
           show={showInstructions}
           onClose={() =>
             this.setState({ showInstructions: false, showCountdown: true })
           }
-          steps={instructions.steps}
+          steps={instructions}
         />
         <ThankYouDialog
           show={showThankYou}

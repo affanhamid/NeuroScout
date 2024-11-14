@@ -31,7 +31,7 @@ export const ResultsDialog = <TParam extends {}>({
   calculateScore,
 }: ResultsDialogProps<TParam>) => {
   const { currentScore, perfectScore } =
-    scores && params && practiceRounds
+    scores && params && practiceRounds && calculateScore
       ? calculateScore(scores, params, practiceRounds)
       : { currentScore: 0, perfectScore: 0 };
 

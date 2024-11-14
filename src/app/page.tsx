@@ -1,8 +1,6 @@
 "use client";
 import Navbar from "@/components/components/Navbar";
-import TNTGameImage from "@/public/TNT.png";
 import Image from "next/image";
-import * as schema from "@/drizzle/schema";
 
 export default function Home() {
   return (
@@ -59,8 +57,10 @@ export default function Home() {
           <div className="flex flex-col md:flex-row md:space-x-10">
             <div className="flex-1 mb-10 md:mb-0">
               <Image
-                src={TNTGameImage}
+                src="https://utfs.io/f/aeVd3o1pNDuMFcQNJjXbi1wQaCvYRm5Grd9B6lJOTH8KjgLh"
                 alt="How NeuroScout Works"
+                width={1000}
+                height={500}
                 className="w-full h-auto rounded-lg shadow-md"
               />
             </div>
