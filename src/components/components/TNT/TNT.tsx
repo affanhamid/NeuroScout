@@ -113,14 +113,16 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
     return { currentSpeed };
   };
 
-  update = (balls: BallType[], currentSpeed: number) => {
+  update = (balls: BallType[], currentSpeed: number, deltaTime: number) => {
     resolveCollisionsWithWalls(
       balls,
       currentSpeed,
       this.canvasRef.current!.width,
       this.canvasRef.current!.height,
+      deltaTime,
     );
-    resolveCollisions(balls, currentSpeed);
+
+    resolveCollisions(balls, currentSpeed, deltaTime);
 
     balls.forEach((ball, index) => {
       ball.drawBall(
@@ -167,7 +169,15 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
     let { currentSpeed } = this.setup();
     const balls = this.ballsRef.current!;
 
-    const animate = () => {
+    let lastTimestamp = 0;
+
+    const animate = (timestamp) => {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+
+      const deltaTime = (timestamp - lastTimestamp) / 1000;
+      lastTimestamp = timestamp;
+
+      // Clear and set background as usual
       this.ctxRef.current!.clearRect(
         0,
         0,
@@ -181,12 +191,13 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
         this.canvasRef.current!.width,
         this.canvasRef.current!.height,
       );
-      this.update(balls, currentSpeed);
-    };
 
-    setInterval(() => {
-      animate();
-    }, 1000 / 60);
+      // Update with deltaTime
+      this.update(balls, 100, deltaTime);
+
+      requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
 
     setTimeout(() => {
       currentSpeed = this.state.vts;

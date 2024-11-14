@@ -21,7 +21,7 @@ export class Ball {
     angle: number,
     ballRadius: number,
     currentSpeed: number,
-    color: string
+    color: string,
   ) {
     this.x = x;
     this.y = y;
@@ -42,7 +42,7 @@ export class Ball {
     ball: Ball,
     ctx: CanvasRenderingContext2D,
     isWrongBall: boolean | null,
-    isCorrectBall: boolean | null
+    isCorrectBall: boolean | null,
   ): void {
     // Set the font size based on the ball radius
     ctx.font = `${ball.radius}px Arial`;
@@ -64,7 +64,7 @@ export class Ball {
     isHighlighted: boolean,
     ctx: CanvasRenderingContext2D,
     isWrongBall: boolean | null,
-    isCorrectBall: boolean | null
+    isCorrectBall: boolean | null,
   ): void {
     // Draw the ball
     ctx.beginPath();
@@ -91,8 +91,9 @@ const createRegions = (canvasWidth: number, canvasHeight: number) => [
 
 export const resolveCollisions = (
   balls: Ball[],
-  currentSpeed: number
-): void => {
+  currentSpeed: number,
+  deltaTime: number,
+) => {
   for (let i = 0; i < balls.length; i++) {
     for (let j = i + 1; j < balls.length; j++) {
       const ballA = balls[i];
@@ -104,47 +105,40 @@ export const resolveCollisions = (
 
       // Check if balls are colliding
       if (distance < ballA.radius + ballB.radius) {
-        // Calculate the overlap
         const overlap = ballA.radius + ballB.radius - distance;
 
-        // Separate the balls so they no longer overlap
+        // Separate the balls to remove overlap
         const separationX = ((dx / distance) * overlap) / 2;
         const separationY = ((dy / distance) * overlap) / 2;
-        ballA.x -= separationX;
-        ballA.y -= separationY;
-        ballB.x += separationX;
-        ballB.y += separationY;
+        ballA.x -= separationX * deltaTime;
+        ballA.y -= separationY * deltaTime;
+        ballB.x += separationX * deltaTime;
+        ballB.y += separationY * deltaTime;
 
-        // Calculate the angle of collision
+        // Calculate the collision angle and new velocities
         const collisionAngle = Math.atan2(dy, dx);
-
         const directionA = Math.atan2(ballA.vy, ballA.vx);
         const directionB = Math.atan2(ballB.vy, ballB.vx);
 
-        // New velocities along the collision axis
+        // Adjusted new velocities along the collision axis
         const newVxA = currentSpeed * Math.cos(directionA - collisionAngle);
         const newVyA = currentSpeed * Math.sin(directionA - collisionAngle);
         const newVxB = currentSpeed * Math.cos(directionB - collisionAngle);
         const newVyB = currentSpeed * Math.sin(directionB - collisionAngle);
 
-        // Swap the velocities along the collision axis
-        const finalVxA =
-          newVxB * Math.cos(collisionAngle) +
-          newVyA * Math.cos(collisionAngle + Math.PI / 2);
-        const finalVyA =
-          newVxB * Math.sin(collisionAngle) +
-          newVyA * Math.sin(collisionAngle + Math.PI / 2);
-        const finalVxB =
-          newVxA * Math.cos(collisionAngle) +
-          newVyB * Math.cos(collisionAngle + Math.PI / 2);
-        const finalVyB =
-          newVxA * Math.sin(collisionAngle) +
-          newVyB * Math.sin(collisionAngle + Math.PI / 2);
-
-        ballA.vx = finalVxA;
-        ballA.vy = finalVyA;
-        ballB.vx = finalVxB;
-        ballB.vy = finalVyB;
+        // Swap velocities with deltaTime scaling
+        ballA.vx =
+          newVxB * Math.cos(collisionAngle) * deltaTime +
+          newVyA * Math.cos(collisionAngle + Math.PI / 2) * deltaTime;
+        ballA.vy =
+          newVxB * Math.sin(collisionAngle) * deltaTime +
+          newVyA * Math.sin(collisionAngle + Math.PI / 2) * deltaTime;
+        ballB.vx =
+          newVxA * Math.cos(collisionAngle) * deltaTime +
+          newVyB * Math.cos(collisionAngle + Math.PI / 2) * deltaTime;
+        ballB.vy =
+          newVxA * Math.sin(collisionAngle) * deltaTime +
+          newVyB * Math.sin(collisionAngle + Math.PI / 2) * deltaTime;
       }
     }
   }
@@ -154,14 +148,15 @@ export const resolveCollisionsWithWalls = (
   balls: Ball[],
   currentSpeed: number,
   width: number,
-  height: number
+  height: number,
+  deltaTime: number,
 ) => {
   balls.forEach((ball) => {
-    // Move the ball
-    ball.x += ball.vx;
-    ball.y += ball.vy;
+    // Move the ball, scaling velocity by deltaTime for consistent movement
+    ball.x += ball.vx * deltaTime;
+    ball.y += ball.vy * deltaTime;
 
-    // Bounce off the walls, ensuring the ball doesn't get stuck in the wall
+    // Bounce off walls, ensuring no overlap with walls
     if (ball.x - ball.radius < 0) {
       ball.x = ball.radius;
       ball.vx *= -1;
@@ -179,9 +174,9 @@ export const resolveCollisionsWithWalls = (
       ball.vy *= -1;
     }
 
-    // Maintain constant speed
+    // Maintain constant speed based on deltaTime
     const currentSpeedMagnitude = Math.sqrt(
-      ball.vx * ball.vx + ball.vy * ball.vy
+      ball.vx * ball.vx + ball.vy * ball.vy,
     );
     if (currentSpeedMagnitude !== currentSpeed) {
       const scale = currentSpeed / currentSpeedMagnitude;
@@ -190,6 +185,7 @@ export const resolveCollisionsWithWalls = (
     }
   });
 };
+
 export class StrobeBall extends Ball {
   strobeA: number;
   strobeB: number;
@@ -204,7 +200,7 @@ export class StrobeBall extends Ball {
     currentSpeed: number,
     color: string,
     strobeA: number,
-    strobeB: number
+    strobeB: number,
   ) {
     super(x, y, angle, ballRadius, currentSpeed, color);
     this.strobeA = strobeA;
@@ -261,13 +257,13 @@ export class StrobeBall extends Ball {
 
     // Calculate interpolated color
     const r = Math.floor(
-      startColor.r + (endColor.r - startColor.r) * normalizedProgress
+      startColor.r + (endColor.r - startColor.r) * normalizedProgress,
     );
     const g = Math.floor(
-      startColor.g + (endColor.g - startColor.g) * normalizedProgress
+      startColor.g + (endColor.g - startColor.g) * normalizedProgress,
     );
     const b = Math.floor(
-      startColor.b + (endColor.b - startColor.b) * normalizedProgress
+      startColor.b + (endColor.b - startColor.b) * normalizedProgress,
     );
 
     return this.shouldStrobe ? `rgb(${r}, ${g}, ${b})` : this.color;
@@ -289,7 +285,7 @@ export class FlashBall extends Ball {
     ballRadius: number,
     currentSpeed: number,
     color: string,
-    reactionTimesRef: MutableRefObject<number[]>
+    reactionTimesRef: MutableRefObject<number[]>,
   ) {
     super(x, y, angle, ballRadius, currentSpeed, color);
     this.reactionTimesRef = reactionTimesRef;
@@ -353,7 +349,7 @@ export class FlashBall extends Ball {
     isHighlighted: boolean,
     ctx: CanvasRenderingContext2D,
     isWrongBall: boolean | null,
-    isCorrectBall: boolean | null
+    isCorrectBall: boolean | null,
   ): void {
     ctx.save(); // Save the canvas state
 
@@ -405,8 +401,8 @@ export const createBalls = <T extends Ball>(
         ballRadius,
         startingSpeed,
         BASE_COLOR,
-        ...extraArgs
-      )
+        ...extraArgs,
+      ),
     );
   }
 
