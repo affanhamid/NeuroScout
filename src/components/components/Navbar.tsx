@@ -16,9 +16,7 @@ const Navbar = () => {
         <ShadNavbar />
       </div>
       <div className="hidden md:flex md:items-center md:gap-4">
-        <button className="bg-purple-600 text-white py-2 px-4 rounded-lg">
-          Get Started
-        </button>
+        <button>Get Started</button>
       </div>
       <div>
         <ShadSheet className="md:hidden" />
