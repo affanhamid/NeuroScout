@@ -1,4 +1,3 @@
-"use client";
 import Footer from "@/components/components/Footer";
 import Gallery from "@/components/components/Gallery";
 import Navbar from "@/components/components/Navbar";
@@ -28,7 +27,16 @@ const TimelineElement = ({
   );
 };
 
-export default function Home() {
+export default async function Home() {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const result = await fetch(`${baseUrl}/api/data/get-data?dataTable=GAMES`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+  const games = await result.json();
+
   return (
     <main>
       <Navbar />
@@ -83,7 +91,7 @@ export default function Home() {
       </section>
       <section className="pb-20">
         <h2 className="mb-20">Visit Our Games</h2>
-        <Gallery />
+        <Gallery games={games} />
       </section>
       <Footer />
     </main>
