@@ -15,7 +15,6 @@ const HomeButton = React.forwardRef(() => {
       className="fixed top-5 left-10 text-white flex items-center gap-2 text-xl z-[60] cursor-pointer pointer-events-auto group"
       href="/"
     >
-      Hello
       <ArrowLeftIcon className="w-10 h-10 text-red-700 group-hover:-translate-x-3 transition-transform font-bold" />
     </Link>
   );

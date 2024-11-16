@@ -1,16 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 
-const Gallery = async () => {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const result = await fetch(`${baseUrl}/api/data/get-data?dataTable=GAMES`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
-  const games = await result.json();
+const Gallery = async ({ games }: { games: any[] }) => {
   return (
     <div className="grid grid-cols-3 gap-10">
       {games.map(

@@ -52,7 +52,8 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
 
   state: TNTGameState = {
     ...this.state,
-    vts: 3,
+    vts: 0,
+    totalBalls: 0,
   };
 
   setParams = async () => {
@@ -60,6 +61,7 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
       const response = await fetch("/api/data/get-data?dataTable=TNT_PARAMS");
       const result = await response.json();
       this.startingVtsRef.current = result[0].startingVts;
+      this.state.vts = this.startingVtsRef.current;
 
       this.gameEndTimeRef.current = 0;
       this.dataRef!.current!.params.vts = result[0].startingVts;
