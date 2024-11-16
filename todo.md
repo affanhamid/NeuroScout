@@ -7,7 +7,7 @@
 - [x] Fix Disappearing issue
 - Increase clicking radius for glow game
 - Allow for resets in the glow game
-- Make Website
+- [x] Make Website
 - Improve UX
 - Add the API to all the games
 - Change to track and trace

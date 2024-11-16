@@ -1,4 +1,3 @@
-import Navbar from "@/components/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
