@@ -72,6 +72,10 @@
     @apply bg-background text-foreground;
   }
 
+  section {
+    @apply px-60;
+  }
+
   h1 {
     @apply scroll-m-20 text-4xl  tracking-tight lg:text-5xl;
   }
