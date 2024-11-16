@@ -1,5 +1,6 @@
 "use client";
 import Footer from "@/components/components/Footer";
+import Gallery from "@/components/components/Gallery";
 import Navbar from "@/components/components/Navbar";
 
 const Card = ({ heading, text }: { heading: string; text: string }) => {
@@ -80,8 +81,10 @@ export default function Home() {
           <div className="bg-white/20 absolute h-2 w-[69%] left-[50%] top-[116%] transform translate-y-[-50%] -translate-x-[50%]" />
         </div>
       </section>
-      <section></section>
-      <div className="mt-40"></div>
+      <section className="pb-20">
+        <h2 className="mb-20">Visit Our Games</h2>
+        <Gallery />
+      </section>
       <Footer />
     </main>
   );
