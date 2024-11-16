@@ -9,8 +9,13 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      backgroundImage: {
+        hero: "url('/Hero.svg')",
+        testing: "url('Testing.svg')",
+      },
       colors: {
         "game-background": "#1B1B1B",
+        dark: "#1F2937",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -51,11 +56,6 @@ const config: Config = {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
       },
     },
   },
