@@ -1,18 +1,18 @@
 "use client";
 import { MutableRefObject } from "react";
-import { FlashBall, createBalls } from "./Ball";
-import { TNT_FLASH_DATA } from "@/drizzle/schema";
+import { GlowBall, createBalls } from "./Ball";
+import { TNT_GLOW_DATA } from "@/drizzle/schema";
 import { GameInterface } from "../Game/Game";
 import TNTGame from "./TNT";
 import { TNTGameState, TNTParams } from "./TNT";
 import { InferInsertModel } from "drizzle-orm";
 
-type TNT_Flash_Data = InferInsertModel<typeof TNT_FLASH_DATA> & {
+type TNT_Glow_Data = InferInsertModel<typeof TNT_GLOW_DATA> & {
   params: TNTParams;
 };
 
-class TNTFlashGame extends TNTGame<FlashBall> {
-  dataRef: MutableRefObject<TNT_Flash_Data> = {
+class TNTGlowGame extends TNTGame<GlowBall> {
+  dataRef: MutableRefObject<TNT_Glow_Data> = {
     current: {
       timeOfData: new Date(),
       params: {
@@ -32,7 +32,7 @@ class TNTFlashGame extends TNTGame<FlashBall> {
       randomnessStd: 0,
     },
   };
-  shouldFlashRef: MutableRefObject<boolean> = { current: true };
+  shouldGlowRef: MutableRefObject<boolean> = { current: true };
   reactionsTimesRef: MutableRefObject<number[]> = { current: [] };
 
   state: TNTGameState = {
@@ -42,7 +42,7 @@ class TNTFlashGame extends TNTGame<FlashBall> {
   setParams = async () => {
     try {
       const response = await fetch(
-        "/api/data/get-data?dataTable=TNT_FLASH_PARAMS"
+        "/api/data/get-data?dataTable=TNT_GLOW_PARAMS",
       );
       const result = await response.json();
       this.startingVtsRef.current = result[0].startingVts;
@@ -56,25 +56,25 @@ class TNTFlashGame extends TNTGame<FlashBall> {
       this.dataRef.current!.numPracticeRounds = result[0].practiceTrials;
       this.dataRef.current!.numTrialRounds = result[0].trials;
       this.dataRef.current!.params.vts = result[0].startingVts;
-      this.shouldFlashRef.current = true;
+      this.shouldGlowRef.current = true;
     } catch (error) {
-      console.error("Error fetching tnt flash params:", error);
+      console.error("Error fetching tnt glow params:", error);
     }
   };
 
-  constructor(props: GameInterface<TNT_Flash_Data, TNTParams>) {
+  constructor(props: GameInterface<TNT_Glow_Data, TNTParams>) {
     super(props, false);
     this.setParams();
   }
 
   randomGaussian(mean: number, stddev: number) {
-    let u = 1 - Math.random();
-    let v = Math.random();
-    let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    const u = 1 - Math.random();
+    const v = Math.random();
+    const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
     return z * stddev + mean;
   }
 
-  addFormData = (formData: Record<string, any>) => {
+  addFormData = (formData: Record<string, string>) => {
     this.dataRef.current!.age = parseInt(formData.age);
     this.dataRef.current!.highestLevel = formData.highestLevel;
     this.dataRef.current!.screenWidth = window.innerWidth;
@@ -82,34 +82,42 @@ class TNTFlashGame extends TNTGame<FlashBall> {
     this.dataRef.current!.params.vts = this.state.vts;
   };
 
-  selectRandomBallToFlash = () => {
-    setTimeout(() => {
-      const randomBall =
-        this.ballsRef.current![
-          Math.floor(Math.random() * this.ballsRef.current!.length)
-        ];
-      if (this.shouldFlashRef.current) {
-        randomBall.flash();
-      }
-    }, 3000 + this.randomGaussian(this.dataRef.current!.randomnessMean, this.dataRef.current!.randomnessStd));
+  selectRandomBallToGlow = () => {
+    setTimeout(
+      () => {
+        const randomBall =
+          this.ballsRef.current![
+            Math.floor(Math.random() * this.ballsRef.current!.length)
+          ];
+        if (this.shouldGlowRef.current) {
+          randomBall.glow();
+        }
+      },
+      3000 +
+        this.randomGaussian(
+          this.dataRef.current!.randomnessMean,
+          this.dataRef.current!.randomnessStd,
+        ),
+    );
   };
 
   clickEventDuringGame(
     event: MouseEvent,
-    balls: FlashBall[],
-    canvas: HTMLCanvasElement
+    balls: GlowBall[],
+    canvas: HTMLCanvasElement,
   ) {
     const rect = canvas.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
+    const glowDistance = 20;
 
-    balls.forEach((ball, index) => {
+    balls.forEach((ball) => {
       const dx = mouseX - ball.x;
       const dy = mouseY - ball.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
-      if (distance < ball.radius) {
-        if (ball.isFlashed) {
-          ball.click(this.selectRandomBallToFlash);
+      if (distance < ball.radius + glowDistance) {
+        if (ball.isGlowed) {
+          ball.click(this.selectRandomBallToGlow);
         }
       }
     });
@@ -120,16 +128,19 @@ class TNTFlashGame extends TNTGame<FlashBall> {
       this.canvasRef.current!,
       this.dataRef.current!.ballSize,
       8,
-      FlashBall,
-      this.reactionsTimesRef
+      GlowBall,
+      this.reactionsTimesRef,
     );
 
-    this.selectRandomBallToFlash();
-    this.shouldFlashRef.current = true;
-    setTimeout(() => {
-      this.shouldFlashRef.current = false;
-    }, this.dataRef.current!.duration * 1000 - 2000);
+    this.selectRandomBallToGlow();
+    this.shouldGlowRef.current = true;
+    setTimeout(
+      () => {
+        this.shouldGlowRef.current = false;
+      },
+      this.dataRef.current!.duration * 1000 - 2000,
+    );
   }
 }
 
-export default TNTFlashGame;
+export default TNTGlowGame;

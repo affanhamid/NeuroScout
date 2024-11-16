@@ -2,7 +2,7 @@ import { MutableRefObject } from "react";
 
 export const BASE_COLOR = "#FDDA0D";
 export const HIGHLIGHT_COLOR = "#007FFF";
-export const FLASH_COLOR = "#00FF00";
+export const GLOW_COLOR = "#00FF00";
 export const WRONG_COLOR = "#FF0000";
 export const CORRECT_COLOR = "#00FF00";
 
@@ -101,44 +101,62 @@ export const resolveCollisions = (
 
       const dx = ballB.x - ballA.x;
       const dy = ballB.y - ballA.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+      const distance = Math.sqrt(dx * dx + dy * dy) || 1e-6;
 
       // Check if balls are colliding
       if (distance < ballA.radius + ballB.radius) {
         const overlap = ballA.radius + ballB.radius - distance;
 
-        // Separate the balls to remove overlap
-        const separationX = ((dx / distance) * overlap) / 2;
-        const separationY = ((dy / distance) * overlap) / 2;
+        // Separate the balls to remove overlap (scaled by deltaTime)
+        const normalX = dx / distance;
+        const normalY = dy / distance;
+
+        const separationX = (normalX * overlap) / 2;
+        const separationY = (normalY * overlap) / 2;
+
         ballA.x -= separationX * deltaTime;
         ballA.y -= separationY * deltaTime;
         ballB.x += separationX * deltaTime;
         ballB.y += separationY * deltaTime;
 
-        // Calculate the collision angle and new velocities
-        const collisionAngle = Math.atan2(dy, dx);
-        const directionA = Math.atan2(ballA.vy, ballA.vx);
-        const directionB = Math.atan2(ballB.vy, ballB.vx);
+        // Calculate velocities along normal and tangent
+        const tangentX = -normalY;
+        const tangentY = normalX;
 
-        // Adjusted new velocities along the collision axis
-        const newVxA = currentSpeed * Math.cos(directionA - collisionAngle);
-        const newVyA = currentSpeed * Math.sin(directionA - collisionAngle);
-        const newVxB = currentSpeed * Math.cos(directionB - collisionAngle);
-        const newVyB = currentSpeed * Math.sin(directionB - collisionAngle);
+        const velocityANormal = ballA.vx * normalX + ballA.vy * normalY;
+        const velocityATangent = ballA.vx * tangentX + ballA.vy * tangentY;
 
-        // Swap velocities with deltaTime scaling
+        const velocityBNormal = ballB.vx * normalX + ballB.vy * normalY;
+        const velocityBTangent = ballB.vx * tangentX + ballB.vy * tangentY;
+
+        // Swap normal velocities (elastic collision)
+        const newVelocityANormal = velocityBNormal;
+        const newVelocityBNormal = velocityANormal;
+
+        // Combine velocities (keep tangential component unchanged)
         ballA.vx =
-          newVxB * Math.cos(collisionAngle) * deltaTime +
-          newVyA * Math.cos(collisionAngle + Math.PI / 2) * deltaTime;
+          (newVelocityANormal * normalX + velocityATangent * tangentX) *
+          deltaTime;
         ballA.vy =
-          newVxB * Math.sin(collisionAngle) * deltaTime +
-          newVyA * Math.sin(collisionAngle + Math.PI / 2) * deltaTime;
+          (newVelocityANormal * normalY + velocityATangent * tangentY) *
+          deltaTime;
+
         ballB.vx =
-          newVxA * Math.cos(collisionAngle) * deltaTime +
-          newVyB * Math.cos(collisionAngle + Math.PI / 2) * deltaTime;
+          (newVelocityBNormal * normalX + velocityBTangent * tangentX) *
+          deltaTime;
         ballB.vy =
-          newVxA * Math.sin(collisionAngle) * deltaTime +
-          newVyB * Math.sin(collisionAngle + Math.PI / 2) * deltaTime;
+          (newVelocityBNormal * normalY + velocityBTangent * tangentY) *
+          deltaTime;
+
+        // Adjust to maintain constant speed (normalize and scale)
+        const magnitudeA = Math.sqrt(ballA.vx * ballA.vx + ballA.vy * ballA.vy);
+        const magnitudeB = Math.sqrt(ballB.vx * ballB.vx + ballB.vy * ballB.vy);
+
+        ballA.vx = (ballA.vx / magnitudeA) * currentSpeed;
+        ballA.vy = (ballA.vy / magnitudeA) * currentSpeed;
+
+        ballB.vx = (ballB.vx / magnitudeB) * currentSpeed;
+        ballB.vy = (ballB.vy / magnitudeB) * currentSpeed;
       }
     }
   }
@@ -270,9 +288,9 @@ export class StrobeBall extends Ball {
   }
 }
 
-export class FlashBall extends Ball {
+export class GlowBall extends Ball {
   strobeInterval: NodeJS.Timeout | null = null;
-  isFlashed: boolean;
+  isGlowed: boolean;
   reactionTimesRef: MutableRefObject<number[]>;
   glowIntensity: number;
   maxGlowIntensity: number;
@@ -289,14 +307,14 @@ export class FlashBall extends Ball {
   ) {
     super(x, y, angle, ballRadius, currentSpeed, color);
     this.reactionTimesRef = reactionTimesRef;
-    this.isFlashed = false;
+    this.isGlowed = false;
     this.glowIntensity = 0;
     this.maxGlowIntensity = 1;
     this.shadowSize = 0; // Initialize shadow size
   }
 
   reset() {
-    this.isFlashed = false;
+    this.isGlowed = false;
     this.glowIntensity = 0;
     this.shadowSize = 0;
     if (this.strobeInterval) {
@@ -305,8 +323,8 @@ export class FlashBall extends Ball {
     }
   }
 
-  flash() {
-    this.isFlashed = true;
+  glow() {
+    this.isGlowed = true;
     this.reactionTimesRef.current.push(Date.now());
     this.increaseGlow();
   }
@@ -327,17 +345,17 @@ export class FlashBall extends Ball {
   }
 
   resetGlow() {
-    this.isFlashed = false;
+    this.isGlowed = false;
     this.glowIntensity = 0;
     this.shadowSize = 0; // Reset shadow size
     clearInterval(this.strobeInterval!);
   }
 
-  click(flashNextBall: () => void) {
-    this.isFlashed = false;
+  click(glowNextBall: () => void) {
+    this.isGlowed = false;
     this.resetGlow();
     this.reactionTimesRef.current.push(Date.now());
-    flashNextBall();
+    glowNextBall();
   }
 
   getColor(): string {
@@ -353,8 +371,8 @@ export class FlashBall extends Ball {
   ): void {
     ctx.save(); // Save the canvas state
 
-    // Apply an expanding shadow if the ball is in the "flashed" state
-    if (this.isFlashed) {
+    // Apply an expanding shadow if the ball is in the "glowed" state
+    if (this.isGlowed) {
       ctx.shadowBlur = this.shadowSize; // Use expanding shadow size
       ctx.shadowColor = this.color; // Maintain constant color for the shadow
     }

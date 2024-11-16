@@ -34,27 +34,6 @@ export const InstructionDialog = ({
   onClose,
   steps,
 }: InstructionDialogProps) => {
-  const [stepIndex, setStepIndex] = useState<number>(0);
-  const isLastStep = stepIndex === steps.length - 1;
-
-  const handleNext = () => {
-    if (isLastStep) {
-      onClose();
-    } else {
-      setStepIndex(stepIndex + 1);
-    }
-  };
-
-  const handleBack = () => {
-    if (stepIndex > 0) {
-      setStepIndex(stepIndex - 1);
-    }
-  };
-
-  useEffect(() => {
-    setStepIndex(0);
-  }, [show]);
-
   return (
     <Dialog open={show}>
       <DialogContent className="border-none bg-game-background shadow-none">
