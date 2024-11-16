@@ -1,5 +1,5 @@
 import React from "react";
-import TNTFlashGame from "@/components/components/TNT/TNTFlash";
+import TNTGlowGame from "@/components/components/TNT/TNTGlow";
 import { formFields } from "@/components/components/TNT/metaData";
 import { TNTCalculateScore } from "@/components/components/TNT/scoring";
 import Image from "next/image";
@@ -7,7 +7,7 @@ import { InstructionStepInterface } from "@/components/components/modals/Instruc
 
 const page = async () => {
   const response = await fetch(
-    "http://localhost:3000/api/data/get-data?dataTable=TNT_FLASH_INSTRUCTIONS",
+    "http://localhost:3000/api/data/get-data?dataTable=TNT_GLOW_INSTRUCTIONS",
   );
   const steps: { link: string }[] = await response.json();
   const instructionSteps: InstructionStepInterface[] = steps.map(
@@ -20,7 +20,7 @@ const page = async () => {
 
   return (
     <main>
-      <TNTFlashGame
+      <TNTGlowGame
         instructions={instructionSteps}
         formFields={formFields}
         calculateScores={TNTCalculateScore}

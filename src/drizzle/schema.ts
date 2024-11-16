@@ -45,7 +45,7 @@ export const TNT_STROBE_DATA = pgTable("TNT_STROBE_DATA", {
   strobeB: real("strobe_b").notNull(),
 });
 
-export const TNT_FLASH_DATA = pgTable("TNT_FLASH_DATA", {
+export const TNT_GLOW_DATA = pgTable("TNT_GLOW_DATA", {
   id: serial("id").primaryKey(),
   timeOfData: timestamp("time_of_data").notNull(),
   params: jsonb("params").notNull(),
@@ -71,6 +71,7 @@ export const TNT_PARAMS = pgTable("TNT_PARAMS", {
   targetBalls: integer("target_balls").notNull(),
   duration: integer("duration").notNull(),
   startingVts: integer("starting_vts").notNull(),
+  changeInVts: integer("change_in_vts").notNull(),
   practiceTrials: integer("practice_trials").notNull(),
   trials: integer("trials").notNull(),
   inUse: boolean("in_use").default(false),
@@ -82,6 +83,7 @@ export const TNT_STROBE_PARAMS = pgTable("TNT_STROBE_PARAMS", {
   targetBalls: integer("target_balls").notNull(),
   duration: integer("duration").notNull(),
   startingVts: integer("starting_vts").notNull(),
+  changeInVts: integer("change_int_vts").notNull(),
   practiceTrials: integer("practice_trials").notNull(),
   trials: integer("trials").notNull(),
   strobeA: real("strobe_a").notNull(),
@@ -89,12 +91,13 @@ export const TNT_STROBE_PARAMS = pgTable("TNT_STROBE_PARAMS", {
   inUse: boolean("in_use").default(false),
 });
 
-export const TNT_FLASH_PARAMS = pgTable("TNT_FLASH_PARAMS", {
+export const TNT_GLOW_PARAMS = pgTable("TNT_GLOW_PARAMS", {
   id: serial("id").primaryKey(),
   numberOfBalls: integer("number_of_balls").notNull(),
   targetBalls: integer("target_balls").notNull(),
   duration: integer("duration").notNull(),
   startingVts: integer("starting_vts").notNull(),
+  changeInVts: integer("change_in_vts").notNull(),
   practiceTrials: integer("practice_trials").notNull(),
   trials: integer("trials").notNull(),
   inUse: boolean("in_use").default(false),
@@ -110,7 +113,7 @@ export const TNT_INSTRUCTIONS = pgTable("TNT_INSTRUCTIONS", {
   link: text("link").notNull(),
 });
 
-export const TNT_FLASH_INSTRUCTIONS = pgTable("TNT_FLASH_INSTRUCTIONS", {
+export const TNT_GLOW_INSTRUCTIONS = pgTable("TNT_GLOW_INSTRUCTIONS", {
   id: serial("id").primaryKey(),
   step: integer("step").notNull(),
   link: text("link").notNull(),

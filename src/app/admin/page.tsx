@@ -29,7 +29,7 @@ const Admin = () => {
     try {
       const baseUrl =
         process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-      const response = await fetch(`${baseUrl}/api/get-tables`, {
+      const response = await fetch(`${baseUrl}/api/data/get-tables`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -50,7 +50,7 @@ const Admin = () => {
   // Fetch parameters for the selected table
   const fetchParams = async (): Promise<void> => {
     if (selectedParam) {
-      const url = `/api/get-data?dataTable=${selectedParam}`;
+      const url = `/api/data/get-data?dataTable=${selectedParam}`;
       try {
         const response = await fetch(url);
         const data: TableRow[] = await response.json();
@@ -64,7 +64,7 @@ const Admin = () => {
   // Fetch data for the selected table
   const fetchData = async (): Promise<void> => {
     if (selectedData) {
-      const url = `/api/get-data?dataTable=${selectedData}`;
+      const url = `/api/data/get-data?dataTable=${selectedData}`;
       try {
         const response = await fetch(url);
         const data: TableRow[] = await response.json();
@@ -92,7 +92,7 @@ const Admin = () => {
   // Handle new row input changes
   const handleNewRowChange = (
     header: string,
-    value: string | boolean
+    value: string | boolean,
   ): void => {
     setNewRow((prev) => ({
       ...prev,
@@ -103,13 +103,16 @@ const Admin = () => {
   // Function to add a new row
   const addNewRow = async (): Promise<void> => {
     try {
-      const response = await fetch(`/api/add-params?table=${selectedParam}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `/api/params/add-params?table=${selectedParam}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newRow),
         },
-        body: JSON.stringify(newRow),
-      });
+      );
 
       if (response.ok) {
         setTimeout(() => fetchParams(), 500); // Refresh parameters data without reloading
@@ -130,10 +133,10 @@ const Admin = () => {
     if (activeInUseCount > 1 || !rowToDelete?.inUse) {
       try {
         const response = await fetch(
-          `/api/delete-param?table=${selectedParam}&id=${rowId}`,
+          `/api/params/delete-param?table=${selectedParam}&id=${rowId}`,
           {
             method: "DELETE",
-          }
+          },
         );
 
         if (response.ok) {
@@ -152,7 +155,7 @@ const Admin = () => {
   // Function to toggle "InUse" status in the database and update local state
   const toggleInUse = async (
     rowId: number,
-    currentStatus: boolean
+    currentStatus: boolean,
   ): Promise<void> => {
     const activeInUseCount = params.filter((row) => row.inUse).length;
 
@@ -164,14 +167,14 @@ const Admin = () => {
 
     try {
       const response = await fetch(
-        `/api/update-in-use?table=${selectedParam}`,
+        `/api/params/update-in-use?table=${selectedParam}`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ inUse: !currentStatus, id: rowId }),
-        }
+        },
       );
 
       if (response.ok) {
@@ -287,7 +290,7 @@ const Admin = () => {
     <main className="py-32">
       <Navbar />
       {["affanhamid007@gmail.com", "zainmirza1008@gmail.com"].includes(
-        session?.user?.email || ""
+        session?.user?.email || "",
       ) ? (
         <>
           <section className="px-40">

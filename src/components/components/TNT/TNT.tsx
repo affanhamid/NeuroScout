@@ -6,7 +6,6 @@ import {
   HIGHLIGHT_COLOR,
   resolveCollisions,
   resolveCollisionsWithWalls,
-  StrobeBall,
 } from "./Ball";
 import Game, { GameInterface, GameState } from "../Game/Game";
 import { TNT_DATA } from "@/drizzle/schema";
@@ -87,7 +86,7 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
     this.ballsRef.current = createBalls(
       this.canvasRef.current!,
       this.dataRef.current!.ballSize,
-      1,
+      8,
       Ball,
     ) as BallType[];
   }
@@ -102,7 +101,7 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
     this.createBalls();
 
     const uniqueIndices = new Set<number>();
-    while (uniqueIndices.size < 1) {
+    while (uniqueIndices.size < 4) {
       uniqueIndices.add(
         Math.floor(Math.random() * this.ballsRef.current!.length),
       );
@@ -193,7 +192,7 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
       );
 
       // Update with deltaTime
-      this.update(balls, 100, deltaTime);
+      this.update(balls, currentSpeed, deltaTime);
 
       requestAnimationFrame(animate);
     };

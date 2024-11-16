@@ -15,6 +15,7 @@ const HomeButton = React.forwardRef(() => {
       className="fixed top-5 left-10 text-white flex items-center gap-2 text-xl z-[60] cursor-pointer pointer-events-auto group"
       href="/"
     >
+      Hello
       <ArrowLeftIcon className="w-10 h-10 text-red-700 group-hover:-translate-x-3 transition-transform font-bold" />
     </Link>
   );
@@ -28,7 +29,7 @@ const DialogOverlay = React.forwardRef<
     ref={ref}
     className={cn(
       "fixed inset-0 z-50 bg-transparent backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out",
-      className
+      className,
     )}
     {...props}
   />
@@ -47,7 +48,7 @@ const DialogContent = React.forwardRef<
       onInteractOutside={(event) => event.preventDefault()} // Prevent closing when clicking outside
       className={cn(
         "fixed left-[50%] top-[50%] z-50 grid max-w-3xl w-max translate-x-[-50%] translate-y-[-50%] gap-6 rounded-lg border border-zinc-200 bg-zinc-900 p-8 shadow-lg duration-200 data-[state=open]:fade-in data-[state=closed]:fade-out pointer-events-auto",
-        className
+        className,
       )}
       {...props}
     >
