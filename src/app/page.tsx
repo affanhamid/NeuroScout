@@ -2,11 +2,27 @@
 import Footer from "@/components/components/Footer";
 import Navbar from "@/components/components/Navbar";
 
-export const Card = ({ heading, text }: { heading: string; text: string }) => {
+const Card = ({ heading, text }: { heading: string; text: string }) => {
   return (
     <div className="bg-dark w-[320px] aspect-[0.9] rounded-lg text-white text-center py-10">
       <h3 className="">{heading}</h3>
       <p>{text}</p>
+    </div>
+  );
+};
+
+const TimelineElement = ({
+  heading,
+  text,
+}: {
+  heading: string;
+  text: string;
+}) => {
+  return (
+    <div className="bg-white/20 w-[500px] aspect-[3/2] rounded-lg text-white text-center py-10 relative">
+      <h3 className="">{heading}</h3>
+      <p>{text}</p>
+      <div className="absolute w-10 h-10 bg-white/20 rounded-full top-full left-[50%] transform translate-x-[-50%] mt-5" />
     </div>
   );
 };
@@ -55,7 +71,15 @@ export default function Home() {
           <div className="w-60 bg-white aspect-[3/4] rounded-lg"></div>
         </div>
       </section>
-      <section></section>
+      <section className="bg-testing h-[85vh] py-20">
+        <h2 className="text-white mb-20">How it works</h2>
+        <div className="flex gap-10 relative">
+          <TimelineElement heading="Take Assessment" text="" />
+          <TimelineElement heading="Get Analysis" text="" />
+          <TimelineElement heading="Learn about yourself" text="" />
+          <div className="bg-white/20 absolute h-2 w-[69%] left-[50%] top-[116%] transform translate-y-[-50%] -translate-x-[50%]" />
+        </div>
+      </section>
       <section></section>
       <div className="mt-40"></div>
       <Footer />

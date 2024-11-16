@@ -11,7 +11,7 @@ const config: Config = {
     extend: {
       backgroundImage: {
         hero: "url('/Hero.svg')",
-        testing: "url('Testing.svg')",
+        testing: "url('/Testing.svg')",
       },
       colors: {
         "game-background": "#1B1B1B",
