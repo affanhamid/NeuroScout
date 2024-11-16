@@ -81,11 +81,11 @@
   }
 
   p {
-    @apply text-2xl;
+    @apply text-lg;
   }
 
   h3 {
-    @apply text-3xl;
+    @apply text-xl;
   }
 
   button {
