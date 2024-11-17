@@ -5,6 +5,10 @@ export async function GET(req: NextRequest) {
   try {
     const gameId = req.nextUrl.searchParams.get("game_id");
 
+    if (!gameId || isNaN(parseInt(gameId))) {
+      return NextResponse.json("invalid game id");
+    }
+
     const result = await readInstructions(parseInt(gameId!));
 
     return NextResponse.json(result);

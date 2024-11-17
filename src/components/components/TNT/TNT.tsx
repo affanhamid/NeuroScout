@@ -80,8 +80,10 @@ class TNTGame<BallType extends Ball, Params extends TNTParams> extends Game<
 
   setParams = async () => {
     try {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
       const response = await fetch(
-        `/api/param/get-params?gameId=${this.dataRef.current.gameId}`,
+        `${baseUrl}/api/param/get-params?gameId=${this.dataRef.current.gameId}`,
       );
       const result = await response.json();
       this.gameEndTimeRef.current = 0;
@@ -194,7 +196,11 @@ class TNTGame<BallType extends Ball, Params extends TNTParams> extends Game<
     const animate = (timestamp: number) => {
       if (!lastTimestamp) lastTimestamp = timestamp;
 
-      const deltaTime = (timestamp - lastTimestamp) / 1000;
+      const deltaTime = Math.max(
+        Math.min((timestamp - lastTimestamp) / 1000, 1),
+        1e-6,
+      );
+
       lastTimestamp = timestamp;
 
       // Clear and set background as usual
@@ -225,7 +231,7 @@ class TNTGame<BallType extends Ball, Params extends TNTParams> extends Game<
     }, 1000);
 
     const timerId = setTimeout(() => {
-      currentSpeed = 0;
+      currentSpeed = 0.1;
       this.setState({ showReset: true });
       this.canvasRef.current!.addEventListener("click", clickEventAfterGame);
       this.gameEndTimeRef.current = Date.now();
