@@ -1,46 +1,28 @@
 {
-  "id": "2aff18ba-acc6-45e8-b37f-0c8f3c0b381d",
-  "prevId": "fac28541-0255-4b96-93d0-ea62add13377",
+  "id": "d9e22d5a-f9c8-45ca-b0fb-6c1390a0bb7f",
+  "prevId": "57d6c983-d4a2-4344-a493-64e488533c24",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.TNT_DATA": {
-      "name": "TNT_DATA",
+    "public.data": {
+      "name": "data",
       "schema": "",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "param_id": {
+          "name": "param_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "time_of_data": {
           "name": "time_of_data",
           "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "vts": {
-          "name": "vts",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "scores": {
-          "name": "scores",
-          "type": "real[]",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "age": {
-          "name": "age",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "highest_level": {
-          "name": "highest_level",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "time_to_clicks": {
-          "name": "time_to_clicks",
-          "type": "real[]",
           "primaryKey": false,
           "notNull": true
         },
@@ -62,15 +44,79 @@
           "primaryKey": false,
           "notNull": true
         },
-        "duration": {
-          "name": "duration",
-          "type": "real",
+        "result_id": {
+          "name": "result_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "data_param_id_param_id_fk": {
+          "name": "data_param_id_param_id_fk",
+          "tableFrom": "data",
+          "tableTo": "param",
+          "columnsFrom": [
+            "param_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "data_result_id_result_id_fk": {
+          "name": "data_result_id_result_id_fk",
+          "tableFrom": "data",
+          "tableTo": "result",
+          "columnsFrom": [
+            "result_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.game": {
+      "name": "game",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "num_practice_rounds": {
-          "name": "num_practice_rounds",
-          "type": "integer",
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "link": {
+          "name": "link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image_link": {
+          "name": "image_link",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         }
@@ -83,72 +129,75 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.TNT_FLASH_DATA": {
-      "name": "TNT_FLASH_DATA",
+    "public.instruction": {
+      "name": "instruction",
       "schema": "",
       "columns": {
-        "time_of_data": {
-          "name": "time_of_data",
-          "type": "timestamp",
-          "primaryKey": false,
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
           "notNull": true
         },
-        "vts": {
-          "name": "vts",
+        "step": {
+          "name": "step",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "scores": {
-          "name": "scores",
-          "type": "real[]",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "age": {
-          "name": "age",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "highest_level": {
-          "name": "highest_level",
+        "link": {
+          "name": "link",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "time_to_clicks": {
-          "name": "time_to_clicks",
-          "type": "real[]",
+        "game_id": {
+          "name": "game_id",
+          "type": "integer",
           "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "instruction_game_id_game_id_fk": {
+          "name": "instruction_game_id_game_id_fk",
+          "tableFrom": "instruction",
+          "tableTo": "game",
+          "columnsFrom": [
+            "game_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.param": {
+      "name": "param",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
           "notNull": true
         },
-        "screen_width": {
-          "name": "screen_width",
+        "practice_trials": {
+          "name": "practice_trials",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "screen_height": {
-          "name": "screen_height",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "ball_size": {
-          "name": "ball_size",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "duration": {
-          "name": "duration",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "num_practice_rounds": {
-          "name": "num_practice_rounds",
+        "trials": {
+          "name": "trials",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -157,6 +206,58 @@
           "name": "in_use",
           "type": "boolean",
           "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "game_id": {
+          "name": "game_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "param_game_id_game_id_fk": {
+          "name": "param_game_id_game_id_fk",
+          "tableFrom": "param",
+          "tableTo": "game",
+          "columnsFrom": [
+            "game_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.result": {
+      "name": "result",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "result": {
+          "name": "result",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "form_data": {
+          "name": "form_data",
+          "type": "jsonb",
+          "primaryKey": false,
           "notNull": true
         }
       },
@@ -168,10 +269,16 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.TNT_FLASH_PARAMS": {
-      "name": "TNT_FLASH_PARAMS",
+    "public.tnt_glow_param": {
+      "name": "tnt_glow_param",
       "schema": "",
       "columns": {
+        "param_id": {
+          "name": "param_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "number_of_balls": {
           "name": "number_of_balls",
           "type": "integer",
@@ -196,31 +303,57 @@
           "primaryKey": false,
           "notNull": true
         },
-        "practice_trials": {
-          "name": "practice_trials",
+        "change_in_vts": {
+          "name": "change_in_vts",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "trials": {
-          "name": "trials",
-          "type": "integer",
+        "randomness_mean": {
+          "name": "randomness_mean",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "randomness_std": {
+          "name": "randomness_std",
+          "type": "real",
           "primaryKey": false,
           "notNull": true
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "tnt_glow_param_param_id_param_id_fk": {
+          "name": "tnt_glow_param_param_id_param_id_fk",
+          "tableFrom": "tnt_glow_param",
+          "tableTo": "param",
+          "columnsFrom": [
+            "param_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.TNT_PARAMS": {
-      "name": "TNT_PARAMS",
+    "public.tnt_param": {
+      "name": "tnt_param",
       "schema": "",
       "columns": {
+        "param_id": {
+          "name": "param_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "number_of_balls": {
           "name": "number_of_balls",
           "type": "integer",
@@ -245,99 +378,71 @@
           "primaryKey": false,
           "notNull": true
         },
-        "practice_trials": {
-          "name": "practice_trials",
+        "change_in_vts": {
+          "name": "change_in_vts",
           "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "trials": {
-          "name": "trials",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "in_use": {
-          "name": "in_use",
-          "type": "boolean",
           "primaryKey": false,
           "notNull": true
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "tnt_param_param_id_param_id_fk": {
+          "name": "tnt_param_param_id_param_id_fk",
+          "tableFrom": "tnt_param",
+          "tableTo": "param",
+          "columnsFrom": [
+            "param_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.TNT_STROBE_DATA": {
-      "name": "TNT_STROBE_DATA",
+    "public.tnt_strobe_param": {
+      "name": "tnt_strobe_param",
       "schema": "",
       "columns": {
-        "time_of_data": {
-          "name": "time_of_data",
-          "type": "timestamp",
+        "param_id": {
+          "name": "param_id",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "vts": {
-          "name": "vts",
+        "number_of_balls": {
+          "name": "number_of_balls",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "scores": {
-          "name": "scores",
-          "type": "real[]",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "age": {
-          "name": "age",
+        "target_balls": {
+          "name": "target_balls",
           "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "highest_level": {
-          "name": "highest_level",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "time_to_clicks": {
-          "name": "time_to_clicks",
-          "type": "real[]",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "screen_width": {
-          "name": "screen_width",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "screen_height": {
-          "name": "screen_height",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "ball_size": {
-          "name": "ball_size",
-          "type": "real",
           "primaryKey": false,
           "notNull": true
         },
         "duration": {
           "name": "duration",
-          "type": "real",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "num_practice_rounds": {
-          "name": "num_practice_rounds",
+        "starting_vts": {
+          "name": "starting_vts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "change_int_vts": {
+          "name": "change_int_vts",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
@@ -353,77 +458,24 @@
           "type": "real",
           "primaryKey": false,
           "notNull": true
-        },
-        "in_use": {
-          "name": "in_use",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.TNT_STROBE_PARAMS": {
-      "name": "TNT_STROBE_PARAMS",
-      "schema": "",
-      "columns": {
-        "number_of_balls": {
-          "name": "number_of_balls",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "target_balls": {
-          "name": "target_balls",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "duration": {
-          "name": "duration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "starting_vts": {
-          "name": "starting_vts",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "practice_trials": {
-          "name": "practice_trials",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "trials": {
-          "name": "trials",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "strobe_a": {
-          "name": "strobe_a",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "strobe_b": {
-          "name": "strobe_b",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": true
+      "foreignKeys": {
+        "tnt_strobe_param_param_id_param_id_fk": {
+          "name": "tnt_strobe_param_param_id_param_id_fk",
+          "tableFrom": "tnt_strobe_param",
+          "tableTo": "param",
+          "columnsFrom": [
+            "param_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
-      "indexes": {},
-      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

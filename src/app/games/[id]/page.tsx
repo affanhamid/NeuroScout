@@ -1,14 +1,15 @@
 import React from "react";
-import TNTGame from "@/components/components/TNT/TNT";
+import { Games } from "@/components/components/Games";
 import { formFields } from "@/components/components/TNT/metaData";
 import { TNTCalculateScore } from "@/components/components/TNT/scoring";
 import { InstructionStepInterface } from "@/components/components/modals/InstructionDialog";
 import Image from "next/image";
 
-const page = async () => {
+async function page({ params }: { params: Promise<{ id: string }> }) {
+  const id = (await params).id;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const response = await fetch(
-    `${baseUrl}/api/data/get-data?dataTable=TNT_INSTRUCTIONS`,
+    `${baseUrl}/api/game/get-instructions?game_id=${id}`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -24,13 +25,15 @@ const page = async () => {
       ),
     }),
   );
+
+  const SelectedGame = Games[parseInt(id)];
   return (
-    <TNTGame
+    <SelectedGame
       instructions={instructionSteps}
       calculateScores={TNTCalculateScore}
       formFields={formFields}
     />
   );
-};
+}
 
 export default page;

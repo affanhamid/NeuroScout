@@ -29,7 +29,7 @@ const TimelineElement = ({
 
 export default async function Home() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const result = await fetch(`${baseUrl}/api/data/get-data?dataTable=GAMES`, {
+  const result = await fetch(`${baseUrl}/api/data/get-data?dataTable=game`, {
     headers: {
       "Content-Type": "application/json",
     },
