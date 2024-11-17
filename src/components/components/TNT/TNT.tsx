@@ -4,24 +4,41 @@ import {
   Ball,
   createBalls,
   HIGHLIGHT_COLOR,
+  BASE_COLOR,
   resolveCollisions,
   resolveCollisionsWithWalls,
 } from "./Ball";
 import Game, { GameInterface, GameState } from "../Game/Game";
-import { TNT_DATA } from "@/drizzle/schema";
+import { data, param, result, tntParam } from "@/drizzle/schema";
 import { InferInsertModel } from "drizzle-orm";
 
-type TNT_Data = InferInsertModel<typeof TNT_DATA> & {
-  params: TNTParams;
+type TNT_Data = InferInsertModel<typeof data>;
+
+type TNTParams = InferInsertModel<typeof tntParam> &
+  InferInsertModel<typeof param>;
+
+type Result = InferInsertModel<typeof result> & {
+  result: {
+    scores: number[];
+    timeToClicks: number[];
+    finalVts: number;
+  };
+  formData: {
+    age: number;
+    highestLevel: string;
+  };
 };
-export interface TNTParams {
-  vts: number;
-}
+
 export interface TNTGameState extends GameState {
   vts: number;
+  showReset: boolean;
 }
 
-class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
+class TNTGame<BallType extends Ball, Params extends TNTParams> extends Game<
+  TNT_Data,
+  Params,
+  Result
+> {
   highlightedBallsRef: MutableRefObject<number[] | null> =
     createRef<number[]>();
   ballsRef: MutableRefObject<BallType[]> = { current: [] };
@@ -35,16 +52,26 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
   dataRef: MutableRefObject<TNT_Data> = {
     current: {
       timeOfData: new Date(),
-      params: { vts: 0 },
-      scores: [],
-      age: 0,
-      highestLevel: "",
-      timeToClicks: [],
       screenWidth: 0,
+      ballSize: 0,
       screenHeight: 0,
+      gameId: 1,
+      paramId: 0,
     },
   };
-  tableName: string = "TNT_DATA";
+  resultRef: MutableRefObject<Result> = {
+    current: {
+      result: {
+        scores: [],
+        timeToClicks: [],
+        finalVts: 0,
+      },
+      formData: {
+        age: 0,
+        highestLevel: "",
+      },
+    },
+  };
 
   state: TNTGameState = {
     ...this.state,
@@ -53,42 +80,41 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
 
   setParams = async () => {
     try {
-      const response = await fetch("/api/param/get-params?gameId=1");
+      const response = await fetch(
+        `/api/param/get-params?gameId=${this.dataRef.current.gameId}`,
+      );
       const result = await response.json();
-      this.startingVtsRef.current = result[0].startingVts;
-      this.state.vts = this.startingVtsRef.current;
-
       this.gameEndTimeRef.current = 0;
-      this.dataRef!.current!.params.vts = result[0].startingVts;
-      this.dataRef!.current!.duration = result[0].duration;
-      this.dataRef!.current!.numPracticeRounds = result[0].practiceTrials;
-      this.dataRef!.current!.numTrialRounds = result[0].trials;
+      this.paramsRef.current = { ...result[0].param, ...result[0].paramValues };
+      this.state.vts = this.paramsRef.current!.startingVts;
+      this.dataRef.current.paramId = this.paramsRef.current.paramId;
     } catch (error) {
       console.error("Error fetching TNT params:", error);
     }
   };
 
-  constructor(
-    props: GameInterface<TNT_Data, TNTParams>,
-    fetchParams: boolean = true,
-  ) {
+  constructor(props: GameInterface<Params>, fetchParams: boolean = false) {
     super(props);
-
-    if (fetchParams !== false) {
+    if (fetchParams) {
       this.setParams();
     }
   }
+
+  resetSelection = () => {
+    this.clickedBallsRef.current!.clear();
+    this.ballsRef.current.forEach((ball: Ball) => (ball.color = BASE_COLOR));
+  };
 
   createBalls() {
     this.ballsRef.current = createBalls(
       this.canvasRef.current!,
       this.dataRef.current!.ballSize,
-      8,
+      this.paramsRef.current!.numberOfBalls,
       Ball,
     ) as BallType[];
   }
 
-  setup = () => {
+  setup = async () => {
     this.dataRef.current!.ballSize = Math.max(
       Math.round(window.innerWidth / 27),
       40,
@@ -165,7 +191,7 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
 
     let lastTimestamp = 0;
 
-    const animate = (timestamp) => {
+    const animate = (timestamp: number) => {
       if (!lastTimestamp) lastTimestamp = timestamp;
 
       const deltaTime = (timestamp - lastTimestamp) / 1000;
@@ -189,7 +215,7 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
       // Update with deltaTime
       this.update(balls, currentSpeed, deltaTime);
 
-      requestAnimationFrame(animate);
+      this.state.isRunning && requestAnimationFrame(animate);
     };
     requestAnimationFrame(animate);
 
@@ -200,6 +226,7 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
 
     const timerId = setTimeout(() => {
       currentSpeed = 0;
+      this.setState({ showReset: true });
       this.canvasRef.current!.addEventListener("click", clickEventAfterGame);
       this.gameEndTimeRef.current = Date.now();
       this.ballsRef.current!.forEach((ball) => ball.reset());
@@ -207,7 +234,7 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
         "click",
         clickEventDuringGame,
       );
-    }, this.dataRef.current!.duration * 1000);
+    }, this.paramsRef.current!.duration * 1000);
 
     const clickEventAfterGame = (event: MouseEvent) => {
       const rect = this.canvasRef.current!.getBoundingClientRect();
@@ -221,7 +248,7 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
         if (distance < ball.radius) {
           ball.color = HIGHLIGHT_COLOR;
           this.clickedBallsRef.current!.add(index);
-          this.dataRef.current!.timeToClicks.push(
+          this.resultRef.current!.result!.timeToClicks.push(
             Date.now() - this.gameEndTimeRef.current!,
           );
 
@@ -240,15 +267,19 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
             this.correctBallsRef.current = correctBalls;
 
             setTimeout(() => {
-              this.update(balls, currentSpeed);
+              this.update(balls, currentSpeed, 0);
             }, 10);
 
             if (score === 4) {
-              this.setState({ vts: this.state.vts + 1 } as TNTGameState);
+              this.setState({
+                vts: this.state.vts + this.paramsRef.current!.changeInVts,
+              } as TNTGameState);
             } else if (this.state.vts > 2) {
-              this.setState({ vts: this.state.vts - 1 } as TNTGameState);
+              this.setState({
+                vts: this.state.vts - this.paramsRef.current!.changeInVts,
+              } as TNTGameState);
             }
-            this.dataRef.current!.scores.push(score);
+            this.resultRef.current!.result.scores.push(score);
             this.isClickableRef.current = false;
             this.clickedBallsRef.current!.clear();
             this.highlightedBallsRef.current = [];
@@ -260,11 +291,11 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
                 this.setState({ trial: this.state.trial + 1 });
 
                 if (
-                  this.isPracticeRef.current &&
-                  this.state.trial + 1 > this.dataRef.current!.numPracticeRounds
+                  this.state.isPractice &&
+                  this.state.trial + 1 > this.paramsRef.current!.practiceTrials
                 ) {
                   this.setState({
-                    vts: this.startingVtsRef.current!,
+                    vts: this.paramsRef.current!.startingVts,
                   } as TNTGameState);
                 }
                 this.setState({ isRunning: false });
@@ -293,27 +324,27 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
     };
   };
 
-  addFormData = (formData: Record<string, any>) => {
-    this.dataRef.current!.age = parseInt(formData.age);
-    this.dataRef.current!.highestLevel = formData.highestLevel;
-    this.dataRef.current!.screenWidth = window.innerWidth;
-    this.dataRef.current!.screenHeight = window.innerHeight;
-    this.dataRef.current!.params.vts = this.state.vts;
+  addFormData = (formData: Record<string, string>) => {
+    this.resultRef.current.formData.age = parseInt(formData.age);
+    this.resultRef.current.formData.highestLevel = formData.highestLevel;
+    this.dataRef.current.screenWidth = window.innerWidth;
+    this.dataRef.current.screenHeight = window.innerHeight;
+    this.resultRef.current.result.finalVts = this.state.vts;
   };
 
-  submitData = async (formData: Record<string, any>) => {
+  submitData = async (formData: Record<string, string>) => {
     this.addFormData(formData);
-    console.log("submitting data to table", this.tableName);
+    const payload = {
+      data: this.dataRef.current,
+      result: this.resultRef.current,
+    };
     try {
-      const response = await fetch("/api/add-tnt-data", {
+      const response = await fetch("/api/data/add-data", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...this.dataRef.current!,
-          table: this.tableName,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();

@@ -1,23 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { create } from "@/db";
+import { addData } from "@/db";
 import { InferInsertModel } from "drizzle-orm";
-import { TNT_DATA } from "@/drizzle/schema";
+import { data, result } from "@/drizzle/schema";
 
 export async function POST(req: NextRequest) {
   try {
-    const data: InferInsertModel<typeof TNT_DATA> = await req.json();
-    const tableName = req.nextUrl.searchParams.get("table");
+    const reqJson = await req.json();
+    const dataObj: InferInsertModel<typeof data> = reqJson.data;
+    const resultObj: InferInsertModel<typeof result> = reqJson.result;
 
-    const result = tableName!.includes("DATA")
-      ? await create(data, tableName!)
-      : "Invalid table Name";
+    addData(dataObj, resultObj);
 
-    return NextResponse.json(result);
+    return NextResponse.json({});
   } catch (error) {
     console.error(error);
     return NextResponse.json(
       { success: false, message: error },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

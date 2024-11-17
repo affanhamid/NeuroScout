@@ -3,27 +3,24 @@ import { MutableRefObject } from "react";
 import { GlowBall, createBalls } from "./Ball";
 import { GameInterface } from "../Game/Game";
 import TNTGame from "./TNT";
-import { TNTGameState, TNTParams } from "./TNT";
+import { TNTGameState } from "./TNT";
+import { InferInsertModel } from "drizzle-orm";
+import { data, param, tntGlowParam } from "@/drizzle/schema";
 
-class TNTGlowGame extends TNTGame<GlowBall> {
+type TNT_Glow_Data = InferInsertModel<typeof data>;
+
+type TNT_Glow_Params = InferInsertModel<typeof param> &
+  InferInsertModel<typeof tntGlowParam>;
+
+class TNTGlowGame extends TNTGame<GlowBall, TNT_Glow_Params> {
   dataRef: MutableRefObject<TNT_Glow_Data> = {
     current: {
       timeOfData: new Date(),
-      params: {
-        vts: 0,
-      },
-      scores: [],
-      age: 0,
-      highestLevel: "",
-      timeToClicks: [],
       screenWidth: 0,
       screenHeight: 0,
       ballSize: 0,
-      duration: 0,
-      numPracticeRounds: 0,
-      numTrialRounds: 0,
-      randomnessMean: 0,
-      randomnessStd: 0,
+      gameId: 2,
+      paramId: 0,
     },
   };
   shouldGlowRef: MutableRefObject<boolean> = { current: true };
@@ -32,29 +29,7 @@ class TNTGlowGame extends TNTGame<GlowBall> {
   state: TNTGameState = {
     ...this.state,
   };
-
-  setParams = async () => {
-    try {
-      const response = await fetch("/api/param/get-params?gameId=2");
-      const result = await response.json();
-      this.startingVtsRef.current = result[0].startingVts;
-      this.state.vts = this.startingVtsRef.current;
-      this.reactionsTimesRef.current = [];
-
-      this.dataRef.current!.randomnessMean = 1000;
-      this.dataRef.current!.randomnessStd = 500;
-
-      this.dataRef.current!.duration = result[0].duration;
-      this.dataRef.current!.numPracticeRounds = result[0].practiceTrials;
-      this.dataRef.current!.numTrialRounds = result[0].trials;
-      this.dataRef.current!.params.vts = result[0].startingVts;
-      this.shouldGlowRef.current = true;
-    } catch (error) {
-      console.error("Error fetching tnt glow params:", error);
-    }
-  };
-
-  constructor(props: GameInterface<TNT_Glow_Data, TNTParams>) {
+  constructor(props: GameInterface<TNT_Glow_Params>) {
     super(props, false);
     this.setParams();
   }
@@ -65,14 +40,6 @@ class TNTGlowGame extends TNTGame<GlowBall> {
     const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
     return z * stddev + mean;
   }
-
-  addFormData = (formData: Record<string, string>) => {
-    this.dataRef.current!.age = parseInt(formData.age);
-    this.dataRef.current!.highestLevel = formData.highestLevel;
-    this.dataRef.current!.screenWidth = window.innerWidth;
-    this.dataRef.current!.screenHeight = window.innerHeight;
-    this.dataRef.current!.params.vts = this.state.vts;
-  };
 
   selectRandomBallToGlow = () => {
     setTimeout(
@@ -85,11 +52,10 @@ class TNTGlowGame extends TNTGame<GlowBall> {
           randomBall.glow();
         }
       },
-      3000 +
-        this.randomGaussian(
-          this.dataRef.current!.randomnessMean,
-          this.dataRef.current!.randomnessStd,
-        ),
+      this.randomGaussian(
+        this.paramsRef.current!.randomnessMean,
+        this.paramsRef.current!.randomnessStd,
+      ),
     );
   };
 
@@ -124,14 +90,16 @@ class TNTGlowGame extends TNTGame<GlowBall> {
       this.reactionsTimesRef,
     );
 
-    this.selectRandomBallToGlow();
-    this.shouldGlowRef.current = true;
-    setTimeout(
-      () => {
-        this.shouldGlowRef.current = false;
-      },
-      this.dataRef.current!.duration * 1000 - 2000,
-    );
+    setTimeout(() => {
+      this.selectRandomBallToGlow();
+      this.shouldGlowRef.current = true;
+      setTimeout(
+        () => {
+          this.shouldGlowRef.current = false;
+        },
+        this.paramsRef.current!.duration * 1000 - 3000,
+      );
+    }, 3000);
   }
 }
 
