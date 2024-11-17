@@ -103,6 +103,9 @@ export const resolveCollisions = (
       const dy = ballB.y - ballA.y;
       const distance = Math.sqrt(dx * dx + dy * dy) || 1e-6;
 
+      // Skip if distance is too small to avoid invalid normal/tangent calculation
+      if (distance < 1e-6) continue;
+
       // Check if balls are colliding
       if (distance < ballA.radius + ballB.radius) {
         const overlap = ballA.radius + ballB.radius - distance;
@@ -110,6 +113,8 @@ export const resolveCollisions = (
         // Separate the balls to remove overlap (scaled by deltaTime)
         const normalX = dx / distance;
         const normalY = dy / distance;
+
+        if (isNaN(normalX) || isNaN(normalY)) continue; // Prevent invalid normals
 
         const separationX = (normalX * overlap) / 2;
         const separationY = (normalY * overlap) / 2;
@@ -128,6 +133,18 @@ export const resolveCollisions = (
 
         const velocityBNormal = ballB.vx * normalX + ballB.vy * normalY;
         const velocityBTangent = ballB.vx * tangentX + ballB.vy * tangentY;
+
+        if (
+          isNaN(velocityANormal) ||
+          isNaN(velocityATangent) ||
+          isNaN(velocityBNormal) ||
+          isNaN(velocityBTangent)
+        ) {
+          console.error(
+            "Invalid velocity components during collision resolution",
+          );
+          continue;
+        }
 
         // Swap normal velocities (elastic collision)
         const newVelocityANormal = velocityBNormal;
@@ -152,11 +169,15 @@ export const resolveCollisions = (
         const magnitudeA = Math.sqrt(ballA.vx * ballA.vx + ballA.vy * ballA.vy);
         const magnitudeB = Math.sqrt(ballB.vx * ballB.vx + ballB.vy * ballB.vy);
 
-        ballA.vx = (ballA.vx / magnitudeA) * currentSpeed;
-        ballA.vy = (ballA.vy / magnitudeA) * currentSpeed;
+        if (magnitudeA > 1e-6) {
+          ballA.vx = (ballA.vx / magnitudeA) * currentSpeed;
+          ballA.vy = (ballA.vy / magnitudeA) * currentSpeed;
+        }
 
-        ballB.vx = (ballB.vx / magnitudeB) * currentSpeed;
-        ballB.vy = (ballB.vy / magnitudeB) * currentSpeed;
+        if (magnitudeB > 1e-6) {
+          ballB.vx = (ballB.vx / magnitudeB) * currentSpeed;
+          ballB.vy = (ballB.vy / magnitudeB) * currentSpeed;
+        }
       }
     }
   }
@@ -196,7 +217,10 @@ export const resolveCollisionsWithWalls = (
     const currentSpeedMagnitude = Math.sqrt(
       ball.vx * ball.vx + ball.vy * ball.vy,
     );
-    if (currentSpeedMagnitude !== currentSpeed) {
+    if (
+      currentSpeedMagnitude > 1e-6 &&
+      currentSpeedMagnitude !== currentSpeed
+    ) {
       const scale = currentSpeed / currentSpeedMagnitude;
       ball.vx *= scale;
       ball.vy *= scale;
@@ -234,6 +258,9 @@ export class StrobeBall extends Ball {
   }
 
   getColor(): string {
+    if (!this.shouldStrobe) {
+      return this.color;
+    }
     const currentTime = Date.now();
 
     // Check if 1 second has passed since the initial delay
@@ -276,9 +303,6 @@ export class StrobeBall extends Ball {
     const b = Math.floor(
       startColor.b + (endColor.b - startColor.b) * normalizedProgress,
     );
-
-    // Debug normalized progress
-    console.log(normalizedProgress);
 
     return this.shouldStrobe ? `rgb(${r}, ${g}, ${b})` : this.color;
   }

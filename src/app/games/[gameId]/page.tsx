@@ -5,8 +5,9 @@ import { TNTCalculateScore } from "@/components/components/TNT/scoring";
 import { InstructionStepInterface } from "@/components/components/modals/InstructionDialog";
 import Image from "next/image";
 
-async function page({ params }: { params: Promise<{ id: string }> }) {
-  const id = (await params).id;
+async function page({ params }: { params: Promise<{ gameId: string }> }) {
+  const resolvedParams = await params;
+  const id = resolvedParams.gameId;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const response = await fetch(
     `${baseUrl}/api/game/get-instructions?game_id=${id}`,

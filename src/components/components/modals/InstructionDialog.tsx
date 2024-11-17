@@ -39,17 +39,16 @@ export const InstructionDialog = ({
       <DialogContent className="border-none bg-game-background shadow-none">
         <DialogHeader className="relative">
           <DialogTitle></DialogTitle>
-          <DialogDescription>
-            <Carousel onClose={onClose}>
-              <CarouselContent>
-                {steps.map((step, index) => (
-                  <CarouselItem key={index}>{step.tsx}</CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="bg-green-500 text-3xl text-white border-none hover:bg-green-600" />
-              <CarouselNext className="bg-green-500 text-3xl text-white border-none hover:bg-green-600" />
-            </Carousel>
-          </DialogDescription>
+          <Carousel onClose={onClose}>
+            <CarouselContent>
+              {steps.map((step, index) => (
+                <CarouselItem key={index}>{step.tsx}</CarouselItem>
+              ))}
+            </CarouselContent>
+            <DialogDescription></DialogDescription>
+            <CarouselPrevious className="bg-green-500 text-3xl text-white border-none hover:bg-green-600" />
+            <CarouselNext className="bg-green-500 text-3xl text-white border-none hover:bg-green-600" />
+          </Carousel>
         </DialogHeader>
       </DialogContent>
     </Dialog>
