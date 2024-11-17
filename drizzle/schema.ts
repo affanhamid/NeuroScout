@@ -11,33 +11,32 @@ import {
 
 // Data
 
-export const DATA = pgTable("DATA", {
+export const data = pgTable("DATA", {
   id: serial("id").primaryKey(),
-  gameId: integer("game_id").references(() => GAME.id),
-  paramsId: integer("params_id").references(() => PARAM.id),
+  paramId: integer("param_id").references(() => param.id),
   timeOfData: timestamp("time_of_data").notNull(),
   screenWidth: integer("screen_width").notNull(),
   screenHeight: integer("screen_height").notNull(),
-  resultId: integer("result_id").references(() => RESULT.id),
+  ballSize: real("ball_size").notNull(),
 });
 
-export const RESULT = pgTable("RESULT", {
+export const result = pgTable("RESULT", {
   id: serial("id").primaryKey(),
   result: jsonb("result").notNull(),
-  form_response: jsonb("form_response").notNull(),
+  formData: jsonb("form_data").notNull(),
 });
 
 // Params
 
-export const PARAM = pgTable("PARAM", {
+export const param = pgTable("PARAM", {
   id: serial("id").primaryKey(),
   practiceTrials: integer("practice_trials").notNull(),
   trials: integer("trials").notNull(),
   inUse: boolean("in_use").default(false),
 });
 
-export const TNT_PARAM = pgTable("PARAM", {
-  paramId: integer("param_id").references(() => PARAM.id),
+export const tntParam = pgTable("TNT_PARAM", {
+  paramId: integer("param_id").references(() => param.id),
   numberOfBalls: integer("number_of_balls").notNull(),
   targetBalls: integer("target_balls").notNull(),
   duration: integer("duration").notNull(),
@@ -45,40 +44,40 @@ export const TNT_PARAM = pgTable("PARAM", {
   changeInVts: integer("change_in_vts").notNull(),
 });
 
-export const TNT_STROBE_PARAM = pgTable("TNT_STROBE_PARAM", {
-  paramId: integer("param_id").references(() => PARAM.id),
+export const tntStrobeParam = pgTable("TNT_STROBE_PARAM", {
+  paramId: integer("param_id").references(() => param.id),
   numberOfBalls: integer("number_of_balls").notNull(),
   targetBalls: integer("target_balls").notNull(),
   duration: integer("duration").notNull(),
   startingVts: integer("starting_vts").notNull(),
-  changeInVts: integer("change_in_vts").notNull(),
+  changeInVts: integer("change_int_vts").notNull(),
   strobeA: real("strobe_a").notNull(),
   strobeB: real("strobe_b").notNull(),
 });
 
-export const TNT_GLOW_PARAM = pgTable("TNT_GLOW_PARAM", {
+export const tntGlowParam = pgTable("TNT_GLOW_PARAM", {
+  paramId: integer("param_id").references(() => param.id),
   numberOfBalls: integer("number_of_balls").notNull(),
   targetBalls: integer("target_balls").notNull(),
   duration: integer("duration").notNull(),
   startingVts: integer("starting_vts").notNull(),
   changeInVts: integer("change_in_vts").notNull(),
-  paramId: integer("param_id").references(() => PARAM.id),
   randomnessMean: real("randomness_mean").notNull(),
   randomnessStd: real("randomness_std").notNull(),
 });
 
 // Instructions
 
-export const INSTRUCTION = pgTable("TNT_INSTRUCTION", {
+export const tntInstruction = pgTable("TNT_INSTRUCTION", {
   id: serial("id").primaryKey(),
   step: integer("step").notNull(),
   link: text("link").notNull(),
-  gameId: integer("game_id").references(() => GAME.id),
+  gameId: integer("game_id").references(() => game.id),
 });
 
 // Games
-//
-export const GAME = pgTable("GAME", {
+
+export const game = pgTable("GAME", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
