@@ -1,21 +1,54 @@
 import { db } from "./db";
 import * as schema from "../drizzle/schema";
+import { type SchemaKeys } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 export const create = async <TData extends { id?: number }>(
   data: TData,
-  tableName: string,
+  tableName: SchemaKeys,
 ) => {
-  const result = await db
-    .insert(schema[tableName as keyof typeof schema])
-    .values(data);
+  const result = await db.insert(schema[tableName]).values(data);
   return result;
 };
 
-export async function read(tableName: string) {
+export async function readInstructions(gameId: number) {
   const result = await db
     .select()
-    .from(schema[tableName as keyof typeof schema]);
+    .from(schema.instruction)
+    .where(eq(schema.instruction.gameId, gameId));
+  return result;
+}
+
+export async function readParams(gameId: number) {
+  switch (gameId) {
+    case 1:
+      const result = await db
+        .select({
+          game: schema.game,
+          param: schema.param,
+          tntParam: schema.tntParam,
+        })
+        .from(schema.game)
+        .innerJoin(schema.param, eq(schema.game.id, schema.param.gameId))
+        .innerJoin(
+          schema.tntParam,
+          eq(schema.param.id, schema.tntParam.paramId),
+        )
+        .where(eq(schema.param.gameId, gameId));
+      const flattenedResult = result.map((row) => ({
+        ...row.game,
+        ...row.param,
+        ...row.tntParam,
+      }));
+      return flattenedResult;
+
+    default:
+      break;
+  }
+}
+export async function readAll(tableName: SchemaKeys) {
+  const table = schema[tableName];
+  const result = await db.select().from(table);
   return result;
 }
 
@@ -36,7 +69,7 @@ export async function update<TData extends { id: number }>(
   const result = await db
     .update(schema[table as keyof typeof schema])
     .set(data)
-    .where(eq(schema[table as keyof typeof schema].id, data.id));
+    .where(eq(schema[table as keyof typeof schema].inumberd, data.id));
   return result;
 }
 

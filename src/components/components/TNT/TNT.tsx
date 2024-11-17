@@ -42,10 +42,6 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
       timeToClicks: [],
       screenWidth: 0,
       screenHeight: 0,
-      ballSize: 0,
-      duration: 0,
-      numPracticeRounds: 0,
-      numTrialRounds: 0,
     },
   };
   tableName: string = "TNT_DATA";
@@ -53,13 +49,13 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
   state: TNTGameState = {
     ...this.state,
     vts: 0,
-    totalBalls: 0,
   };
 
   setParams = async () => {
     try {
-      const response = await fetch("/api/data/get-data?dataTable=TNT_PARAMS");
+      const response = await fetch("/api/param/get-params?gameId=1");
       const result = await response.json();
+      console.log(result);
       this.startingVtsRef.current = result[0].startingVts;
       this.state.vts = this.startingVtsRef.current;
 
@@ -94,7 +90,6 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
   }
 
   setup = () => {
-    let currentSpeed = 0.01;
     this.dataRef.current!.ballSize = Math.max(
       Math.round(window.innerWidth / 27),
       40,
@@ -110,8 +105,6 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
     }
     this.highlightedBallsRef.current = Array.from(uniqueIndices);
     this.actualBallsRef.current = this.highlightedBallsRef.current;
-
-    return { currentSpeed };
   };
 
   update = (balls: BallType[], currentSpeed: number, deltaTime: number) => {
@@ -167,7 +160,8 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
     this.canvasRef.current!.width = window.innerWidth;
     this.canvasRef.current!.height = window.innerHeight;
 
-    let { currentSpeed } = this.setup();
+    this.setup();
+    let currentSpeed = 0.01;
     const balls = this.ballsRef.current!;
 
     let lastTimestamp = 0;

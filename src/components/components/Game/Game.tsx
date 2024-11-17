@@ -15,13 +15,13 @@ import type {
 } from "../modals/Types";
 import { TrialCompletedDialog } from "../modals/TrialCompletedDialog";
 
-export interface GameInterface<TData, TParam> {
+export interface GameInterface<TParam> {
   instructions: InstructionStepInterface[];
   formFields: FormFieldInterface[];
   calculateScores: (
     scores: number[],
     params: TParam,
-    practiceRounds: number
+    practiceRounds: number,
   ) => { currentScore: number; perfectScore: number };
 }
 
@@ -49,7 +49,7 @@ interface BaseTData<TParam> {
 
 class Game<
   TData extends BaseTData<TParam>,
-  TParam extends {}
+  TParam extends {},
 > extends Component<GameInterface<TData, TParam>, GameState> {
   canvasRef = createRef<HTMLCanvasElement>();
   ctxRef: MutableRefObject<CanvasRenderingContext2D | null> = createRef();
@@ -83,7 +83,7 @@ class Game<
 
   componentDidUpdate(
     prevProps: GameInterface<TData, TParam>,
-    prevState: GameState
+    prevState: GameState,
   ) {
     if (prevState.isRunning !== this.state.isRunning && this.state.isRunning) {
       this.canvasRef.current && this.renderGame();

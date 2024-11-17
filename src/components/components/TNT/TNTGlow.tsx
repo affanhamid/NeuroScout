@@ -1,15 +1,9 @@
 "use client";
 import { MutableRefObject } from "react";
 import { GlowBall, createBalls } from "./Ball";
-import { TNT_GLOW_DATA } from "@/drizzle/schema";
 import { GameInterface } from "../Game/Game";
 import TNTGame from "./TNT";
 import { TNTGameState, TNTParams } from "./TNT";
-import { InferInsertModel } from "drizzle-orm";
-
-type TNT_Glow_Data = InferInsertModel<typeof TNT_GLOW_DATA> & {
-  params: TNTParams;
-};
 
 class TNTGlowGame extends TNTGame<GlowBall> {
   dataRef: MutableRefObject<TNT_Glow_Data> = {
@@ -41,12 +35,10 @@ class TNTGlowGame extends TNTGame<GlowBall> {
 
   setParams = async () => {
     try {
-      const response = await fetch(
-        "/api/data/get-data?dataTable=TNT_GLOW_PARAMS",
-      );
+      const response = await fetch("/api/param/get-params?gameId=2");
       const result = await response.json();
       this.startingVtsRef.current = result[0].startingVts;
-
+      this.state.vts = this.startingVtsRef.current;
       this.reactionsTimesRef.current = [];
 
       this.dataRef.current!.randomnessMean = 1000;

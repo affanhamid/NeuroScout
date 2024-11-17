@@ -1,1 +1,0 @@
-ALTER TABLE "TNT_STROBE_DATA" ADD COLUMN "num_trial_rounds" integer NOT NULL;
