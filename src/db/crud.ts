@@ -20,31 +20,38 @@ export async function readInstructions(gameId: number) {
 }
 
 export async function readParams(gameId: number) {
+  let table;
   switch (gameId) {
     case 1:
-      const result = await db
-        .select({
-          game: schema.game,
-          param: schema.param,
-          tntParam: schema.tntParam,
-        })
-        .from(schema.game)
-        .innerJoin(schema.param, eq(schema.game.id, schema.param.gameId))
-        .innerJoin(
-          schema.tntParam,
-          eq(schema.param.id, schema.tntParam.paramId),
-        )
-        .where(eq(schema.param.gameId, gameId));
-      const flattenedResult = result.map((row) => ({
-        ...row.game,
-        ...row.param,
-        ...row.tntParam,
-      }));
-      return flattenedResult;
-
+      table = schema.tntParam;
+      break;
+    case 2:
+      table = schema.tntGlowParam;
+      break;
+    case 3:
+      table = schema.tntStrobeParam;
+      break;
     default:
       break;
   }
+  const result =
+    table &&
+    (await db
+      .select({
+        game: schema.game,
+        param: schema.param,
+        paramValues: table,
+      })
+      .from(schema.game)
+      .innerJoin(schema.param, eq(schema.game.id, schema.param.gameId))
+      .innerJoin(table, eq(schema.param.id, table.paramId))
+      .where(eq(schema.param.gameId, gameId)));
+  const flattenedResult = result!.map((row) => ({
+    ...row.game,
+    ...row.param,
+    ...row.paramValues,
+  }));
+  return flattenedResult;
 }
 export async function readAll(tableName: SchemaKeys) {
   const table = schema[tableName];

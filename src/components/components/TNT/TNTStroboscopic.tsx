@@ -36,11 +36,10 @@ class TNTStroboscopicGame extends TNTGame<StrobeBall> {
   };
   setParams = async () => {
     try {
-      const response = await fetch(
-        "/api/data/get-data?dataTable=TNT_STROBE_PARAMS"
-      );
+      const response = await fetch("/api/param/get-params?gameId=3");
       const result = await response.json();
       this.startingVtsRef.current = result[0].startingVts;
+      this.state.vts = this.startingVtsRef.current;
       this.dataRef.current!.strobeA = result[0].strobeA;
       this.dataRef.current!.strobeB = result[0].strobeB;
       this.dataRef.current!.duration = result[0].duration;
@@ -72,7 +71,7 @@ class TNTStroboscopicGame extends TNTGame<StrobeBall> {
       8,
       StrobeBall,
       this.dataRef.current!.strobeA,
-      this.dataRef.current!.strobeB
+      this.dataRef.current!.strobeB,
     );
   }
 }
