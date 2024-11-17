@@ -1,14 +1,32 @@
 import { db } from "./db";
 import * as schema from "../drizzle/schema";
 import { type SchemaKeys } from "../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { eq, InferInsertModel } from "drizzle-orm";
 
-export const create = async <TData extends { id?: number }>(
-  data: TData,
-  tableName: SchemaKeys,
+export const addData = async (
+  dataObj: InferInsertModel<typeof schema.data>,
+  resultObj: InferInsertModel<typeof schema.result>,
 ) => {
-  const result = await db.insert(schema[tableName]).values(data);
-  return result;
+  // Insert resultObj and retrieve the inserted ID
+  const resultInsert = await db
+    .insert(schema.result)
+    .values(resultObj)
+    .returning({ id: schema.result.id });
+
+  if (!resultInsert[0]?.id) {
+    throw new Error("Failed to insert result object");
+  }
+
+  const resultId = resultInsert[0].id;
+
+  // Add the resultId to the dataObj
+  dataObj.resultId = resultId;
+  dataObj.timeOfData = new Date(dataObj.timeOfData);
+
+  // Insert dataObj
+  const dataInsert = await db.insert(schema.data).values(dataObj);
+
+  return dataInsert;
 };
 
 export async function readInstructions(gameId: number) {
@@ -46,12 +64,7 @@ export async function readParams(gameId: number) {
       .innerJoin(schema.param, eq(schema.game.id, schema.param.gameId))
       .innerJoin(table, eq(schema.param.id, table.paramId))
       .where(eq(schema.param.gameId, gameId)));
-  const flattenedResult = result!.map((row) => ({
-    ...row.game,
-    ...row.param,
-    ...row.paramValues,
-  }));
-  return flattenedResult;
+  return result;
 }
 export async function readAll(tableName: SchemaKeys) {
   const table = schema[tableName];

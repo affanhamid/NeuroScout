@@ -18,7 +18,7 @@ async function page({ params }: { params: Promise<{ id: string }> }) {
     },
   );
   const steps: { link: string }[] = await response.json();
-  const instructionSteps: InstructionStepInterface[] = steps.map(
+  const instructionSteps: InstructionStepInterface[] = steps!.map(
     (step, index) => ({
       tsx: (
         <Image key={index} src={step.link} width={1000} height={1000} alt="" />

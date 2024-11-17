@@ -15,7 +15,6 @@ export const game = pgTable("game", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  link: text("link").notNull(),
   imageLink: text("image_link").notNull(),
 });
 
@@ -77,6 +76,7 @@ export const result = pgTable("result", {
 export const data = pgTable("data", {
   id: serial("id").primaryKey(),
   paramId: integer("param_id").references(() => param.id),
+  gameId: integer("game_id").references(() => game.id),
   timeOfData: timestamp("time_of_data").notNull(),
   screenWidth: integer("screen_width").notNull(),
   screenHeight: integer("screen_height").notNull(),

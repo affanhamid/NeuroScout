@@ -15,7 +15,7 @@ const Gallery = async ({
         games.map((gameItem) => (
           <div key={gameItem.title}>
             <Link
-              href={gameItem.link}
+              href={`games/${gameItem.id}`}
               className="text-purple-500 hover:text-purple-600 text-xl"
             >
               <Image

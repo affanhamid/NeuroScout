@@ -238,39 +238,33 @@ export class StrobeBall extends Ball {
 
     // Check if 1 second has passed since the initial delay
     if (currentTime < this.lastStrobeTime) {
-      // Return the "off" color before the strobe starts
-      return this.color;
+      return this.color; // Return "off" color before the strobe starts
     }
 
-    // Define peak and trough durations in milliseconds
-    const peakDuration = this.strobeA;
-    const troughDuration = this.strobeB;
+    // Define durations
+    const peakDuration = this.strobeA; // Duration to rise to the peak
+    const troughDuration = this.strobeB; // Duration to fall to the trough
     const cycleTime = peakDuration + troughDuration;
 
+    // Calculate elapsed time in the current cycle
     const elapsedTime = (currentTime - this.lastStrobeTime) % cycleTime;
 
-    let sineWave;
-    const peakHoldFactor = 10;
-    const troughHoldFactor = 10;
+    // Normalize elapsed time to a sine wave cycle (0 to 2π)
+    const normalizedTime = elapsedTime / cycleTime; // 0 to 1
+    const sineWave = Math.sin(normalizedTime * 2 * Math.PI);
 
-    if (elapsedTime < peakDuration) {
-      // First part of the cycle (peak)
-      const x = (elapsedTime / peakDuration) * Math.PI; // Adjust phase for the peak
-      sineWave = Math.sin(x);
-      sineWave = Math.pow(sineWave, 1 / peakHoldFactor); // Apply peak hold
-    } else {
-      // Second part of the cycle (trough)
-      const x = ((elapsedTime - peakDuration) / troughDuration) * Math.PI; // Adjust phase for the trough
-      sineWave = Math.sin(x);
-      sineWave = -Math.pow(Math.abs(sineWave), 1 / troughHoldFactor); // Apply trough hold
-    }
+    // Stretch the sine wave near the peaks using a cubic easing function
+    const smoothSineWave =
+      sineWave >= 0
+        ? Math.pow(sineWave, 0.5) // Stretch near the peak
+        : -Math.pow(-sineWave, 0.5); // Stretch near the trough
 
-    // sineWave = this.smoothstep((sineWave + 1) / 2) * 2 - 1;
-    const normalizedProgress = (sineWave + 1) / 2;
+    // Normalize to a 0–1 range for progress
+    const normalizedProgress = (smoothSineWave + 1) / 2;
 
     // Colors to interpolate between
     const startColor = { r: 27, g: 27, b: 27 }; // Dark color for "off"
-    const endColor = { r: 247, g: 212, b: 7 }; // Brighter color for "on"
+    const endColor = { r: 240, g: 205, b: 0 }; // Bright color for "on"
 
     // Calculate interpolated color
     const r = Math.floor(
@@ -282,6 +276,9 @@ export class StrobeBall extends Ball {
     const b = Math.floor(
       startColor.b + (endColor.b - startColor.b) * normalizedProgress,
     );
+
+    // Debug normalized progress
+    console.log(normalizedProgress);
 
     return this.shouldStrobe ? `rgb(${r}, ${g}, ${b})` : this.color;
   }
@@ -406,8 +403,9 @@ export const createBalls = <T extends Ball>(
 
   for (let i = 0; i < numberOfBalls; i++) {
     const randomRegion = regions[i % regions.length];
-    const randomX = Math.random() * 50 - 25;
-    const randomY = Math.random() * 50 - 25;
+    const variation = 50 * (numberOfBalls - 7) ** 2;
+    const randomX = Math.random() * variation - variation / 2;
+    const randomY = Math.random() * variation - variation / 2;
     const angle = Math.random() * 2 * Math.PI;
 
     balls.push(

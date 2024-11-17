@@ -14,6 +14,8 @@ import type {
   FormFieldInterface,
 } from "../modals/Types";
 import { TrialCompletedDialog } from "../modals/TrialCompletedDialog";
+import { InferInsertModel } from "drizzle-orm";
+import { data, param, result } from "@/drizzle/schema";
 
 export interface GameInterface<TParam> {
   instructions: InstructionStepInterface[];
@@ -28,53 +30,53 @@ export interface GameInterface<TParam> {
 export interface GameState {
   trial: number;
   isRunning: boolean;
+  isPractice: boolean;
   showInstructions: boolean;
   showThankYou: boolean;
   showResults: boolean;
   showPracticeComplete: boolean;
   showCountdown: boolean;
   showTrialComplete: boolean;
+  showReset: boolean;
 }
 
-interface BaseTData<TParam> {
-  scores: number[];
-  numPracticeRounds: number;
-  numTrialRounds: number;
-  params: TParam;
-  age: number;
-  screenWidth: number;
-  screenHeight: number;
-  highestLevel: string;
-}
+type BaseTData = InferInsertModel<typeof data>;
+type BaseTParams = InferInsertModel<typeof param>;
+type BaseResult = InferInsertModel<typeof result> & {
+  result: {
+    scores: number[];
+  };
+};
 
 class Game<
-  TData extends BaseTData<TParam>,
-  TParam extends {},
-> extends Component<GameInterface<TData, TParam>, GameState> {
+  TData extends BaseTData,
+  TParams extends BaseTParams,
+  TResult extends BaseResult,
+> extends Component<GameInterface<TParams>, GameState> {
   canvasRef = createRef<HTMLCanvasElement>();
   ctxRef: MutableRefObject<CanvasRenderingContext2D | null> = createRef();
   animationFrameIdRef: MutableRefObject<number> = { current: 0 };
-  isPracticeRef: MutableRefObject<boolean> = { current: true };
   dataRef: MutableRefObject<TData | null> = createRef();
+  resultRef: MutableRefObject<TResult | null> = createRef();
+  paramsRef: MutableRefObject<TParams | null> = createRef();
   renderGame: () => void = () => {};
-  submitData: (formData: Record<string, any>) => Promise<void> = async () => {};
+  submitData: (formData: Record<string, string>) => Promise<void> =
+    async () => {};
 
-  constructor(props: GameInterface<TData, TParam>) {
+  constructor(props: GameInterface<TParams>) {
     super(props);
     this.state = {
       trial: 1,
       isRunning: false,
+      isPractice: true,
       showInstructions: true,
       showThankYou: false,
       showResults: false,
       showPracticeComplete: false,
       showCountdown: false,
       showTrialComplete: false,
+      showReset: false,
     };
-
-    if (this.isPracticeRef.current === null) {
-      this.isPracticeRef.current = true;
-    }
   }
 
   componentDidMount() {
@@ -98,20 +100,25 @@ class Game<
   handleTrialCompletion() {
     const { trial } = this.state;
 
-    if (this.isPracticeRef.current) {
+    if (this.state.isPractice) {
       if (
-        this.dataRef?.current?.numPracticeRounds &&
-        trial === this.dataRef?.current?.numPracticeRounds + 1
+        this.paramsRef?.current?.practiceTrials &&
+        trial === this.paramsRef?.current?.practiceTrials + 1
       ) {
-        this.isPracticeRef.current = false;
-        this.setState({ trial: 1, showPracticeComplete: true });
+        this.setState({
+          trial: 1,
+          showPracticeComplete: true,
+          showReset: false,
+          isPractice: false,
+        });
       } else {
-        trial !== 1 && this.setState({ showTrialComplete: true });
+        trial !== 1 &&
+          this.setState({ showTrialComplete: true, showReset: false });
       }
     } else {
       if (
-        this.dataRef?.current?.numTrialRounds &&
-        trial === this.dataRef?.current?.numTrialRounds + 1
+        this.paramsRef?.current?.trials &&
+        trial === this.paramsRef?.current?.trials + 1
       ) {
         this.setState({ showThankYou: true });
       } else {
@@ -120,7 +127,7 @@ class Game<
     }
   }
 
-  onSubmit = async (formData: Record<string, any>) => {
+  onSubmit = async (formData: Record<string, string>) => {
     this.dataRef.current && (await this.submitData(formData));
     this.setState({ showResults: true });
   };
@@ -159,11 +166,20 @@ class Game<
           </div>
         )}
         <div className="absolute top-10 right-10 text-white text-2xl text-left">
-          {this.isPracticeRef.current && this.dataRef?.current?.numTrialRounds
-            ? `Practice Trial: ${trial}/${this.dataRef.current.numPracticeRounds}`
-            : this.dataRef?.current?.numTrialRounds &&
-              `Trial: ${trial}/${this.dataRef.current.numTrialRounds}`}
+          {this.state.isPractice && this.paramsRef?.current?.trials
+            ? `Practice Trial: ${trial}/${this.paramsRef.current.practiceTrials}`
+            : this.paramsRef?.current?.trials &&
+              `Trial: ${trial}/${this.paramsRef.current.trials}`}
         </div>
+
+        {this.state.showReset && (
+          <button
+            className="text-black bg-green-500 px-3 py-2 rounded-md hover:bg-green-600 absolute top-20 right-10 text-white text-2xl text-left"
+            onClick={this.resetSelection}
+          >
+            Reset Selection
+          </button>
+        )}
         <InstructionDialog
           show={showInstructions}
           onClose={() =>
@@ -192,12 +208,12 @@ class Game<
             this.setState({ showTrialComplete: false, showCountdown: true })
           }
         />
-        <ResultsDialog<TParam>
+        <ResultsDialog<TParams>
           show={showResults}
           onClose={() => this.setState({ showResults: false })}
-          scores={this.dataRef?.current?.scores || []}
-          practiceRounds={this.dataRef?.current?.numPracticeRounds || 0}
-          params={this.dataRef?.current?.params as TParam}
+          scores={this.resultRef?.current?.result.scores || []}
+          practiceRounds={this.paramsRef?.current?.practiceTrials || 0}
+          params={this.paramsRef.current as TParams}
           calculateScore={calculateScores}
         />
       </div>
