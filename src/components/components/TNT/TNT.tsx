@@ -55,7 +55,6 @@ class TNTGame<BallType extends Ball> extends Game<TNT_Data, TNTParams> {
     try {
       const response = await fetch("/api/param/get-params?gameId=1");
       const result = await response.json();
-      console.log(result);
       this.startingVtsRef.current = result[0].startingVts;
       this.state.vts = this.startingVtsRef.current;
 
