@@ -27,7 +27,7 @@ const Gallery = async ({
               />
             </Link>
             <div className="text-center">
-              <h3 className="text-gray-600 text-3xl pt-3 pb-1 text-bold">
+              <h3 className="text-gray-600 text-3xl pt-3 pb-1 font-bold">
                 {gameItem.title}
               </h3>
               <p className="text-gray-600 text-xl">{gameItem.description}</p>
