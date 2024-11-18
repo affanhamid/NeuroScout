@@ -19,7 +19,7 @@ const Gallery = async ({
               className="text-purple-500 hover:text-purple-600 text-xl"
             >
               <Image
-                className="aspect-video w-[500px] rounded-xl"
+                className="aspect-video w-[800px] rounded-xl"
                 src={gameItem.imageLink}
                 width={800}
                 height={450}
@@ -27,7 +27,9 @@ const Gallery = async ({
               />
             </Link>
             <div className="text-center">
-              <h3 className="text-gray-600 text-3xl pt-3">{gameItem.title}</h3>
+              <h3 className="text-gray-600 text-3xl pt-3 pb-1 text-bold">
+                {gameItem.title}
+              </h3>
               <p className="text-gray-600 text-xl">{gameItem.description}</p>
             </div>
           </div>

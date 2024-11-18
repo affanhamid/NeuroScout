@@ -89,7 +89,7 @@ export default async function Home() {
           <div className="bg-white/20 absolute h-2 w-[69%] left-[50%] top-[116%] transform translate-y-[-50%] -translate-x-[50%]" />
         </div>
       </section> */}
-      <section className="pt-24 flex justify-center h-[100vh]">
+      <section className="pt-24 px-20 flex justify-center h-[100vh]">
         <div>
           <h1 className="text-center text-7xl mb-5 text-primary">NeuroScout</h1>
           <p className="text-3xl text-bold mb-36 text-center">
