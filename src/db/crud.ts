@@ -34,6 +34,7 @@ export async function readInstructions(gameId: number) {
     .select()
     .from(schema.instruction)
     .where(eq(schema.instruction.gameId, gameId));
+  result.sort((a, b) => a.step - b.step);
   return result;
 }
 

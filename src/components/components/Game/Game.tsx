@@ -120,9 +120,9 @@ class Game<
         this.paramsRef?.current?.trials &&
         trial === this.paramsRef?.current?.trials + 1
       ) {
-        this.setState({ showThankYou: true });
+        this.setState({ showThankYou: true, showReset: false });
       } else {
-        this.setState({ showTrialComplete: true });
+        this.setState({ showTrialComplete: true, showReset: false });
       }
     }
   }
