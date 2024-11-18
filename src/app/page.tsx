@@ -36,10 +36,10 @@ export default async function Home() {
     cache: "no-store",
   });
   const games = await result.json();
-
+  games.sort((a, b) => a.id - b.id);
   return (
     <main>
-      <Navbar />
+      {/*<Navbar />
       <section className="bg-hero h-[75vh] mt-20">
         <div className="flex h-3/4 items-center justify-between">
           <div className="text-white flex flex-col gap-5 w-[50%]">
@@ -88,10 +88,15 @@ export default async function Home() {
           <TimelineElement heading="Learn about yourself" text="" />
           <div className="bg-white/20 absolute h-2 w-[69%] left-[50%] top-[116%] transform translate-y-[-50%] -translate-x-[50%]" />
         </div>
-      </section>
-      <section className="pb-20">
-        <h2 className="mb-20">Visit Our Games</h2>
-        <Gallery games={games} />
+      </section> */}
+      <section className="pt-24 flex justify-center h-[100vh]">
+        <div>
+          <h1 className="text-center text-7xl mb-5 text-primary">NeuroScout</h1>
+          <p className="text-3xl text-bold mb-36 text-center">
+            Optimising talent through cognitive insight.
+          </p>
+          <Gallery games={games} />
+        </div>
       </section>
       <Footer />
     </main>
