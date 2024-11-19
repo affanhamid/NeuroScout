@@ -5,12 +5,25 @@ import { GameInterface } from "../Game/Game";
 import TNTGame from "./TNT";
 import { TNTGameState } from "./TNT";
 import { InferInsertModel } from "drizzle-orm";
-import { data, param, tntGlowParam } from "@/drizzle/schema";
+import { data, param, tntGlowParam, result } from "@/drizzle/schema";
 
 type TNT_Glow_Data = InferInsertModel<typeof data>;
 
 type TNT_Glow_Params = InferInsertModel<typeof param> &
   InferInsertModel<typeof tntGlowParam>;
+
+type Result = InferInsertModel<typeof result> & {
+  result: {
+    scores: number[];
+    timeToClicks: number[];
+    finalVts: number;
+    reactionTimes: number[];
+  };
+  formData: {
+    age: number;
+    highestLevel: string;
+  };
+};
 
 class TNTGlowGame extends TNTGame<GlowBall, TNT_Glow_Params> {
   dataRef: MutableRefObject<TNT_Glow_Data> = {
@@ -24,8 +37,21 @@ class TNTGlowGame extends TNTGame<GlowBall, TNT_Glow_Params> {
     },
   };
   shouldGlowRef: MutableRefObject<boolean> = { current: true };
-  reactionsTimesRef: MutableRefObject<number[]> = { current: [] };
-
+  reactionTimesRef: MutableRefObject<number[]> = { current: [] };
+  resultRef: MutableRefObject<Result> = {
+    current: {
+      result: {
+        scores: [],
+        timeToClicks: [],
+        finalVts: 0,
+        reactionTimes: this.reactionTimesRef.current,
+      },
+      formData: {
+        age: 0,
+        highestLevel: "",
+      },
+    },
+  };
   state: TNTGameState = {
     ...this.state,
   };
@@ -87,7 +113,7 @@ class TNTGlowGame extends TNTGame<GlowBall, TNT_Glow_Params> {
       this.dataRef.current!.ballSize,
       8,
       GlowBall,
-      this.reactionsTimesRef,
+      this.reactionTimesRef,
     );
 
     setTimeout(() => {
