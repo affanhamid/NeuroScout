@@ -18,7 +18,7 @@ interface ResultsDialogProps<TParam> {
   calculateScore: (
     scores: number[],
     params: TParam,
-    practiceRounds: number
+    practiceRounds: number,
   ) => { currentScore: number; perfectScore: number };
 }
 
@@ -42,16 +42,16 @@ export const ResultsDialog = <TParam extends {}>({
     <Dialog open={show} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Game Results</DialogTitle>
+          <DialogTitle>Thank you for playing</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 text-white text-center text-xl mx-32">
+        {/* <div className="space-y-4 text-white text-center text-xl mx-32">
           <div className="flex flex-col gap-5">
             <b>Final Score:</b>
             <span className="text-green-600 text-3xl font-bold">
               {Math.round(percentageScore)} / 100
             </span>
           </div>
-        </div>
+        </div> */}
         <DialogFooter className="flex w-full justify-between">
           <Link
             href="/"
