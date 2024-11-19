@@ -280,7 +280,7 @@ class TNTGame<BallType extends Ball, Params extends TNTParams> extends Game<
               this.setState({
                 vts: this.state.vts + this.paramsRef.current!.changeInVts,
               } as TNTGameState);
-            } else if (this.state.vts > 2) {
+            } else if (this.state.vts > 50) {
               this.setState({
                 vts: this.state.vts - this.paramsRef.current!.changeInVts,
               } as TNTGameState);
