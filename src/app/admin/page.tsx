@@ -83,7 +83,7 @@ const Admin = () => {
       ) ? (
         <>
           <section className="px-40">
-            <h2 className="text-3xl mb-5">Parameters</h2>
+            <h2 className="text-3xl mb-5">Data</h2>
             {renderTable(data)}
           </section>
         </>
