@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readData } from "@/db";
+import { readAll } from "@/db";
 
 export async function GET(req: NextRequest) {
+  // Access query params using `searchParams`
+  const tableName = req.nextUrl.searchParams.get("dataTable");
+
   try {
-    const result = await readData();
+    const result = await readAll(tableName);
 
     return NextResponse.json(result);
   } catch (error) {
