@@ -15,6 +15,7 @@ export const game = pgTable("game", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
+  link: text("link").notNull(),
   imageLink: text("image_link").notNull(),
 });
 

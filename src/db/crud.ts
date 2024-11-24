@@ -67,6 +67,33 @@ export async function readParams(gameId: number) {
       .where(eq(schema.param.gameId, gameId)));
   return result;
 }
+
+function flattenObject(obj, result = {}) {
+  for (let key in obj) {
+    if (
+      typeof obj[key] === "object" &&
+      obj[key] !== null &&
+      !Array.isArray(obj[key]) &&
+      !(obj[key] instanceof Date) // Exclude Date objects
+    ) {
+      flattenObject(obj[key], result); // Recursively flatten
+    } else if (obj[key] instanceof Date) {
+      result[key] = obj[key].toISOString().split("T").join(" ").split(".")[0]; // Convert Date to ISO string
+    } else {
+      result[key] = obj[key]; // Keep other values as is
+    }
+  }
+  return result;
+}
+
+export async function readData() {
+  const result = await db
+    .select()
+    .from(schema.data)
+    .innerJoin(schema.result, eq(schema.data.resultId, schema.result.id));
+  const flattenedResult = result.map((res) => flattenObject(res));
+  return flattenedResult;
+}
 export async function readAll(tableName: SchemaKeys) {
   const table = schema[tableName];
   const result = await db.select().from(table);
