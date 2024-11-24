@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1731804619776,
-      "tag": "0000_tense_mantis",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1731821374250,
-      "tag": "0001_tense_spencer_smythe",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1731821653189,
-      "tag": "0002_hot_zaladane",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1731821934789,
-      "tag": "0003_aromatic_captain_marvel",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1731857939619,
-      "tag": "0004_parallel_jubilee",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1731859572765,
-      "tag": "0005_modern_namorita",
+      "when": 1732460542937,
+      "tag": "0000_condemned_grey_gargoyle",
       "breakpoints": true
     }
   ]

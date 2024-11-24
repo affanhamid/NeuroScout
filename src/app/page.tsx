@@ -29,14 +29,17 @@ const TimelineElement = ({
 
 export default async function Home() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const result = await fetch(`${baseUrl}/api/data/get-data?dataTable=game`, {
-    headers: {
-      "Content-Type": "application/json",
+  const result = await fetch(
+    `${baseUrl}/api/data/get-table-data?dataTable=game`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
     },
-    cache: "no-store",
-  });
+  );
   const games = await result.json();
-  games.sort((a, b) => a.id - b.id);
+  /*   games.sort((a, b) => a.id - b.id); */
   return (
     <main>
       {/*<Navbar />
