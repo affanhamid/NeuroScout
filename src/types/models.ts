@@ -1,4 +1,5 @@
 import { Item } from "dynamoose/dist/Item";
+
 // Organization Type
 export interface Organization extends Item {
   id: string;
@@ -19,13 +20,24 @@ export interface Game extends Item {
   name: string;
   description: string;
   image: string;
+
+  parameters: Array<{
+    id: string;
+    data: Record<string, object | number | string>;
+  }>;
+
+  scoringMechanisms: Array<{
+    id: string;
+    description: string;
+    function: string;
+  }>;
 }
 
 // GameObservation Type
 export interface GameObservation extends Item {
   playerId: string;
   gameId: string;
-  data: Record<string, any>;
+  data: Record<string, object | string | number>;
 }
 
 // User Type

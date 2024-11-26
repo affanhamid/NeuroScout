@@ -57,6 +57,34 @@ export const GameSchema = new dynamoose.Schema(
       required: true,
       validate: /^(http|https):\/\/[^ "]+$/, // Must be a valid URL
     },
+    parameters: {
+      type: Array,
+      schema: [
+        {
+          type: Object,
+          schema: {
+            id: { type: String, required: true },
+            data: { type: Object, required: true },
+          },
+        },
+      ],
+      required: true,
+    },
+    scoringMechanisms: {
+      type: Array,
+      schema: [
+        {
+          type: Object,
+          schema: {
+            id: { type: String, required: true },
+            description: { type: String, required: true },
+            function: { type: String, required: true }, // Store the function as a string (e.g., serialized JavaScript function)
+          },
+        },
+      ],
+      required: true,
+    },
+
     deletedAt: { type: Date },
   },
   { timestamps: true },
