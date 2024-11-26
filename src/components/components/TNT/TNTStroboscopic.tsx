@@ -1,7 +1,7 @@
 "use client";
 import { MutableRefObject } from "react";
 import { StrobeBall, createBalls } from "./Ball";
-import { GameInterface } from "../Game/Game";
+import { GameInterface } from "../../../components/components/Game/Game";
 import TNTGame from "./TNT";
 import { TNTGameState } from "./TNT";
 import { InferInsertModel } from "drizzle-orm";
