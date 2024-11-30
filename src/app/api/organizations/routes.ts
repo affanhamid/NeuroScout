@@ -1,29 +1,28 @@
-import { NextResponse } from "next/server";
-import { OrganizationModel } from "@/models";
+import { NextRequest, NextResponse } from "next/server";
+import { OrganizationModel, handleError } from "@/db";
+import { CreateOrganizationRequest } from "@/types";
 
+// GET: Retrieve all organizations
 export async function GET() {
-  // Fetch all organizations
   try {
-    const organizations = await OrganizationModel.scan().exec();
+    const organizations = await OrganizationModel.find();
     return NextResponse.json({ success: true, data: organizations });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 },
-    );
+    return handleError(error);
   }
 }
 
-export async function POST(request: Request) {
-  // Create a new organization
+// POST: Create a new organization
+export async function POST(req: NextRequest) {
+  const createData: CreateOrganizationRequest = await req.json();
+
   try {
-    const body = await request.json();
-    const newOrganization = await OrganizationModel.create(body);
-    return NextResponse.json({ success: true, data: newOrganization });
-  } catch (error) {
+    const newOrganization = await OrganizationModel.create(createData);
     return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 400 },
+      { success: true, data: newOrganization },
+      { status: 201 },
     );
+  } catch (error) {
+    return handleError(error);
   }
 }
