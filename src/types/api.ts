@@ -1,20 +1,31 @@
 import {
-  Organization,
-  Player,
-  Game,
-  GameObservation,
-  User,
-  Result,
-  MetricsTemplate,
-} from "./models";
+  OrganizationModel,
+  PlayerModel,
+  GameModel,
+  GameObservationModel,
+  UserModel,
+  ResultsModel,
+  MetricsTemplateModel,
+} from "./database";
+import { InferSchemaType } from "mongoose";
+
+// Generic API response type
 export type ApiResponse<T> = {
   success: boolean;
   data?: T;
   error?: string;
 };
 
-// Organizations
+// Infer types from Mongoose models
+type Organization = InferSchemaType<typeof OrganizationModel>;
+type Player = InferSchemaType<typeof PlayerModel>;
+type Game = InferSchemaType<typeof GameModel>;
+type GameObservation = InferSchemaType<typeof GameObservationModel>;
+type User = InferSchemaType<typeof UserModel>;
+type Result = InferSchemaType<typeof ResultsModel>;
+type MetricsTemplate = InferSchemaType<typeof MetricsTemplateModel>;
 
+// Organizations
 export type CreateOrganizationRequest = { name: string };
 export type UpdateOrganizationRequest = Partial<CreateOrganizationRequest>;
 
@@ -22,9 +33,8 @@ export type GetOrganizationResponse = ApiResponse<Organization>;
 export type GetOrganizationsResponse = ApiResponse<Organization[]>;
 
 // Player
-
 export type CreatePlayerRequest = {
-  id?: number;
+  id?: string; // Adjusted `id` type to match Mongoose (likely a string)
   age: number;
   position: number;
   organizationId: string;
@@ -41,12 +51,12 @@ export type CreateGameRequest = {
   image: string;
   parameters: Array<{
     id: string;
-    data: Record<string, object | number | string>;
+    data: Record<string, unknown>; // Using `unknown` for flexibility
   }>;
   scoringMechanisms: Array<{
     id: string;
     description: string;
-    function: string;
+    function: string; // Serialized function stored as a string
   }>;
 };
 export type UpdateGameRequest = Partial<CreateGameRequest>;
@@ -55,13 +65,11 @@ export type GetGameResponse = ApiResponse<Game>;
 export type GetGamesResponse = ApiResponse<Game[]>;
 
 // Game Observation
-
 export type CreateGameObservationRequest = {
   playerId: string;
   gameId: string;
-  data: Record<string, object | string | number>;
+  data: Record<string, unknown>; // Using `unknown` for flexibility
 };
-
 export type UpdateGameObservationRequest =
   Partial<CreateGameObservationRequest>;
 
@@ -69,7 +77,6 @@ export type GetGameObservationResponse = ApiResponse<GameObservation>;
 export type GetGameObservationsResponse = ApiResponse<GameObservation[]>;
 
 // User
-
 export type CreateUserRequest = {
   email: string;
   password: string;
@@ -82,11 +89,10 @@ export type GetUserResponse = ApiResponse<User>;
 export type GetUsersResponse = ApiResponse<User[]>;
 
 // Result
-
 export type CreateResultRequest = {
   gameId: string;
   playerId: string;
-  metrics: Record<string, MetricsTemplate>;
+  metrics: Record<string, unknown>; // Adjusted for flexibility
   resultDate?: Date;
 };
 export type UpdateResultRequest = Partial<CreateResultRequest>;
