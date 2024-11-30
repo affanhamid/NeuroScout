@@ -19,7 +19,7 @@ const TimelineElement = ({
   text: string;
 }) => {
   return (
-    <div className="bg-white/20 w-[500px] aspect-[3/2] rounded-lg text-white text-center py-10 relative">
+    <div className="bg-white/20 w-[500px] aspect-3/2 rounded-lg text-white text-center py-10 relative">
       <h3 className="">{heading}</h3>
       <p>{text}</p>
       <div className="absolute w-10 h-10 bg-white/20 rounded-full top-full left-[50%] transform translate-x-[-50%] mt-5" />
@@ -80,7 +80,7 @@ export default async function Home() {
               about cognitive assessments in football
             </p>
           </div>
-          <div className="w-60 bg-white aspect-[3/4] rounded-lg"></div>
+          <div className="w-60 bg-white aspect-3/4 rounded-lg"></div>
         </div>
       </section>
       <section className="bg-testing h-[85vh] py-20">
