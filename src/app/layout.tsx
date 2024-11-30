@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { getSession } from "./api/auth/[...nextauth]/auth";
-import Providers from "./providers";
 import { Inter } from "next/font/google";
 
 export const metadata: Metadata = {
@@ -17,13 +15,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getSession();
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers session={session}>
-          <main>{children}</main>
-        </Providers>
+        <main>{children}</main>
       </body>
     </html>
   );
