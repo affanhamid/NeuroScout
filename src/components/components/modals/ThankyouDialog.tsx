@@ -94,7 +94,7 @@ export const ThankYouDialog = <T extends Record<string, any>>({
                   id={field.id}
                   value={formData[field.id] || ""}
                   onChange={(e) => handleChange(field.id, e.target.value)}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm appearance-none"
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-xs appearance-none"
                   required
                 >
                   <option value="" disabled>
@@ -112,7 +112,7 @@ export const ThankYouDialog = <T extends Record<string, any>>({
                   id={field.id}
                   value={formData[field.id] || ""}
                   onChange={(e) => handleChange(field.id, e.target.value)}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm appearance-none"
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-xs appearance-none"
                   required
                 />
               )}
@@ -127,7 +127,7 @@ export const ThankYouDialog = <T extends Record<string, any>>({
               id="consent"
               checked={consent}
               onChange={(e) => setConsent(e.target.checked)}
-              className="h-4 w-4 text-green-600 border-gray-300 rounded"
+              className="h-4 w-4 text-green-600 border-gray-300 rounded-sm"
               required
             />
             <label htmlFor="consent" className="ml-2 block text-sm text-white">

@@ -8,10 +8,7 @@ import {
   resolveCollisions,
   resolveCollisionsWithWalls,
 } from "./Ball";
-import Game, {
-  GameInterface,
-  GameState,
-} from "../../../components/components/Game/Game";
+import Game, { GameInterface, GameState } from "../Game/Game";
 import { data, param, result, tntParam } from "@/drizzle/schema";
 import { InferInsertModel } from "drizzle-orm";
 
