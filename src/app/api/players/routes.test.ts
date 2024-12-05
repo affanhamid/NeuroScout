@@ -1,17 +1,17 @@
 import { PlayerModel, PlayerType } from "@/lib/db";
-import * as playerRoutes from "./routes";
-import * as playerIdRoutes from "./[id]/routes";
+import * as routes from "./routes";
+import * as idRoutes from "./[id]/routes";
 import { BaseTest } from "@/lib/util";
 
 const getRouteHandlers = () => ({
-  getOne: playerIdRoutes.GET,
-  getAll: playerRoutes.GET,
-  addOne: playerRoutes.POST,
-  updateOne: playerIdRoutes.PUT,
-  deleteOne: playerIdRoutes.DELETE
+  getOne: idRoutes.GET,
+  getAll: routes.GET,
+  addOne: routes.POST,
+  updateOne: idRoutes.PUT,
+  deleteOne: idRoutes.DELETE
 });
 
-const PlayerTest = new BaseTest<
+const test = new BaseTest<
   PlayerType,
   { age: number; position: string; organizationId: string }
 >(PlayerModel, getRouteHandlers, {
@@ -20,7 +20,7 @@ const PlayerTest = new BaseTest<
   organizationId: "67518b8eab5e87f35d194601"
 });
 
-PlayerTest.runTests(
+test.runTests(
   { age: 20, position: "striker", organizationId: "67518b8eab5e87f35d194601" },
   { age: 3, position: "goalkeeper", organizationId: "67518b8eab5e87f35d194601" }
 );

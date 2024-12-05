@@ -179,24 +179,8 @@ export const MetricsTemplateSchema = new Schema(
 // Types
 export type OrganizationType = InferSchemaType<typeof OrganizationSchema>;
 export type PlayerType = InferSchemaType<typeof PlayerSchema>;
-
-export type GameType = Omit<
-  InferSchemaType<typeof GameSchema>,
-  "createdAt" | "updatedAt" | "deletedAt"
->;
-export type GameObservationType = Omit<
-  InferSchemaType<typeof GameObservationSchema>,
-  "createdAt" | "updatedAt" | "deletedAt"
->;
-export type UserType = Omit<
-  InferSchemaType<typeof UserSchema>,
-  "createdAt" | "updatedAt" | "deletedAt"
->;
-export type ResultsType = Omit<
-  InferSchemaType<typeof ResultSchema>,
-  "createdAt" | "updatedAt" | "deletedAt"
->;
-export type MetricsTemplateType = Omit<
-  InferSchemaType<typeof MetricsTemplateSchema>,
-  "createdAt" | "updatedAt" | "deletedAt"
->;
+export type GameType = InferSchemaType<typeof GameSchema>;
+export type GameObservationType = InferSchemaType<typeof GameObservationSchema>;
+export type UserType = InferSchemaType<typeof UserSchema>;
+export type ResultsType = InferSchemaType<typeof ResultSchema>;
+export type MetricsTemplateType = InferSchemaType<typeof MetricsTemplateSchema>;
