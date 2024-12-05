@@ -1,8 +1,8 @@
 import React from "react";
-import { Games } from "@/components/components/Games";
-import { formFields } from "@/components/components/TNT/metaData";
-import { TNTCalculateScore } from "@/components/components/TNT/scoring";
-import { InstructionStepInterface } from "@/components/components/modals/InstructionDialog";
+import { Games } from "../../../components/components/Games";
+import { formFields } from "../../../components/components/TNT/metaData";
+import { TNTCalculateScore } from "../../../components/components/TNT/scoring";
+import { InstructionStepInterface } from "../../../components/components/modals/InstructionDialog";
 import Image from "next/image";
 
 async function page({ params }: { params: Promise<{ gameId: string }> }) {

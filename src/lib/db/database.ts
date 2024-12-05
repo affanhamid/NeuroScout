@@ -1,9 +1,14 @@
-import { connect } from "mongoose";
+import mongoose from "mongoose";
+mongoose.set("debug", true);
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
 
-main().catch((err) => console.log(err));
+export const connect = async () => {
+  await mongoose.connect(process.env.DOCUMENT_URI as string, {
+    tlsCAFile: "global-bundle.pem",
+  });
+};
 
-export async function getDatabase() {
-  await connect("mongodb://127.0.0.1:27017/test");
-
-  // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
-}
+export const disconnect = async () => {
+  await mongoose.disconnect();
+};

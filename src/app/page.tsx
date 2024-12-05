@@ -1,6 +1,6 @@
-import Footer from "@/components/components/Footer";
-import Gallery from "@/components/components/Gallery";
-import Navbar from "@/components/components/Navbar";
+import Footer from "../components/components/Footer";
+import Gallery from "../components/components/Gallery";
+import Navbar from "../components/components/Navbar";
 
 const Card = ({ heading, text }: { heading: string; text: string }) => {
   return (

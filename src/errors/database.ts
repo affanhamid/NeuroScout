@@ -57,7 +57,7 @@ export class PermissionDeniedError extends DatabaseQueryError {
 export class DatabaseTransactionError extends DatabaseError {
   constructor(
     message: string = "Database transaction failed",
-    details?: ErrorDetails,
+    details?: ErrorDetails
   ) {
     super(message, 500, details); // 500: Internal Server Error
     this.name = "DatabaseTransactionError";
@@ -67,7 +67,7 @@ export class DatabaseTransactionError extends DatabaseError {
 export class DatabaseTimeoutError extends DatabaseError {
   constructor(
     message: string = "Database operation timed out",
-    details?: ErrorDetails,
+    details?: ErrorDetails
   ) {
     super(message, 504, details); // 504: Gateway Timeout
     this.name = "DatabaseTimeoutError";
@@ -77,7 +77,7 @@ export class DatabaseTimeoutError extends DatabaseError {
 export class DatabaseConstraintError extends DatabaseError {
   constructor(
     message: string = "Constraint violation in database operation",
-    details?: ErrorDetails,
+    details?: ErrorDetails
   ) {
     super(message, 409, details); // 409: Conflict
     this.name = "DatabaseConstraintError";
@@ -87,9 +87,61 @@ export class DatabaseConstraintError extends DatabaseError {
 export class DatabaseResourceError extends DatabaseError {
   constructor(
     message: string = "Database resource limit exceeded",
-    details?: ErrorDetails,
+    details?: ErrorDetails
   ) {
     super(message, 507, details); // 507: Insufficient Storage
     this.name = "DatabaseResourceError";
   }
 }
+
+export const handleDBError = (error: unknown): never => {
+  if (error instanceof Error) {
+    // Handle custom DatabaseError types
+    if (error instanceof DatabaseError) {
+      throw error; // Re-throw the specific database error
+    }
+
+    // Handle ValidationError
+    if (error.name === "ValidationError") {
+      throw new DatabaseQueryError("Validation failed", {
+        info: error.message
+      });
+    }
+
+    // Handle CastError (e.g., invalid ID format)
+    if (error.name === "CastError") {
+      throw new InvalidFieldError({
+        info: error.message
+      });
+    }
+
+    // Handle duplicate key errors
+    if ("code" in error && (error as { code: number }).code === 11000) {
+      throw new DatabaseConstraintError("Duplicate key error", {
+        info: error.message
+      });
+    }
+
+    // Handle connection or timeout errors
+    if (
+      error.message.includes("timed out") ||
+      error.message.includes("ECONNREFUSED")
+    ) {
+      throw new DatabaseTimeoutError("Database connection timed out", {
+        info: error.message
+      });
+    }
+
+    if (error.message.includes("connect")) {
+      throw new DatabaseConnectionError("Failed to connect to the database");
+    }
+
+    // Handle any other generic database-related errors
+    throw new DatabaseQueryError("Database query failed", {
+      info: error.message
+    });
+  }
+
+  // Handle non-Error unknown errors
+  throw new DatabaseError("An unknown error occurred");
+};

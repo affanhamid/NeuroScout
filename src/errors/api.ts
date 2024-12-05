@@ -9,7 +9,7 @@ export class ApiError extends Error {
   public details?: ErrorDetails; // Optional error details
 
   constructor(message: string, code: number, details?: ErrorDetails) {
-    super(message);
+    super(message + JSON.stringify(details));
     this.name = "ApiError";
     this.code = code;
     this.details = details;
@@ -64,3 +64,54 @@ export class BadGatewayError extends ApiError {
     this.name = "BadGatewayError";
   }
 }
+
+export const handleApiError = (error: unknown): never => {
+  if (error instanceof ApiError) {
+    // Re-throw if it's already an ApiError
+    throw error;
+  }
+
+  if (error instanceof Error) {
+    // Map generic errors to specific types
+    switch (error.name) {
+      case "ValidationError":
+        throw new ValidationError("Validation error occurred", {
+          info: error.message
+        });
+      case "NotFoundError":
+        throw new NotFoundError("Resource not found", {
+          info: error.message
+        });
+      case "AuthenticationError":
+        throw new AuthenticationError("Authentication failed", {
+          info: error.message
+        });
+      case "AuthorizationError":
+        throw new AuthorizationError("Access forbidden", {
+          info: error.message
+        });
+      case "ConflictError":
+        throw new ConflictError("Conflict error", {
+          info: error.message
+        });
+      case "InternalServerError":
+        throw new InternalServerError("Internal server error", {
+          info: error.message
+        });
+      case "BadGatewayError":
+        throw new BadGatewayError("Bad gateway error", {
+          info: error.message
+        });
+      default:
+        // Fallback for unhandled error names
+        throw new InternalServerError("An unexpected error occurred", {
+          info: error.message
+        });
+    }
+  }
+
+  // Handle unknown or non-Error objects
+  throw new InternalServerError("An unknown error occurred", {
+    info: String(error)
+  });
+};
