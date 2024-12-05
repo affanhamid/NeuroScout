@@ -1,51 +1,66 @@
-import {
-  OrganizationModel,
-  PlayerModel,
-  GameModel,
-  GameObservationModel,
-  UserModel,
-  ResultsModel,
-  MetricsTemplateModel,
-} from "./database";
-import { InferSchemaType } from "mongoose";
+import { NextRequest } from "next/server";
+import type {
+  OrganizationType,
+  PlayerType,
+  GameType,
+  GameObservationType,
+  UserType,
+  ResultsType,
+  MetricsTemplateType,
+} from "../lib/db/schema";
 
-// Generic API response type
-export type ApiResponse<T> = {
-  success: boolean;
+export class ApiResponse<T> {
+  status: number;
   data?: T;
   error?: string;
+
+  constructor(status: number, data?: T, error?: string) {
+    this.status = status;
+    this.data = data;
+    this.error = error;
+  }
+
+  static success<T>(data: T, status = 200): ApiResponse<T> {
+    return new ApiResponse<T>(status, data);
+  }
+
+  static error<T>(error: string, status = 400): ApiResponse<T> {
+    return new ApiResponse<T>(status, undefined, error);
+  }
+
+  toJson(): Response {
+    const responseBody = this.error
+      ? { success: false, error: this.error }
+      : { success: true, data: this.data };
+
+    return new Response(JSON.stringify(responseBody), { status: this.status });
+  }
+}
+
+export type ApiRequest<T> = {
+  json: () => Promise<T>;
 };
 
-// Infer types from Mongoose models
-type Organization = InferSchemaType<typeof OrganizationModel>;
-type Player = InferSchemaType<typeof PlayerModel>;
-type Game = InferSchemaType<typeof GameModel>;
-type GameObservation = InferSchemaType<typeof GameObservationModel>;
-type User = InferSchemaType<typeof UserModel>;
-type Result = InferSchemaType<typeof ResultsModel>;
-type MetricsTemplate = InferSchemaType<typeof MetricsTemplateModel>;
-
 // Organizations
-export type CreateOrganizationRequest = { name: string };
-export type UpdateOrganizationRequest = Partial<CreateOrganizationRequest>;
+export type CreateOrganizationRequest = ApiRequest<OrganizationType>;
+export type UpdateOrganizationRequest = ApiRequest<Partial<OrganizationType>>;
 
-export type GetOrganizationResponse = ApiResponse<Organization>;
-export type GetOrganizationsResponse = ApiResponse<Organization[]>;
+export type GetOrganizationResponse = ApiResponse<OrganizationType>;
+export type GetOrganizationsResponse = ApiResponse<OrganizationType[]>;
 
 // Player
-export type CreatePlayerRequest = {
-  id?: string; // Adjusted `id` type to match Mongoose (likely a string)
+export type CreatePlayerRequest = ApiRequest<{
   age: number;
   position: number;
   organizationId: string;
-};
+}>;
 export type UpdatePlayerRequest = Partial<CreatePlayerRequest>;
 
-export type GetPlayerResponse = ApiResponse<Player>;
-export type GetPlayersResponse = ApiResponse<Player[]>;
+export type GetPlayerResponse = ApiResponse<PlayerType>;
+export type GetPlayersResponse = ApiResponse<PlayerType[]>;
 
 // Game
-export type CreateGameRequest = {
+export type CreateGameRequest = ApiRequest<{
   name: string;
   description: string;
   image: string;
@@ -58,59 +73,59 @@ export type CreateGameRequest = {
     description: string;
     function: string; // Serialized function stored as a string
   }>;
-};
+}>;
 export type UpdateGameRequest = Partial<CreateGameRequest>;
 
-export type GetGameResponse = ApiResponse<Game>;
-export type GetGamesResponse = ApiResponse<Game[]>;
+export type GetGameResponse = ApiResponse<GameType>;
+export type GetGamesResponse = ApiResponse<GameType[]>;
 
 // Game Observation
-export type CreateGameObservationRequest = {
+export type CreateGameObservationRequest = ApiRequest<{
   playerId: string;
   gameId: string;
   data: Record<string, unknown>; // Using `unknown` for flexibility
-};
+}>;
 export type UpdateGameObservationRequest =
   Partial<CreateGameObservationRequest>;
 
-export type GetGameObservationResponse = ApiResponse<GameObservation>;
-export type GetGameObservationsResponse = ApiResponse<GameObservation[]>;
+export type GetGameObservationResponse = ApiResponse<GameObservationType>;
+export type GetGameObservationsResponse = ApiResponse<GameObservationType[]>;
 
 // User
-export type CreateUserRequest = {
+export type CreateUserRequest = ApiRequest<{
   email: string;
   password: string;
   role: "admin" | "user" | "manager";
   organizationId: string;
-};
+}>;
 export type UpdateUserRequest = Partial<CreateUserRequest>;
 
-export type GetUserResponse = ApiResponse<User>;
-export type GetUsersResponse = ApiResponse<User[]>;
+export type GetUserResponse = ApiResponse<UserType>;
+export type GetUsersResponse = ApiResponse<UserType[]>;
 
 // Result
-export type CreateResultRequest = {
+export type CreateResultRequest = ApiRequest<{
   gameId: string;
   playerId: string;
   metrics: Record<string, unknown>; // Adjusted for flexibility
   resultDate?: Date;
-};
+}>;
 export type UpdateResultRequest = Partial<CreateResultRequest>;
 
-export type GetResultResponse = ApiResponse<Result>;
-export type GetResultsResponse = ApiResponse<Result[]>;
+export type GetResultResponse = ApiResponse<ResultsType>;
+export type GetResultsResponse = ApiResponse<ResultsType[]>;
 
 // Metrics Template
-export type CreateMetricsTemplateRequest = {
+export type CreateMetricsTemplateRequest = ApiRequest<{
   gameId: string;
   metrics: Array<{
     name: string;
     description: string;
     type: "number" | "string";
   }>;
-};
+}>;
 export type UpdateMetricsTemplateRequest =
   Partial<CreateMetricsTemplateRequest>;
 
-export type GetMetricsTemplateResponse = ApiResponse<MetricsTemplate>;
-export type GetMetricsTemplatesResponse = ApiResponse<MetricsTemplate[]>;
+export type GetMetricsTemplateResponse = ApiResponse<MetricsTemplateType>;
+export type GetMetricsTemplatesResponse = ApiResponse<MetricsTemplateType[]>;
