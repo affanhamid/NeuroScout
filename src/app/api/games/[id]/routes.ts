@@ -1,8 +1,8 @@
-import { PlayerModel, OrganizationModel, PlayerType } from "@/lib/db";
+import { GameModel, GameType } from "@/lib/db";
 import { BaseAPI } from "@/lib/api/api";
 import { ApiRequest } from "@/types";
 
-const api = new BaseAPI(PlayerModel);
+const api = new BaseAPI(GameModel);
 
 export const GET = ({
   params
@@ -13,15 +13,11 @@ export const GET = ({
 };
 
 export const PUT = async (
-  req: ApiRequest<Partial<PlayerType>>,
+  req: ApiRequest<Partial<GameType>>,
   { params }: { params: { id: string } }
 ): Promise<Response> => {
   const updateData = await req.json();
-
-  const references = new Map();
-  references.set(OrganizationModel, updateData.organizationId);
-
-  return api.updateOne(params.id, updateData, references);
+  return api.updateOne(params.id, updateData);
 };
 
 export const DELETE = ({
