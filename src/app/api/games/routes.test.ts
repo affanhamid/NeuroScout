@@ -28,7 +28,9 @@ const testObject = {
 const test = new BaseTest<GameType, { name: string }>(
   GameModel,
   getRouteHandlers,
+  testObject,
+  testObject,
   testObject
 );
 
-test.runTests(testObject, testObject);
+test.runTests();

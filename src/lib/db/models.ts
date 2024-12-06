@@ -5,7 +5,7 @@ import {
   GameObservationSchema,
   UserSchema,
   ResultSchema,
-  MetricsTemplateSchema,
+  MetricsTemplateSchema
 } from "./schema";
 import { model } from "mongoose";
 
@@ -15,11 +15,11 @@ export const PlayerModel = model("Player", PlayerSchema);
 export const GameModel = model("Game", GameSchema);
 export const GameObservationModel = model(
   "Game Observation",
-  GameObservationSchema,
+  GameObservationSchema
 );
 export const UserModel = model("User", UserSchema);
-export const ResultModel = model("Results", ResultSchema);
+export const ResultModel = model("Result", ResultSchema);
 export const MetricsTemplateModel = model(
-  "MetricsTemplate",
-  MetricsTemplateSchema,
+  "MetricTemplate",
+  MetricsTemplateSchema
 );

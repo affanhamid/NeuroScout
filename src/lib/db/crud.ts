@@ -59,13 +59,20 @@ export const updateOne = async <TObject>(
 export const deleteOne = async <TObject>(
   model: Model<TObject>,
   id: string // Input type is id
-): Promise<void> => {
+): Promise<Document & TObject> => {
   await connect();
-  const deletedItem = await model.findByIdAndDelete(id).exec();
-  if (!deletedItem) {
-    throw new e.NotFoundError(`Item with ID ${id} not found for deletion`);
-  }
+  const updatedItem = await model
+    .findByIdAndUpdate(
+      id,
+      { deletedAt: new Date() }, // Set the deletedAt field to the current timestamp
+      { new: true, runValidators: true } // Return the updated document
+    )
+    .exec();
   await disconnect();
+  if (!updatedItem) {
+    throw new e.NotFoundError(`Item with ID ${id} not found for soft deletion`);
+  }
+  return updatedItem;
 };
 
 export const validateReferences = async <

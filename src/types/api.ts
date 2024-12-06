@@ -1,12 +1,11 @@
-import { NextRequest } from "next/server";
 import type {
   OrganizationType,
   PlayerType,
   GameType,
   GameObservationType,
   UserType,
-  ResultsType,
-  MetricsTemplateType,
+  ResultType,
+  MetricsTemplateType
 } from "../lib/db/schema";
 
 export class ApiResponse<T> {
@@ -112,8 +111,8 @@ export type CreateResultRequest = ApiRequest<{
 }>;
 export type UpdateResultRequest = Partial<CreateResultRequest>;
 
-export type GetResultResponse = ApiResponse<ResultsType>;
-export type GetResultsResponse = ApiResponse<ResultsType[]>;
+export type GetResultResponse = ApiResponse<ResultType>;
+export type GetResultsResponse = ApiResponse<ResultType[]>;
 
 // Metrics Template
 export type CreateMetricsTemplateRequest = ApiRequest<{
