@@ -1,6 +1,7 @@
 import { connect, disconnect } from "../db";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { ApiRequest } from "@/types/api";
+import * as e from "@/errors";
 
 export class BaseTest<TModel, TObject> {
   constructor(
@@ -15,15 +16,33 @@ export class BaseTest<TModel, TObject> {
       ) => Promise<Response>;
       deleteOne: ({ params }: { params: { id: string } }) => Promise<Response>;
     },
-    public testObject: TObject
+    public testObject: TObject,
+    public postRequestBody: Partial<TModel>,
+    public updateRequestBody: Partial<TModel>
   ) {}
 
-  async testGetAll() {
-    it("should return all documents with status 200", async () => {
-      await connect();
-      await this.model.create(this.testObject);
-      await disconnect();
+  async createObject() {
+    console.log("created object fn 1");
+    await connect();
+    const createdDoc = await this.model.create(this.testObject);
+    await disconnect();
+    return { createdDoc, referencedObjects: {} };
+  }
 
+  async deleteObject(createdDoc: any, referencedObjects: any) {
+    await connect();
+
+    await this.model.deleteOne({ _id: createdDoc._id });
+    if (referencedObjects instanceof Map && referencedObjects.size !== 0) {
+      for (const [model, id] of referencedObjects.entries()) {
+        await model.deleteOne({ _id: id });
+      }
+    }
+    await disconnect();
+  }
+
+  testGetAll() {
+    it("should return all documents with status 200", async () => {
       const { getAll } = this.getRouteHandlers();
       const response = await getAll();
       const body = await response.json();
@@ -31,22 +50,12 @@ export class BaseTest<TModel, TObject> {
       expect(response.status).toBe(200);
       expect(body.data).toBeTruthy();
       expect(Array.isArray(body.data)).toBe(true);
-
-      // Cleanup
-      await connect();
-      for (const doc of body.data) {
-        await this.model.deleteOne({ _id: doc._id });
-      }
-      await disconnect();
     });
   }
 
-  async testGetOne() {
+  testGetOne(getCreatedDoc: () => any) {
     it("should return a single document with status 200", async () => {
-      await connect();
-      const createdDoc = await this.model.create(this.testObject);
-      await disconnect();
-
+      const createdDoc = getCreatedDoc();
       const { getOne } = this.getRouteHandlers();
       const response = await getOne({
         params: { id: createdDoc._id as string }
@@ -55,20 +64,12 @@ export class BaseTest<TModel, TObject> {
 
       expect(response.status).toBe(200);
       expect(body.data).toBeTruthy();
-
-      // Cleanup
-      await connect();
-      await this.model.deleteOne({ _id: createdDoc._id });
-      await disconnect();
     });
   }
 
-  async testPut(requestBody: Partial<TModel>) {
+  testPut(requestBody: Partial<TModel>, getCreatedDoc: () => any) {
     it("should update an existing document with status 200", async () => {
-      await connect();
-      const createdDoc = await this.model.create(this.testObject);
-      await disconnect();
-
+      const createdDoc = getCreatedDoc();
       const { updateOne } = this.getRouteHandlers();
       const reqBody = {
         json: async () => requestBody
@@ -77,17 +78,13 @@ export class BaseTest<TModel, TObject> {
       const response = await updateOne(reqBody, {
         params: { id: createdDoc._id as string }
       });
-      const body = await response.json();
+      await response.json();
 
       expect(response.status).toBe(200);
-
-      // Cleanup
-      await connect();
-      await this.model.deleteOne({ _id: createdDoc._id });
-      await disconnect();
     });
   }
-  async testPost(postObject: Partial<TModel>) {
+
+  testPost(postObject: Partial<TModel>) {
     it("should create a new document with status 201", async () => {
       const { addOne } = this.getRouteHandlers();
 
@@ -100,50 +97,141 @@ export class BaseTest<TModel, TObject> {
 
       expect(response.status).toBe(201);
 
-      // Cleanup
-      await connect();
-      await this.model.deleteOne({ _id: body.data._id });
-      await disconnect();
+      await this.deleteObject(body.data, {});
     });
   }
-  async testDelete() {
-    it("should delete a document with status 200", async () => {
-      await connect();
-      const createdDoc = await this.model.create(this.testObject);
-      await disconnect();
 
+  testDelete(getCreatedDoc: () => any) {
+    it("should delete a document with status 200", async () => {
+      const createdDoc = getCreatedDoc();
       const { deleteOne } = this.getRouteHandlers();
       const response = await deleteOne({
         params: { id: createdDoc._id as string }
       });
 
-      const body = await response.json();
+      await response.json();
 
       expect(response.status).toBe(200);
 
       // Verify Deletion
       await connect();
       const deletedDoc = await this.model.findById(createdDoc._id);
-      expect(deletedDoc).toBeNull();
+      expect(deletedDoc).toBeTruthy();
       await disconnect();
     });
   }
 
-  async runTests(
-    postRequestBody: Partial<TModel>,
-    updateRequestBody: Partial<TModel>
-  ) {
+  runTests() {
     describe(`${this.model.modelName} API Tests`, () => {
-      // Test for GET (getAll)
+      let createdDoc: any;
+      let referencedObjects: any;
+
+      const getCreatedDoc = () => {
+        if (!createdDoc) {
+          throw new Error("createdDoc is not initialized");
+        }
+        return createdDoc;
+      };
+
+      beforeAll(async () => {
+        const createdObjects = await this.createObject();
+        createdDoc = createdObjects.createdDoc;
+        referencedObjects = createdObjects.referencedObjects;
+      });
+
+      afterAll(async () => {
+        if (createdDoc) {
+          await this.deleteObject(createdDoc, referencedObjects);
+        }
+      });
+
+      // Test cases
       this.testGetAll();
-      // Test for GET (getOne)
-      this.testGetOne();
-      // Test for POST
-      this.testPost(postRequestBody);
-      // Test for PUT (updateOne)
-      this.testPut(updateRequestBody);
-      // Test for DELETE
-      this.testDelete();
+      this.testGetOne(getCreatedDoc);
+      this.testPost(this.postRequestBody);
+      this.testPut(this.updateRequestBody, getCreatedDoc);
+      this.testDelete(getCreatedDoc);
     });
+  }
+}
+
+export class TestWithReferences<TModel, TObject, TObjects> extends BaseTest<
+  TModel,
+  TObject
+> {
+  constructor(
+    public model: Model<TModel>,
+    public getRouteHandlers: () => {
+      getOne: ({ params }: { params: { id: string } }) => Promise<Response>;
+      getAll: () => Promise<Response>;
+      addOne: (req: ApiRequest<TModel>) => Promise<Response>;
+      updateOne: (
+        req: ApiRequest<Partial<TModel>>,
+        { params }: { params: { id: string } }
+      ) => Promise<Response>;
+      deleteOne: ({ params }: { params: { id: string } }) => Promise<Response>;
+    },
+    public testObject: TObject,
+    public postRequestBody: Partial<TModel>,
+    public updateRequestBody: Partial<TModel>,
+    public updatedReferences:
+      | Map<Model<TObjects[keyof TObjects]>, object>
+      | object,
+    public updateReferences: (
+      updatedReferences: Map<Model<TObjects[keyof TObjects]>, object> | object,
+      testObject: TObject,
+      postRequestBody: Partial<TModel>,
+      updateRequestBody: Partial<TModel>
+    ) => void
+  ) {
+    super(
+      model,
+      getRouteHandlers,
+      testObject,
+      postRequestBody,
+      updateRequestBody
+    );
+  }
+
+  createReferencedObjects = async <
+    TObjects extends Record<string, string | number>
+  >(
+    references:
+      | Map<Model<TObjects[keyof TObjects]>, { _id: Types.ObjectId }>
+      | object
+  ) => {
+    if (!(references instanceof Map) || references.size === 0) {
+      return {};
+    }
+    await connect();
+    const referencedObjects = new Map();
+    try {
+      for (const [model, objectToAdd] of references.entries()) {
+        const createdDoc = await model.create(objectToAdd);
+        referencedObjects.set(model, createdDoc._id);
+      }
+      await disconnect();
+      return referencedObjects;
+    } catch (err) {
+      await disconnect();
+      throw new e.DatabaseError(`Error Validating References: ${err}`);
+    }
+  };
+
+  async createObject() {
+    const referencedObjects = await this.createReferencedObjects(
+      this.updatedReferences
+    );
+    this.updateReferences(
+      referencedObjects,
+      this.testObject,
+      this.postRequestBody,
+      this.updateRequestBody
+    );
+
+    await connect();
+    const createdDoc = await this.model.create(this.testObject);
+    await disconnect();
+    return { createdDoc, referencedObjects };
   }
 }

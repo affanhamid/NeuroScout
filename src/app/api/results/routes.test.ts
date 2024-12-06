@@ -1,14 +1,14 @@
+import * as routes from "./routes";
+import * as idRoutes from "./[id]/routes";
 import {
   GameFields,
   GameModel,
-  GameObservationFields,
-  GameObservationModel,
-  GameObservationType,
+  ResultType,
+  ResultFields,
+  ResultModel,
   PlayerFields,
   PlayerModel
 } from "@/lib/db";
-import * as routes from "./routes";
-import * as idRoutes from "./[id]/routes";
 import { TestWithReferences } from "@/lib/util";
 import { Model, Types } from "mongoose";
 
@@ -23,7 +23,8 @@ const getRouteHandlers = () => ({
 const testObject = {
   playerId: "1",
   gameId: "2",
-  data: { testData: "testData" }
+  metrics: { testData: "testData" },
+  resultDate: new Date()
 };
 
 const references = new Map();
@@ -47,9 +48,9 @@ references.set(GameModel, {
 
 const updateReferences = (
   updatedReferences: Map<Model<[PlayerFields, GameFields]>, object> | object,
-  testObject: GameObservationFields,
-  postRequestBody: Partial<GameObservationType>,
-  updateRequestBody: Partial<GameObservationType>
+  testObject: ResultFields,
+  postRequestBody: Partial<ResultType>,
+  updateRequestBody: Partial<ResultType>
 ) => {
   if (!(references instanceof Map) || references.size === 0) {
     return;
@@ -66,7 +67,7 @@ const updateReferences = (
 };
 
 const test = new TestWithReferences(
-  GameObservationModel,
+  ResultModel,
   getRouteHandlers,
   testObject,
   testObject,

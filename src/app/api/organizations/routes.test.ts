@@ -1,4 +1,4 @@
-import { OrganizationModel, OrganizationType } from "@/lib/db";
+import { OrganizationModel } from "@/lib/db";
 import * as routes from "./routes";
 import * as idRoutes from "./[id]/routes";
 import { BaseTest } from "@/lib/util";
@@ -11,12 +11,11 @@ const getRouteHandlers = () => ({
   deleteOne: idRoutes.DELETE
 });
 
-const test = new BaseTest<OrganizationType, { name: string }>(
+const test = new BaseTest(
   OrganizationModel,
   getRouteHandlers,
-  { name: "Test Organization" }
-);
-test.runTests(
+  { name: "Test Organization" },
   { name: "Test Document POST" },
   { name: "Update Organization PUT" }
 );
+test.runTests();

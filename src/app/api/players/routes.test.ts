@@ -1,7 +1,14 @@
-import { PlayerModel, PlayerType } from "@/lib/db";
+import {
+  OrganizationFields,
+  OrganizationModel,
+  PlayerFields,
+  PlayerModel,
+  PlayerType
+} from "@/lib/db";
 import * as routes from "./routes";
 import * as idRoutes from "./[id]/routes";
-import { BaseTest } from "@/lib/util";
+import { TestWithReferences } from "@/lib/util";
+import { Model } from "mongoose";
 
 const getRouteHandlers = () => ({
   getOne: idRoutes.GET,
@@ -11,16 +18,38 @@ const getRouteHandlers = () => ({
   deleteOne: idRoutes.DELETE
 });
 
-const test = new BaseTest<
-  PlayerType,
-  { age: number; position: string; organizationId: string }
->(PlayerModel, getRouteHandlers, {
-  age: 1,
-  position: "striker",
-  organizationId: "67518b8eab5e87f35d194601"
-});
+const references = new Map();
+references.set(OrganizationModel, { name: "test organization for players" });
 
-test.runTests(
-  { age: 20, position: "striker", organizationId: "67518b8eab5e87f35d194601" },
-  { age: 3, position: "goalkeeper", organizationId: "67518b8eab5e87f35d194601" }
+const updateReferences = (
+  updatedReferences: Map<Model<[OrganizationFields]>, object> | object,
+  testObject: PlayerFields,
+  postRequestBody: Partial<PlayerType>,
+  updateRequestBody: Partial<PlayerType>
+) => {
+  if (!(references instanceof Map) || references.size === 0) {
+    return;
+  }
+
+  const organizationRef = updatedReferences as Map<any, any>;
+  testObject.organizationId = organizationRef.get(OrganizationModel)?._id;
+  postRequestBody.organizationId = organizationRef.get(OrganizationModel)?._id;
+  updateRequestBody.organizationId =
+    organizationRef.get(OrganizationModel)?._id;
+};
+
+const test = new TestWithReferences(
+  PlayerModel,
+  getRouteHandlers,
+  {
+    age: 1,
+    position: "striker",
+    organizationId: ""
+  },
+  { age: 20, position: "striker", organizationId: "" },
+  { age: 3, position: "goalkeeper", organizationId: "" },
+  references,
+  updateReferences
 );
+
+test.runTests();

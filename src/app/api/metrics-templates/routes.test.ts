@@ -1,9 +1,9 @@
 import {
   GameFields,
   GameModel,
-  GameObservationFields,
-  GameObservationModel,
-  GameObservationType,
+  MetricsTemplateFields,
+  MetricsTemplateModel,
+  MetricsTemplateType,
   PlayerFields,
   PlayerModel
 } from "@/lib/db";
@@ -21,17 +21,21 @@ const getRouteHandlers = () => ({
 });
 
 const testObject = {
-  playerId: "1",
   gameId: "2",
-  data: { testData: "testData" }
+  metrics: new Types.DocumentArray<{
+    type: "string" | "number";
+    name: string;
+    description: string;
+  }>([
+    {
+      type: "number",
+      name: "test metric",
+      description: "this is a test metric"
+    }
+  ])
 };
 
 const references = new Map();
-references.set(PlayerModel, {
-  age: 1,
-  position: "striker",
-  organizationId: "67537540ab5e87f35d194604"
-});
 references.set(GameModel, {
   name: "Test Game",
   description: "This is a test game",
@@ -47,26 +51,22 @@ references.set(GameModel, {
 
 const updateReferences = (
   updatedReferences: Map<Model<[PlayerFields, GameFields]>, object> | object,
-  testObject: GameObservationFields,
-  postRequestBody: Partial<GameObservationType>,
-  updateRequestBody: Partial<GameObservationType>
+  testObject: MetricsTemplateFields,
+  postRequestBody: Partial<MetricsTemplateType>,
+  updateRequestBody: Partial<MetricsTemplateType>
 ) => {
   if (!(references instanceof Map) || references.size === 0) {
     return;
   }
 
   const updatedRef = updatedReferences as Map<any, any>;
-
-  testObject.playerId = updatedRef?.get(PlayerModel)._id;
-  postRequestBody.playerId = updatedRef?.get(PlayerModel)._id;
-  updateRequestBody.playerId = updatedRef?.get(PlayerModel)._id;
   testObject.gameId = updatedRef?.get(GameModel)._id;
   postRequestBody.gameId = updatedRef?.get(GameModel)._id;
   updateRequestBody.gameId = updatedRef?.get(GameModel)._id;
 };
 
 const test = new TestWithReferences(
-  GameObservationModel,
+  MetricsTemplateModel,
   getRouteHandlers,
   testObject,
   testObject,

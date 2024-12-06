@@ -182,5 +182,35 @@ export type PlayerType = InferSchemaType<typeof PlayerSchema>;
 export type GameType = InferSchemaType<typeof GameSchema>;
 export type GameObservationType = InferSchemaType<typeof GameObservationSchema>;
 export type UserType = InferSchemaType<typeof UserSchema>;
-export type ResultsType = InferSchemaType<typeof ResultSchema>;
+export type ResultType = InferSchemaType<typeof ResultSchema>;
 export type MetricsTemplateType = InferSchemaType<typeof MetricsTemplateSchema>;
+
+// Just the fields
+export type OrganizationFields = Omit<
+  OrganizationType,
+  "createdAt" | "deletedAt" | "updatedAt"
+>;
+export type PlayerFields = Omit<
+  PlayerType,
+  "createdAt" | "deletedAt" | "updatedAt"
+>;
+export type GameFields = Omit<
+  GameType,
+  "createdAt" | "deletedAt" | "updatedAt"
+>;
+export type GameObservationFields = Omit<
+  GameObservationType,
+  "createdAt" | "deletedAt" | "updatedAt"
+>;
+export type UserFields = Omit<
+  UserType,
+  "createdAt" | "deletedAt" | "updatedAt"
+>;
+export type ResultFields = Omit<
+  ResultType,
+  "createdAt" | "deletedAt" | "updatedAt"
+>;
+export type MetricsTemplateFields = Omit<
+  MetricsTemplateType,
+  "createdAt" | "deletedAt" | "updatedAt"
+>;
