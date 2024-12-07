@@ -1,32 +1,12 @@
 "use client";
 import { MutableRefObject } from "react";
 import { GlowBall, createBalls } from "../TNT/Ball";
-import { GameInterface } from "../Game";
+import { GameState } from "../Game";
 import TNTGame from "./TNT";
 import { TNTGameState } from "./TNT";
-import { InferInsertModel } from "drizzle-orm";
-import { data, param, tntGlowParam, result } from "@/drizzle/schema";
 
-type TNT_Glow_Data = InferInsertModel<typeof data>;
-
-type TNT_Glow_Params = InferInsertModel<typeof param> &
-  InferInsertModel<typeof tntGlowParam>;
-
-type Result = InferInsertModel<typeof result> & {
-  result: {
-    scores: number[];
-    timeToClicks: number[];
-    finalVts: number;
-    reactionTimes: number[];
-  };
-  formData: {
-    age: number;
-    highestLevel: string;
-  };
-};
-
-class TNTGlowGame extends TNTGame<GlowBall, TNT_Glow_Params> {
-  dataRef: MutableRefObject<TNT_Glow_Data> = {
+class TNTGlowGame extends TNTGame<GlowBall, {}> {
+  dataRef = {
     current: {
       timeOfData: new Date(),
       screenWidth: 0,
@@ -38,7 +18,7 @@ class TNTGlowGame extends TNTGame<GlowBall, TNT_Glow_Params> {
   };
   shouldGlowRef: MutableRefObject<boolean> = { current: true };
   reactionTimesRef: MutableRefObject<number[]> = { current: [] };
-  resultRef: MutableRefObject<Result> = {
+  resultRef = {
     current: {
       result: {
         scores: [],
@@ -55,9 +35,8 @@ class TNTGlowGame extends TNTGame<GlowBall, TNT_Glow_Params> {
   state: TNTGameState = {
     ...this.state
   };
-  constructor(props: GameInterface<TNT_Glow_Params>) {
-    super(props, false);
-    this.setParams();
+  constructor(props: { gameId: string }) {
+    super(props);
   }
 
   randomGaussian(mean: number, stddev: number) {

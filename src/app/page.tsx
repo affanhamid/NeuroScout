@@ -1,6 +1,6 @@
 import { GetGamesResponse } from "@/types";
-import Footer from "../components/components/Footer";
-import Gallery from "../components/components/Gallery";
+import Footer from "../components/ui/Footer";
+import Gallery from "../components/ui/Gallery";
 
 // const Card = ({ heading, text }: { heading: string; text: string }) => {
 //   return (
