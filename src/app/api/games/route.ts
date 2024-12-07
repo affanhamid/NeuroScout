@@ -5,6 +5,7 @@ import { ApiRequest } from "@/types";
 const api = new BaseAPI(GameModel);
 
 export async function GET(): Promise<Response> {
+  console.log("get api request");
   return await api.getAll();
 }
 

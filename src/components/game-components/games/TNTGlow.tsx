@@ -1,7 +1,7 @@
 "use client";
 import { MutableRefObject } from "react";
-import { GlowBall, createBalls } from "./Ball";
-import { GameInterface } from "../Game/Game";
+import { GlowBall, createBalls } from "../TNT/Ball";
+import { GameInterface } from "../Game";
 import TNTGame from "./TNT";
 import { TNTGameState } from "./TNT";
 import { InferInsertModel } from "drizzle-orm";
@@ -33,8 +33,8 @@ class TNTGlowGame extends TNTGame<GlowBall, TNT_Glow_Params> {
       screenHeight: 0,
       ballSize: 0,
       gameId: 2,
-      paramId: 0,
-    },
+      paramId: 0
+    }
   };
   shouldGlowRef: MutableRefObject<boolean> = { current: true };
   reactionTimesRef: MutableRefObject<number[]> = { current: [] };
@@ -44,16 +44,16 @@ class TNTGlowGame extends TNTGame<GlowBall, TNT_Glow_Params> {
         scores: [],
         timeToClicks: [],
         finalVts: 0,
-        reactionTimes: this.reactionTimesRef.current,
+        reactionTimes: this.reactionTimesRef.current
       },
       formData: {
         age: 0,
-        highestLevel: "",
-      },
-    },
+        highestLevel: ""
+      }
+    }
   };
   state: TNTGameState = {
-    ...this.state,
+    ...this.state
   };
   constructor(props: GameInterface<TNT_Glow_Params>) {
     super(props, false);
@@ -80,15 +80,15 @@ class TNTGlowGame extends TNTGame<GlowBall, TNT_Glow_Params> {
       },
       this.randomGaussian(
         this.paramsRef.current!.randomnessMean,
-        this.paramsRef.current!.randomnessStd,
-      ),
+        this.paramsRef.current!.randomnessStd
+      )
     );
   };
 
   clickEventDuringGame(
     event: MouseEvent,
     balls: GlowBall[],
-    canvas: HTMLCanvasElement,
+    canvas: HTMLCanvasElement
   ) {
     const rect = canvas.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
@@ -113,7 +113,7 @@ class TNTGlowGame extends TNTGame<GlowBall, TNT_Glow_Params> {
       this.dataRef.current!.ballSize,
       8,
       GlowBall,
-      this.reactionTimesRef,
+      this.reactionTimesRef
     );
 
     setTimeout(() => {
@@ -123,7 +123,7 @@ class TNTGlowGame extends TNTGame<GlowBall, TNT_Glow_Params> {
         () => {
           this.shouldGlowRef.current = false;
         },
-        this.paramsRef.current!.duration * 1000 - 3000,
+        this.paramsRef.current!.duration * 1000 - 3000
       );
     }, 3000);
   }

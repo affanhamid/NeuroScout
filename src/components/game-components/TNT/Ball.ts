@@ -21,7 +21,7 @@ export class Ball {
     angle: number,
     ballRadius: number,
     currentSpeed: number,
-    color: string,
+    color: string
   ) {
     this.x = x;
     this.y = y;
@@ -42,7 +42,7 @@ export class Ball {
     ball: Ball,
     ctx: CanvasRenderingContext2D,
     isWrongBall: boolean | null,
-    isCorrectBall: boolean | null,
+    isCorrectBall: boolean | null
   ): void {
     // Set the font size based on the ball radius
     ctx.font = `${ball.radius}px Arial`;
@@ -64,7 +64,7 @@ export class Ball {
     isHighlighted: boolean,
     ctx: CanvasRenderingContext2D,
     isWrongBall: boolean | null,
-    isCorrectBall: boolean | null,
+    isCorrectBall: boolean | null
   ): void {
     // Draw the ball
     ctx.beginPath();
@@ -86,13 +86,13 @@ const createRegions = (canvasWidth: number, canvasHeight: number) => [
   { x: canvasWidth * 0.25, y: canvasHeight * 0.75 },
   { x: canvasWidth * 0.75, y: canvasHeight * 0.75 },
   { x: canvasWidth * 0.5, y: canvasHeight * 0.25 },
-  { x: canvasWidth * 0.5, y: canvasHeight * 0.75 },
+  { x: canvasWidth * 0.5, y: canvasHeight * 0.75 }
 ];
 
 export const resolveCollisions = (
   balls: Ball[],
   currentSpeed: number,
-  deltaTime: number,
+  deltaTime: number
 ) => {
   for (let i = 0; i < balls.length; i++) {
     for (let j = i + 1; j < balls.length; j++) {
@@ -141,7 +141,7 @@ export const resolveCollisions = (
           isNaN(velocityBTangent)
         ) {
           console.error(
-            "Invalid velocity components during collision resolution",
+            "Invalid velocity components during collision resolution"
           );
           continue;
         }
@@ -188,7 +188,7 @@ export const resolveCollisionsWithWalls = (
   currentSpeed: number,
   width: number,
   height: number,
-  deltaTime: number,
+  deltaTime: number
 ) => {
   balls.forEach((ball) => {
     // Move the ball, scaling velocity by deltaTime for consistent movement
@@ -215,7 +215,7 @@ export const resolveCollisionsWithWalls = (
 
     // Maintain constant speed based on deltaTime
     const currentSpeedMagnitude = Math.sqrt(
-      ball.vx * ball.vx + ball.vy * ball.vy,
+      ball.vx * ball.vx + ball.vy * ball.vy
     );
     if (
       currentSpeedMagnitude > 1e-6 &&
@@ -227,86 +227,6 @@ export const resolveCollisionsWithWalls = (
     }
   });
 };
-
-export class StrobeBall extends Ball {
-  strobeA: number;
-  strobeB: number;
-  strobeInterval: NodeJS.Timeout | null = null;
-  lastStrobeTime: number;
-  shouldStrobe: boolean;
-  constructor(
-    x: number,
-    y: number,
-    angle: number,
-    ballRadius: number,
-    currentSpeed: number,
-    color: string,
-    strobeA: number,
-    strobeB: number,
-  ) {
-    super(x, y, angle, ballRadius, currentSpeed, color);
-    this.strobeA = strobeA;
-    this.strobeB = strobeB;
-
-    // Initialize lastStrobeTime to simulate a 1-second delay
-    this.lastStrobeTime = Date.now() + 1000;
-    this.shouldStrobe = true;
-  }
-
-  reset() {
-    this.shouldStrobe = false;
-  }
-
-  getColor(): string {
-    if (!this.shouldStrobe) {
-      return this.color;
-    }
-    const currentTime = Date.now();
-
-    // Check if 1 second has passed since the initial delay
-    if (currentTime < this.lastStrobeTime) {
-      return this.color; // Return "off" color before the strobe starts
-    }
-
-    // Define durations
-    const peakDuration = this.strobeA; // Duration to rise to the peak
-    const troughDuration = this.strobeB; // Duration to fall to the trough
-    const cycleTime = peakDuration + troughDuration;
-
-    // Calculate elapsed time in the current cycle
-    const elapsedTime = (currentTime - this.lastStrobeTime) % cycleTime;
-
-    // Normalize elapsed time to a sine wave cycle (0 to 2π)
-    const normalizedTime = elapsedTime / cycleTime; // 0 to 1
-    const sineWave = Math.sin(normalizedTime * 2 * Math.PI);
-
-    // Stretch the sine wave near the peaks using a cubic easing function
-    const smoothSineWave =
-      sineWave >= 0
-        ? Math.pow(sineWave, 0.5) // Stretch near the peak
-        : -Math.pow(-sineWave, 0.5); // Stretch near the trough
-
-    // Normalize to a 0–1 range for progress
-    const normalizedProgress = (smoothSineWave + 1) / 2;
-
-    // Colors to interpolate between
-    const startColor = { r: 27, g: 27, b: 27 }; // Dark color for "off"
-    const endColor = { r: 240, g: 205, b: 0 }; // Bright color for "on"
-
-    // Calculate interpolated color
-    const r = Math.floor(
-      startColor.r + (endColor.r - startColor.r) * normalizedProgress,
-    );
-    const g = Math.floor(
-      startColor.g + (endColor.g - startColor.g) * normalizedProgress,
-    );
-    const b = Math.floor(
-      startColor.b + (endColor.b - startColor.b) * normalizedProgress,
-    );
-
-    return this.shouldStrobe ? `rgb(${r}, ${g}, ${b})` : this.color;
-  }
-}
 
 export class GlowBall extends Ball {
   strobeInterval: NodeJS.Timeout | null = null;
@@ -323,7 +243,7 @@ export class GlowBall extends Ball {
     ballRadius: number,
     currentSpeed: number,
     color: string,
-    reactionTimesRef: MutableRefObject<number[]>,
+    reactionTimesRef: MutableRefObject<number[]>
   ) {
     super(x, y, angle, ballRadius, currentSpeed, color);
     this.reactionTimesRef = reactionTimesRef;
@@ -387,7 +307,7 @@ export class GlowBall extends Ball {
     isHighlighted: boolean,
     ctx: CanvasRenderingContext2D,
     isWrongBall: boolean | null,
-    isCorrectBall: boolean | null,
+    isCorrectBall: boolean | null
   ): void {
     ctx.save(); // Save the canvas state
 
@@ -440,8 +360,8 @@ export const createBalls = <T extends Ball>(
         ballRadius,
         startingSpeed,
         BASE_COLOR,
-        ...extraArgs,
-      ),
+        ...extraArgs
+      )
     );
   }
 

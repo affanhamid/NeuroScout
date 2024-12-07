@@ -4,11 +4,10 @@ import {
   MetricsTemplateFields,
   MetricsTemplateModel,
   MetricsTemplateType,
-  PlayerFields,
-  PlayerModel
+  PlayerFields
 } from "@/lib/db";
-import * as routes from "./routes";
-import * as idRoutes from "./[id]/routes";
+import * as routes from "./route";
+import * as idRoutes from "./[id]/route";
 import { TestWithReferences } from "@/lib/util";
 import { Model, Types } from "mongoose";
 

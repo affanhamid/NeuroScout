@@ -14,12 +14,26 @@ export const OrganizationSchema = new Schema(
 
 export const PlayerSchema = new Schema(
   {
+    firstName: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 1,
+      maxlength: 50 // Optional: Limit name length for validation
+    },
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 1,
+      maxlength: 50 // Optional: Limit name length for validation
+    },
     age: {
       type: Number,
       required: true,
       validate: {
-        validator: (val: number) => val > 0 && val < 100,
-        message: "Age must be between 1 and 99"
+        validator: (val: number) => val > 10 && val < 100,
+        message: "Age must be between 10 and 99"
       }
     },
     position: {
@@ -177,7 +191,7 @@ export const MetricsTemplateSchema = new Schema(
 );
 
 // Types
-export type OrganizationType = InferSchemaType<typeof OrganizationSchema>;
+export type OrganizationType = InferSchemaType<typeof OrganizationSchema> & {};
 export type PlayerType = InferSchemaType<typeof PlayerSchema>;
 export type GameType = InferSchemaType<typeof GameSchema>;
 export type GameObservationType = InferSchemaType<typeof GameObservationSchema>;

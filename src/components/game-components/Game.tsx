@@ -4,16 +4,16 @@ import {
   InstructionDialog,
   PracticeCompleteDialog,
   ThankYouDialog,
-  ResultsDialog,
-} from "../modals";
+  ResultsDialog
+} from "./modals";
 
-import Countdown from "../Countdown/Countdown";
+import Countdown from "./Countdown";
 
 import type {
   InstructionStepInterface,
-  FormFieldInterface,
-} from "../modals/Types";
-import { TrialCompletedDialog } from "../modals/TrialCompletedDialog";
+  FormFieldInterface
+} from "./modals/Types";
+import { TrialCompletedDialog } from "./modals/TrialCompletedDialog";
 import { InferInsertModel } from "drizzle-orm";
 import { data, param, result } from "@/drizzle/schema";
 
@@ -23,7 +23,7 @@ export interface GameInterface<TParam> {
   calculateScores: (
     scores: number[],
     params: TParam,
-    practiceRounds: number,
+    practiceRounds: number
   ) => { currentScore: number; perfectScore: number };
 }
 
@@ -51,7 +51,7 @@ type BaseResult = InferInsertModel<typeof result> & {
 class Game<
   TData extends BaseTData,
   TParams extends BaseTParams,
-  TResult extends BaseResult,
+  TResult extends BaseResult
 > extends Component<GameInterface<TParams>, GameState> {
   canvasRef = createRef<HTMLCanvasElement>();
   ctxRef: MutableRefObject<CanvasRenderingContext2D | null> = createRef();
@@ -75,7 +75,7 @@ class Game<
       showPracticeComplete: false,
       showCountdown: false,
       showTrialComplete: false,
-      showReset: false,
+      showReset: false
     };
   }
 
@@ -85,7 +85,7 @@ class Game<
 
   componentDidUpdate(
     prevProps: GameInterface<TData, TParam>,
-    prevState: GameState,
+    prevState: GameState
   ) {
     if (prevState.isRunning !== this.state.isRunning && this.state.isRunning) {
       this.canvasRef.current && this.renderGame();
@@ -109,7 +109,7 @@ class Game<
           trial: 1,
           showPracticeComplete: true,
           showReset: false,
-          isPractice: false,
+          isPractice: false
         });
       } else {
         trial !== 1 &&
@@ -148,7 +148,7 @@ class Game<
       showPracticeComplete,
       showCountdown,
       showTrialComplete,
-      trial,
+      trial
     } = this.state;
     const { instructions, formFields, calculateScores } = this.props;
 

@@ -5,8 +5,8 @@ import {
   PlayerModel,
   PlayerType
 } from "@/lib/db";
-import * as routes from "./routes";
-import * as idRoutes from "./[id]/routes";
+import * as routes from "./route";
+import * as idRoutes from "./[id]/route";
 import { TestWithReferences } from "@/lib/util";
 import { Model } from "mongoose";
 
@@ -38,16 +38,20 @@ const updateReferences = (
     organizationRef.get(OrganizationModel)?._id;
 };
 
+const testObject = {
+  firstName: "first name",
+  lastName: "last name",
+  age: 12,
+  position: "striker",
+  organizationId: ""
+};
+
 const test = new TestWithReferences(
   PlayerModel,
   getRouteHandlers,
-  {
-    age: 1,
-    position: "striker",
-    organizationId: ""
-  },
-  { age: 20, position: "striker", organizationId: "" },
-  { age: 3, position: "goalkeeper", organizationId: "" },
+  testObject,
+  testObject,
+  testObject,
   references,
   updateReferences
 );
