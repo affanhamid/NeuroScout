@@ -12,7 +12,7 @@ const InstructionDialog = ({
   console.log(instructions);
   return (
     <div className="bg-game-background absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
-      {instructions.length !== 1 && (
+      {instructions.length !== 0 && (
         <div>
           <Image
             src={instructions[step].image}
