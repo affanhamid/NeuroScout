@@ -40,6 +40,9 @@ references.set(GameModel, {
   description: "This is a test game",
   image:
     "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.newyorker.com%2Fnews%2Fdaily-comment%2Fmonkey-see-monkey-click&psig=AOvVaw3svzCM2koDD339l0-WpbGn&ust=1733520086039000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCPDs-NjHkYoDFQAAAAAdAAAAABAE",
+  instructions: new Types.DocumentArray<{ step: number; image: string }>([
+    { step: 1, image: "https://www/google/com" }
+  ]),
   parameters: new Types.DocumentArray<{ id: string; data: object }>([
     { id: "13", data: { test: "test data" } }
   ]),

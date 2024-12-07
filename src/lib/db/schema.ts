@@ -68,6 +68,18 @@ export const GameSchema = new Schema(
       required: true,
       match: /^(http|https):\/\/[^ "]+$/ // Validation for valid URLs
     },
+    instructions: {
+      type: [
+        {
+          step: { type: Number, required: true },
+          image: {
+            type: String,
+            required: true,
+            match: /^(http|https):\/\/[^ "]+$/
+          }
+        }
+      ]
+    },
     parameters: {
       type: [
         {

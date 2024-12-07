@@ -8,26 +8,7 @@ import {
   resolveCollisions,
   resolveCollisionsWithWalls
 } from "../TNT/Ball";
-import Game, { GameInterface, GameState } from "../Game";
-import { data, param, result, tntParam } from "@/drizzle/schema";
-import { InferInsertModel } from "drizzle-orm";
-
-type TNT_Data = InferInsertModel<typeof data>;
-
-type TNTParams = InferInsertModel<typeof tntParam> &
-  InferInsertModel<typeof param>;
-
-type Result = InferInsertModel<typeof result> & {
-  result: {
-    scores: number[];
-    timeToClicks: number[];
-    finalVts: number;
-  };
-  formData: {
-    age: number;
-    highestLevel: string;
-  };
-};
+import Game, { GameState } from "../Game";
 
 export interface TNTGameState extends GameState {
   vts: number;
@@ -35,9 +16,9 @@ export interface TNTGameState extends GameState {
 }
 
 class TNTGame<BallType extends Ball, Params extends TNTParams> extends Game<
-  TNT_Data,
-  Params,
-  Result
+  {},
+  {},
+  {}
 > {
   highlightedBallsRef: MutableRefObject<number[] | null> =
     createRef<number[]>();
@@ -49,7 +30,7 @@ class TNTGame<BallType extends Ball, Params extends TNTParams> extends Game<
   isClickableRef: MutableRefObject<boolean> = { current: false };
   startingVtsRef: MutableRefObject<number> = { current: 0 };
   gameEndTimeRef: MutableRefObject<number> = { current: 0 };
-  dataRef: MutableRefObject<TNT_Data> = {
+  dataRef = {
     current: {
       timeOfData: new Date(),
       screenWidth: 0,
@@ -59,7 +40,7 @@ class TNTGame<BallType extends Ball, Params extends TNTParams> extends Game<
       paramId: 0
     }
   };
-  resultRef: MutableRefObject<Result> = {
+  resultRef = {
     current: {
       result: {
         scores: [],
@@ -78,28 +59,8 @@ class TNTGame<BallType extends Ball, Params extends TNTParams> extends Game<
     vts: 0
   };
 
-  setParams = async () => {
-    try {
-      const baseUrl =
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-      const response = await fetch(
-        `${baseUrl}/api/param/get-params?gameId=${this.dataRef.current.gameId}`
-      );
-      const result = await response.json();
-      this.gameEndTimeRef.current = 0;
-      this.paramsRef.current = { ...result[0].param, ...result[0].paramValues };
-      this.state.vts = this.paramsRef.current!.startingVts;
-      this.dataRef.current.paramId = this.paramsRef.current.paramId;
-    } catch (error) {
-      console.error("Error fetching TNT params:", error);
-    }
-  };
-
-  constructor(props: GameInterface<Params>, fetchParams: boolean = false) {
+  constructor(props: { gameId: string }) {
     super(props);
-    if (fetchParams) {
-      this.setParams();
-    }
   }
 
   resetSelection = () => {

@@ -4,11 +4,14 @@ import { ApiRequest } from "@/types";
 
 const api = new BaseAPI(GameModel);
 
-export const GET = ({
-  params
-}: {
-  params: { id: string };
-}): Promise<Response> => {
+export const GET = async (
+  request: Request,
+  {
+    params
+  }: {
+    params: { id: string };
+  }
+): Promise<Response> => {
   return api.getOne(params.id);
 };
 
@@ -20,10 +23,13 @@ export const PUT = async (
   return api.updateOne(params.id, updateData);
 };
 
-export const DELETE = ({
-  params
-}: {
-  params: { id: string };
-}): Promise<Response> => {
+export const DELETE = (
+  request: Request,
+  {
+    params
+  }: {
+    params: { id: string };
+  }
+): Promise<Response> => {
   return api.deleteOne(params.id);
 };
