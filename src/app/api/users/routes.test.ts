@@ -1,5 +1,5 @@
-import * as routes from "./routes";
-import * as idRoutes from "./[id]/routes";
+import * as routes from "./route";
+import * as idRoutes from "./[id]/route";
 import {
   OrganizationFields,
   OrganizationModel,

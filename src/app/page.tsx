@@ -1,48 +1,62 @@
+import { GetGamesResponse } from "@/types";
 import Footer from "../components/components/Footer";
 import Gallery from "../components/components/Gallery";
-import Navbar from "../components/components/Navbar";
 
-const Card = ({ heading, text }: { heading: string; text: string }) => {
-  return (
-    <div className="bg-dark w-[320px] aspect-[0.9] rounded-lg text-white text-center py-10">
-      <h3 className="">{heading}</h3>
-      <p>{text}</p>
-    </div>
-  );
-};
-
-const TimelineElement = ({
-  heading,
-  text,
-}: {
-  heading: string;
-  text: string;
-}) => {
-  return (
-    <div className="bg-white/20 w-[500px] aspect-3/2 rounded-lg text-white text-center py-10 relative">
-      <h3 className="">{heading}</h3>
-      <p>{text}</p>
-      <div className="absolute w-10 h-10 bg-white/20 rounded-full top-full left-[50%] transform translate-x-[-50%] mt-5" />
-    </div>
-  );
-};
-
+// const Card = ({ heading, text }: { heading: string; text: string }) => {
+//   return (
+//     <div className="bg-dark w-[320px] aspect-[0.9] rounded-lg text-white text-center py-10">
+//       <h3 className="">{heading}</h3>
+//       <p>{text}</p>
+//     </div>
+//   );
+// };
+//
+// const TimelineElement = ({
+//   heading,
+//   text
+// }: {
+//   heading: string;
+//   text: string;
+// }) => {
+//   return (
+//     <div className="bg-white/20 w-[500px] aspect-3/2 rounded-lg text-white text-center py-10 relative">
+//       <h3 className="">{heading}</h3>
+//       <p>{text}</p>
+//       <div className="absolute w-10 h-10 bg-white/20 rounded-full top-full left-[50%] transform translate-x-[-50%] mt-5" />
+//     </div>
+//   );
+// };
+//
 export default async function Home() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const result = await fetch(
-    `${baseUrl}/api/data/get-table-data?dataTable=game`,
-    {
+
+  try {
+    const result = await fetch(`${baseUrl}/api/games`, {
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
-      cache: "no-store",
-    },
-  );
-  const games = await result.json();
-  /*   games.sort((a, b) => a.id - b.id); */
-  return (
-    <main>
-      {/*<Navbar />
+      cache: "no-store"
+    });
+
+    if (!result.ok) {
+      const errorResponse = await result.json();
+      throw new Error(
+        `Failed to fetch games: ${errorResponse.error || "Unknown error"}`
+      );
+    }
+
+    // Parse the structured ApiResponse
+    const apiResponse: GetGamesResponse = await result.json();
+
+    if (!apiResponse.data) {
+      throw new Error("No data in the API response");
+    }
+
+    const games = apiResponse.data; // Access the `data` field
+
+    return (
+      <main>
+        {/*<Navbar />
       <section className="bg-hero h-[75vh] mt-20">
         <div className="flex h-3/4 items-center justify-between">
           <div className="text-white flex flex-col gap-5 w-[50%]">
@@ -92,16 +106,22 @@ export default async function Home() {
           <div className="bg-white/20 absolute h-2 w-[69%] left-[50%] top-[116%] transform translate-y-[-50%] -translate-x-[50%]" />
         </div>
       </section> */}
-      <section className="pt-24 px-20 flex justify-center h-[100vh]">
-        <div>
-          <h1 className="text-center text-7xl mb-5 text-primary">NeuroScout</h1>
-          <p className="text-3xl text-bold mb-36 text-center">
-            Optimising talent through cognitive insight.
-          </p>
-          <Gallery games={games} />
-        </div>
-      </section>
-      <Footer />
-    </main>
-  );
+        <section className="pt-24 px-20 flex justify-center h-[100vh]">
+          <div>
+            <h1 className="text-center text-7xl mb-5 text-primary">
+              NeuroScout
+            </h1>
+            <p className="text-3xl text-bold mb-36 text-center">
+              Optimising talent through cognitive insight.
+            </p>
+            <Gallery games={games} />
+          </div>
+        </section>
+        <Footer />
+      </main>
+    );
+  } catch (error) {
+    console.error("Error fetching games:", error);
+    return <div>Error: {error.message}</div>;
+  }
 }

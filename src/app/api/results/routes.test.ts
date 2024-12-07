@@ -1,5 +1,5 @@
-import * as routes from "./routes";
-import * as idRoutes from "./[id]/routes";
+import * as routes from "./route";
+import * as idRoutes from "./[id]/route";
 import {
   GameFields,
   GameModel,
@@ -29,9 +29,11 @@ const testObject = {
 
 const references = new Map();
 references.set(PlayerModel, {
-  age: 1,
+  firstName: "first name",
+  lastName: "last name",
+  age: 12,
   position: "striker",
-  organizationId: "67537540ab5e87f35d194604"
+  organizationId: "67540288ab5e87f35d194609"
 });
 references.set(GameModel, {
   name: "Test Game",

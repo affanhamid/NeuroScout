@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import type {
   OrganizationType,
   PlayerType,
@@ -5,7 +6,9 @@ import type {
   GameObservationType,
   UserType,
   ResultType,
-  MetricsTemplateType
+  MetricsTemplateType,
+  OrganizationFields,
+  PlayerFields
 } from "../lib/db/schema";
 
 export class ApiResponse<T> {
@@ -41,22 +44,28 @@ export type ApiRequest<T> = {
 };
 
 // Organizations
-export type CreateOrganizationRequest = ApiRequest<OrganizationType>;
-export type UpdateOrganizationRequest = ApiRequest<Partial<OrganizationType>>;
+export type CreateOrganizationRequest = ApiRequest<OrganizationFields>;
+export type UpdateOrganizationRequest = ApiRequest<
+  Partial<CreateOrganizationRequest>
+>;
 
-export type GetOrganizationResponse = ApiResponse<OrganizationType>;
-export type GetOrganizationsResponse = ApiResponse<OrganizationType[]>;
+export type GetOrganizationResponse = ApiResponse<
+  OrganizationType & { _id: Types.ObjectId }
+>;
+export type GetOrganizationsResponse = ApiResponse<
+  OrganizationType & { _id: Types.ObjectId }[]
+>;
 
 // Player
-export type CreatePlayerRequest = ApiRequest<{
-  age: number;
-  position: number;
-  organizationId: string;
-}>;
-export type UpdatePlayerRequest = Partial<CreatePlayerRequest>;
+export type CreatePlayerRequest = ApiRequest<PlayerFields>;
+export type UpdatePlayerRequest = ApiRequest<Partial<CreatePlayerRequest>>;
 
-export type GetPlayerResponse = ApiResponse<PlayerType>;
-export type GetPlayersResponse = ApiResponse<PlayerType[]>;
+export type GetPlayerResponse = ApiResponse<
+  PlayerType & { _id: Types.ObjectId }
+>;
+export type GetPlayersResponse = ApiResponse<
+  PlayerType & { _id: Types.ObjectId }[]
+>;
 
 // Game
 export type CreateGameRequest = ApiRequest<{
@@ -75,8 +84,10 @@ export type CreateGameRequest = ApiRequest<{
 }>;
 export type UpdateGameRequest = Partial<CreateGameRequest>;
 
-export type GetGameResponse = ApiResponse<GameType>;
-export type GetGamesResponse = ApiResponse<GameType[]>;
+export type GetGameResponse = ApiResponse<GameType & { _id: Types.ObjectId }>;
+export type GetGamesResponse = ApiResponse<
+  GameType & { _id: Types.ObjectId }[]
+>;
 
 // Game Observation
 export type CreateGameObservationRequest = ApiRequest<{
@@ -87,8 +98,12 @@ export type CreateGameObservationRequest = ApiRequest<{
 export type UpdateGameObservationRequest =
   Partial<CreateGameObservationRequest>;
 
-export type GetGameObservationResponse = ApiResponse<GameObservationType>;
-export type GetGameObservationsResponse = ApiResponse<GameObservationType[]>;
+export type GetGameObservationResponse = ApiResponse<
+  GameObservationType & { _id: Types.ObjectId }
+>;
+export type GetGameObservationsResponse = ApiResponse<
+  GameObservationType & { _id: Types.ObjectId }[]
+>;
 
 // User
 export type CreateUserRequest = ApiRequest<{
@@ -99,8 +114,10 @@ export type CreateUserRequest = ApiRequest<{
 }>;
 export type UpdateUserRequest = Partial<CreateUserRequest>;
 
-export type GetUserResponse = ApiResponse<UserType>;
-export type GetUsersResponse = ApiResponse<UserType[]>;
+export type GetUserResponse = ApiResponse<UserType & { _id: Types.ObjectId }>;
+export type GetUsersResponse = ApiResponse<
+  UserType & { _id: Types.ObjectId }[]
+>;
 
 // Result
 export type CreateResultRequest = ApiRequest<{
@@ -111,8 +128,12 @@ export type CreateResultRequest = ApiRequest<{
 }>;
 export type UpdateResultRequest = Partial<CreateResultRequest>;
 
-export type GetResultResponse = ApiResponse<ResultType>;
-export type GetResultsResponse = ApiResponse<ResultType[]>;
+export type GetResultResponse = ApiResponse<
+  ResultType & { _id: Types.ObjectId }
+>;
+export type GetResultsResponse = ApiResponse<
+  ResultType & { _id: Types.ObjectId }[]
+>;
 
 // Metrics Template
 export type CreateMetricsTemplateRequest = ApiRequest<{
@@ -126,5 +147,9 @@ export type CreateMetricsTemplateRequest = ApiRequest<{
 export type UpdateMetricsTemplateRequest =
   Partial<CreateMetricsTemplateRequest>;
 
-export type GetMetricsTemplateResponse = ApiResponse<MetricsTemplateType>;
-export type GetMetricsTemplatesResponse = ApiResponse<MetricsTemplateType[]>;
+export type GetMetricsTemplateResponse = ApiResponse<
+  MetricsTemplateType & { _id: Types.ObjectId }
+>;
+export type GetMetricsTemplatesResponse = ApiResponse<
+  MetricsTemplateType & { _id: Types.ObjectId }[]
+>;
