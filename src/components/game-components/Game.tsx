@@ -1,149 +1,88 @@
 "use client";
 
-import { Component, createRef } from "react";
-import Countdown from "./Countdown";
+import { Component, createRef, MutableRefObject } from "react";
 import InstructionDialog from "./modals/InstructionDialog";
+import Countdown from "./Countdown";
 
 export interface GameState {
   trial: number;
-  isRunning: boolean;
-  isPractice: boolean;
-  showInstructions: boolean;
-  showThankYou: boolean;
-  showResults: boolean;
-  showPracticeComplete: boolean;
-  showCountdown: boolean;
-  showTrialComplete: boolean;
-  showReset: boolean;
   instructions: { step: number; image: string }[];
+  showInstructions: boolean;
+  showCountdown: boolean;
+  isRunning: boolean;
 }
 
-class Game<
-  TParams extends { trials: number; practiceTrials: number }
-> extends Component<object, GameState> {
+export interface GameProps {
+  gameId: string;
+}
+
+class Game<TParams> extends Component<GameProps, GameState> {
   canvasRef = createRef<HTMLCanvasElement>();
-  ctxRef = createRef<CanvasRenderingContext2D>();
+  ctxRef: MutableRefObject<CanvasRenderingContext2D | null> = { current: null };
   animationFrameIdRef = createRef<number>();
-  paramsRef = createRef<TParams>();
-  renderGame = () => {};
-  resetSelection = () => {};
+  paramsRef: MutableRefObject<TParams | null> = { current: null };
+  renderGame() {}
+  resetSelection() {}
   instructions: { step: number; image: string }[] = [];
   gameId: string;
 
-  constructor(props: { gameId: string }) {
+  constructor(props: GameProps) {
     super(props);
-    this.state = {
-      trial: 1,
-      isRunning: false,
-      isPractice: true,
-      showInstructions: true,
-      showThankYou: false,
-      showResults: false,
-      showPracticeComplete: false,
-      showCountdown: false,
-      showTrialComplete: false,
-      showReset: false,
-      instructions: []
-    };
     this.gameId = props.gameId;
+    this.state = {
+      trial: 0,
+      instructions: [],
+      showInstructions: true,
+      showCountdown: false,
+      isRunning: false
+    };
   }
+
   async fetchParams() {
     try {
       const baseUrl =
         process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
       const response = await fetch(`${baseUrl}/api/games/${this.gameId}`);
       const result = await response.json();
-      console.log("result: ", result);
+      this.paramsRef.current = result.data.parameters;
       this.setState({ instructions: result.data.instructions });
     } catch (error) {
       console.error("Error fetching TNT params:", error);
     }
   }
+
   componentDidMount() {
     this.fetchParams();
+
+    this.ctxRef.current = this.canvasRef.current!.getContext("2d")!;
+    this.canvasRef.current!.width = window.innerWidth;
+    this.canvasRef.current!.height = window.innerHeight;
   }
 
-  componentDidUpdate(prevState: GameState) {
-    if (
-      this.canvasRef.current &&
-      prevState.isRunning !== this.state.isRunning &&
-      this.state.isRunning
-    ) {
+  componentDidUpdate() {
+    if (this.canvasRef.current && this.state.isRunning) {
       this.renderGame();
-    } else if (
-      prevState.isRunning !== this.state.isRunning &&
-      !this.state.isRunning
-    ) {
-      this.handleTrialCompletion();
     }
   }
-
-  handleTrialCompletion() {
-    const { trial } = this.state;
-
-    if (this.state.isPractice) {
-      if (
-        this.paramsRef?.current?.practiceTrials &&
-        trial === this.paramsRef?.current?.practiceTrials + 1
-      ) {
-        this.setState({
-          trial: 1,
-          showPracticeComplete: true,
-          showReset: false,
-          isPractice: false
-        });
-      } else {
-        if (trial !== 1) {
-          this.setState({ showTrialComplete: true, showReset: false });
-        }
-      }
-    } else {
-      if (
-        this.paramsRef?.current?.trials &&
-        trial === this.paramsRef?.current?.trials + 1
-      ) {
-        this.setState({ showThankYou: true, showReset: false });
-      } else {
-        this.setState({ showTrialComplete: true, showReset: false });
-      }
-    }
-  }
-
-  startGame = () => {
-    this.setState({ isRunning: true });
-  };
 
   render() {
     return (
       <main>
         <canvas ref={this.canvasRef} className="block" />
         {this.state.showCountdown && (
-          <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center ">
-            <Countdown
-              onComplete={() => {
-                this.setState({ showCountdown: false });
-                this.startGame();
-              }}
-            />
-          </div>
-        )}
-        <div className="absolute top-10 right-10 text-white text-2xl text-left">
-          {this.state.isPractice && this.paramsRef?.current?.trials
-            ? `Practice Trial: ${this.state.trial}/${this.paramsRef.current.practiceTrials}`
-            : this.paramsRef?.current?.trials &&
-              `Trial: ${this.state.trial}/${this.paramsRef.current.trials}`}
-        </div>
-
-        {this.state.showReset && (
-          <button
-            className="text-black bg-green-500 px-3 py-2 rounded-md hover:bg-green-600 absolute top-20 right-10 text-white text-2xl text-left"
-            onClick={this.resetSelection}
-          >
-            Reset Selection
-          </button>
+          <Countdown
+            onCountdownEnd={() =>
+              this.setState({ showCountdown: false, isRunning: true })
+            }
+          />
         )}
         {this.state.showInstructions && (
-          <InstructionDialog instructions={this.state.instructions} />
+          <InstructionDialog
+            instructions={this.state.instructions}
+            onStart={() =>
+              this.setState({ showCountdown: true, showInstructions: false })
+            }
+          />
         )}
       </main>
     );

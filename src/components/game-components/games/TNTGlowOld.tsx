@@ -1,15 +1,41 @@
 "use client";
-
 import { MutableRefObject } from "react";
-import { GameProps } from "../Game";
-import { createBalls, GlowBall } from "../TNT";
-import TNT from "./TNT";
+import { GlowBall, createBalls } from "../TNT/Ball";
+import { GameState } from "../Game";
+import TNTGame from "./TNT";
+import { TNTGameState } from "./TNT";
 
-class TNTGlowGame extends TNT<GlowBall> {
-  reactionTimesRef: MutableRefObject<number[]> = { current: [] };
+class TNTGlowGame extends TNTGame<GlowBall, {}> {
+  dataRef = {
+    current: {
+      timeOfData: new Date(),
+      screenWidth: 0,
+      screenHeight: 0,
+      ballSize: 0,
+      gameId: 2,
+      paramId: 0
+    }
+  };
   shouldGlowRef: MutableRefObject<boolean> = { current: true };
-
-  constructor(props: GameProps) {
+  reactionTimesRef: MutableRefObject<number[]> = { current: [] };
+  resultRef = {
+    current: {
+      result: {
+        scores: [],
+        timeToClicks: [],
+        finalVts: 0,
+        reactionTimes: this.reactionTimesRef.current
+      },
+      formData: {
+        age: 0,
+        highestLevel: ""
+      }
+    }
+  };
+  state: TNTGameState = {
+    ...this.state
+  };
+  constructor(props: { gameId: string }) {
     super(props);
   }
 
@@ -32,8 +58,8 @@ class TNTGlowGame extends TNT<GlowBall> {
         }
       },
       this.randomGaussian(
-        this.paramsRef.current![0].data.randomnessMean,
-        this.paramsRef.current![0].data.randomnessStd
+        this.paramsRef.current!.randomnessMean,
+        this.paramsRef.current!.randomnessStd
       )
     );
   };
@@ -62,8 +88,8 @@ class TNTGlowGame extends TNT<GlowBall> {
   createBalls() {
     this.ballsRef.current = createBalls(
       this.canvasRef.current!,
-      this.ballSizeRef.current!,
-      this.paramsRef.current![0].data.numOfBalls,
+      this.dataRef.current!.ballSize,
+      8,
       GlowBall,
       this.reactionTimesRef
     );
@@ -75,7 +101,7 @@ class TNTGlowGame extends TNT<GlowBall> {
         () => {
           this.shouldGlowRef.current = false;
         },
-        this.paramsRef.current![0].data.duration * 1000 - 3000
+        this.paramsRef.current!.duration * 1000 - 3000
       );
     }, 3000);
   }

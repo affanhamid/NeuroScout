@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from "react";
 
-interface CountdownProps {
-  onComplete: () => void;
-}
-
-const Countdown: React.FC<CountdownProps> = ({ onComplete }) => {
-  const [count, setCount] = useState<number>(3); // Start countdown from 3
+const Countdown = ({ onCountdownEnd }: { onCountdownEnd: () => void }) => {
+  const [count, setCount] = useState<number>(3);
 
   useEffect(() => {
     if (count > 0) {
       const timer = setTimeout(() => setCount(count - 1), 900);
-      return () => clearTimeout(timer); // Clear the timeout if the component unmounts
+      return () => clearTimeout(timer);
     } else {
-      const timer = setTimeout(() => onComplete(), 900);
+      const timer = setTimeout(() => onCountdownEnd(), 900);
       return () => clearTimeout(timer);
     }
-  }, [count, onComplete]);
+  }, [count, onCountdownEnd]);
 
   return (
     <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center h-screen w-screen bg-game-background">
