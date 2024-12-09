@@ -3,6 +3,7 @@
 import { Component, createRef, MutableRefObject } from "react";
 import InstructionDialog from "./modals/InstructionDialog";
 import Countdown from "./Countdown";
+import GameObserver from "./GameObserver";
 
 export interface GameState {
   trial: number;
@@ -10,6 +11,7 @@ export interface GameState {
   showInstructions: boolean;
   showCountdown: boolean;
   isRunning: boolean;
+  isPractice: boolean;
 }
 
 export interface GameProps {
@@ -25,6 +27,8 @@ class Game<TParams> extends Component<GameProps, GameState> {
   resetSelection() {}
   instructions: { step: number; image: string }[] = [];
   gameId: string;
+  isClickableRef: MutableRefObject<boolean> = { current: false };
+  gameEndTimeRef: MutableRefObject<number> = { current: 0 };
 
   constructor(props: GameProps) {
     super(props);
@@ -34,7 +38,8 @@ class Game<TParams> extends Component<GameProps, GameState> {
       instructions: [],
       showInstructions: true,
       showCountdown: false,
-      isRunning: false
+      isRunning: false,
+      isPractice: true
     };
   }
 
