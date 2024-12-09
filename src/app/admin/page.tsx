@@ -1,6 +1,6 @@
 "use client";
 
-import Navbar from "../../components/components/Navbar";
+import Navbar from "../../components/ui/Navbar";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 
@@ -40,7 +40,7 @@ const Admin = () => {
       tableData.reduce((set, row) => {
         Object.keys(row).forEach((key) => set.add(key));
         return set;
-      }, new Set()),
+      }, new Set())
     );
 
     return (
@@ -79,7 +79,7 @@ const Admin = () => {
     <main className="py-32">
       <Navbar />
       {["affanhamid007@gmail.com", "zainmirza1008@gmail.com"].includes(
-        session?.user?.email || "",
+        session?.user?.email || ""
       ) ? (
         <>
           <section className="px-40">
