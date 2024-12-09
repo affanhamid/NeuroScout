@@ -3,7 +3,6 @@
 import { Component, createRef, MutableRefObject } from "react";
 import InstructionDialog from "./modals/InstructionDialog";
 import Countdown from "./Countdown";
-import GameObserver from "./GameObserver";
 
 export interface GameState {
   trial: number;
@@ -25,9 +24,11 @@ class Game<TParams> extends Component<GameProps, GameState> {
   paramsRef: MutableRefObject<TParams | null> = { current: null };
   renderGame() {}
   resetSelection() {}
+  resetGame() {}
   instructions: { step: number; image: string }[] = [];
   gameId: string;
-  isClickableRef: MutableRefObject<boolean> = { current: false };
+  clickEventAfterGame(e: MouseEvent) {}
+  clickEventDuringGame(e: MouseEvent) {}
   gameEndTimeRef: MutableRefObject<number> = { current: 0 };
 
   constructor(props: GameProps) {
@@ -67,6 +68,19 @@ class Game<TParams> extends Component<GameProps, GameState> {
   componentDidUpdate() {
     if (this.canvasRef.current && this.state.isRunning) {
       this.renderGame();
+
+      setTimeout(() => {
+        this.resetGame();
+        this.canvasRef.current!.addEventListener(
+          "click",
+          this.clickEventAfterGame
+        );
+        this.gameEndTimeRef.current = Date.now();
+        this.canvasRef.current!.removeEventListener(
+          "click",
+          this.clickEventDuringGame
+        );
+      }, this.paramsRef.current![0].data.duration * 1000);
     }
   }
 
