@@ -22,8 +22,10 @@ const Carousel = ({
           <Image
             src={instructions[step].image}
             alt={`${step}`}
+            className="w-auto h-auto"
             width={700}
             height={400}
+            priority={true}
           />
         </div>
       )}
