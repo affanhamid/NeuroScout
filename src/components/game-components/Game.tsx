@@ -11,13 +11,25 @@ export interface GameState {
   showCountdown: boolean;
   isRunning: boolean;
   isPractice: boolean;
+  showPracticeComplete: boolean;
+  showTrialComplete: boolean;
+  showReset: boolean;
+  showThankYou: boolean;
 }
 
 export interface GameProps {
   gameId: string;
 }
 
-class Game<TParams> extends Component<GameProps, GameState> {
+type BaseParams = {
+  data: {
+    duration: number;
+    trials: number;
+    practiceTrials: number;
+  };
+}[];
+
+class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
   canvasRef = createRef<HTMLCanvasElement>();
   ctxRef: MutableRefObject<CanvasRenderingContext2D | null> = { current: null };
   animationFrameIdRef = createRef<number>();
@@ -40,7 +52,11 @@ class Game<TParams> extends Component<GameProps, GameState> {
       showInstructions: true,
       showCountdown: false,
       isRunning: false,
-      isPractice: true
+      isPractice: true,
+      showPracticeComplete: false,
+      showTrialComplete: false,
+      showReset: false,
+      showThankYou: false
     };
   }
 
@@ -65,22 +81,61 @@ class Game<TParams> extends Component<GameProps, GameState> {
     this.canvasRef.current!.height = window.innerHeight;
   }
 
-  componentDidUpdate() {
-    if (this.canvasRef.current && this.state.isRunning) {
+  componentDidUpdate(prevState: GameState, newState: GameState) {
+    if (
+      this.canvasRef.current &&
+      !prevState.isRunning &&
+      this.state.isRunning
+    ) {
       this.renderGame();
 
       setTimeout(() => {
         this.resetGame();
+
         this.canvasRef.current!.addEventListener(
           "click",
-          this.clickEventAfterGame
+          this.clickEventAfterGame.bind(this)
         );
-        this.gameEndTimeRef.current = Date.now();
+
         this.canvasRef.current!.removeEventListener(
           "click",
-          this.clickEventDuringGame
+          this.clickEventDuringGame.bind(this)
         );
+        this.gameEndTimeRef.current = Date.now();
       }, this.paramsRef.current![0].data.duration * 1000);
+    } else if (!prevState.isRunning && this.state.isRunning) {
+      this.handleTrialCompletion();
+    }
+  }
+
+  handleTrialCompletion() {
+    const { trial } = this.state;
+
+    if (this.state.isPractice) {
+      if (
+        this.paramsRef.current![0].data.practiceTrials &&
+        trial === this.paramsRef.current![0].data.practiceTrials + 1
+      ) {
+        this.setState({
+          trial: 1,
+          showPracticeComplete: true,
+          showReset: false,
+          isPractice: false
+        });
+      } else {
+        if (trial !== 1) {
+          this.setState({ showTrialComplete: true, showReset: false });
+        }
+      }
+    } else {
+      if (
+        this.paramsRef.current![0].data.trials &&
+        trial === this.paramsRef.current![0].data.trials + 1
+      ) {
+        this.setState({ showThankYou: true, showReset: false });
+      } else {
+        this.setState({ showTrialComplete: true, showReset: false });
+      }
     }
   }
 

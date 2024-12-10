@@ -26,9 +26,11 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
   wrongBallsRef: MutableRefObject<number[]> = { current: [] };
   correctBallsRef: MutableRefObject<number[]> = { current: [] };
   highlightedBallsRef: MutableRefObject<number[]> = { current: [] };
+  actualBallsRef: MutableRefObject<number[]> = { current: [] };
   clickedBallsRef: MutableRefObject<Set<number>> = {
     current: new Set<number>()
   };
+  currentSpeedRef: MutableRefObject<number> = { current: 0.01 };
 
   constructor(props: GameProps) {
     super(props);
@@ -54,18 +56,23 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
       );
     }
     this.highlightedBallsRef.current = Array.from(uniqueIndices);
+    this.actualBallsRef.current = this.highlightedBallsRef.current;
   }
 
-  update = (currentSpeed: number, deltaTime: number) => {
+  update = (deltaTime: number) => {
     resolveCollisionsWithWalls(
       this.ballsRef.current,
-      currentSpeed,
+      this.currentSpeedRef.current,
       this.canvasRef.current!.width,
       this.canvasRef.current!.height,
       deltaTime
     );
 
-    resolveCollisions(this.ballsRef.current, currentSpeed, deltaTime);
+    resolveCollisions(
+      this.ballsRef.current,
+      this.currentSpeedRef.current,
+      deltaTime
+    );
 
     this.ballsRef.current.forEach((ball, index) => {
       ball.drawBall(
@@ -80,9 +87,13 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
     });
   };
 
+  resetGame() {
+    this.currentSpeedRef.current = 0.01;
+    this.setState({ isRunning: false });
+  }
+
   renderGame() {
     this.setup();
-    let currentSpeed = 0.01;
     let lastTimestamp = 0;
 
     const animate = (timestamp: number) => {
@@ -103,8 +114,7 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
         this.canvasRef.current!.height
       );
 
-      this.update(currentSpeed, deltaTime);
-
+      this.update(deltaTime);
       if (this.state.isRunning) {
         requestAnimationFrame(animate);
       }
@@ -112,7 +122,8 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
     requestAnimationFrame(animate);
 
     setTimeout(() => {
-      currentSpeed = this.paramsRef.current![0].data.startingVts;
+      this.currentSpeedRef.current =
+        this.paramsRef.current![0].data.startingVts;
       this.highlightedBallsRef.current = [];
     }, 1000);
   }
@@ -121,6 +132,7 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
     selected: number[],
     actual: number[]
   ): { score: number; wrongBalls: number[]; correctBalls: number[] } => {
+    console.log(selected, actual);
     let score = 0;
     const wrongBalls: number[] = [];
     const correctBalls: number[] = [];
@@ -154,15 +166,11 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
 
           const { score, wrongBalls, correctBalls } = this.calculateScore(
             Array.from(this.clickedBallsRef.current!),
-            this.highlightedBallsRef.current!
+            this.actualBallsRef.current!
           );
 
           this.wrongBallsRef.current = wrongBalls;
           this.correctBallsRef.current = correctBalls;
-
-          setTimeout(() => {
-            this.update(0.01, 0);
-          }, 10);
 
           if (score === 4) {
             this.setState({
@@ -174,10 +182,7 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
             } as TNTGameState);
           }
           this.clickedBallsRef.current!.clear();
-          this.highlightedBallsRef.current = [];
 
-          this.wrongBallsRef.current = [];
-          this.correctBallsRef.current = [];
           this.setState({ trial: this.state.trial + 1 });
 
           if (
@@ -193,6 +198,10 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
         }
       }
     });
+
+    setTimeout(() => {
+      this.update(0);
+    }, 10);
   }
 }
 
