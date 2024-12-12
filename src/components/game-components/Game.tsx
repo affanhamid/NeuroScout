@@ -3,6 +3,7 @@
 import { Component, createRef, MutableRefObject } from "react";
 import InstructionDialog from "./modals/InstructionDialog";
 import Countdown from "./Countdown";
+import TrialCompleteDialog from "./modals/TrialCompletedDialog";
 
 export interface GameState {
   trial: number;
@@ -41,13 +42,14 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
   gameId: string;
   clickEventAfterGame(e: MouseEvent) {}
   clickEventDuringGame(e: MouseEvent) {}
+  handleMouseMove(e: MouseEvent) {}
   gameEndTimeRef: MutableRefObject<number> = { current: 0 };
 
   constructor(props: GameProps) {
     super(props);
     this.gameId = props.gameId;
     this.state = {
-      trial: 0,
+      trial: 1,
       instructions: [],
       showInstructions: true,
       showCountdown: false,
@@ -81,13 +83,24 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
     this.canvasRef.current!.height = window.innerHeight;
   }
 
-  componentDidUpdate(prevState: GameState, newState: GameState) {
+  componentDidUpdate(prevProps: Readonly<GameProps>, prevState: GameState) {
     if (
       this.canvasRef.current &&
       !prevState.isRunning &&
       this.state.isRunning
     ) {
+      console.log("starting new game");
       this.renderGame();
+
+      this.canvasRef.current!.addEventListener(
+        "click",
+        this.clickEventDuringGame.bind(this)
+      );
+
+      this.canvasRef.current!.addEventListener(
+        "mousemove",
+        this.handleMouseMove.bind(this)
+      );
 
       setTimeout(() => {
         this.resetGame();
@@ -103,19 +116,23 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
         );
         this.gameEndTimeRef.current = Date.now();
       }, this.paramsRef.current![0].data.duration * 1000);
-    } else if (!prevState.isRunning && this.state.isRunning) {
+    }
+    if (prevState.trial !== this.state.trial) {
       this.handleTrialCompletion();
     }
   }
 
   handleTrialCompletion() {
-    const { trial } = this.state;
-
     if (this.state.isPractice) {
       if (
-        this.paramsRef.current![0].data.practiceTrials &&
-        trial === this.paramsRef.current![0].data.practiceTrials + 1
+        this.state.trial ===
+        this.paramsRef.current![0].data.practiceTrials + 1
       ) {
+        console.log(
+          "practice complete",
+          this.paramsRef.current![0].data.practiceTrials,
+          this.state.trial
+        );
         this.setState({
           trial: 1,
           showPracticeComplete: true,
@@ -123,15 +140,13 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
           isPractice: false
         });
       } else {
-        if (trial !== 1) {
+        if (this.state.trial !== 1) {
+          console.log("showing trial complete");
           this.setState({ showTrialComplete: true, showReset: false });
         }
       }
     } else {
-      if (
-        this.paramsRef.current![0].data.trials &&
-        trial === this.paramsRef.current![0].data.trials + 1
-      ) {
+      if (this.state.trial === this.paramsRef.current![0].data.trials + 1) {
         this.setState({ showThankYou: true, showReset: false });
       } else {
         this.setState({ showTrialComplete: true, showReset: false });
@@ -158,6 +173,24 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
             }
           />
         )}
+        {this.state.showTrialComplete && (
+          <TrialCompleteDialog
+            onStart={() =>
+              this.setState({ showCountdown: true, showTrialComplete: false })
+            }
+            onShowInstructions={() =>
+              this.setState({
+                showInstructions: true,
+                showTrialComplete: false
+              })
+            }
+          />
+        )}
+        {
+          <div className="absolute top-10 right-10 text-white">
+            {this.state.trial}
+          </div>
+        }
       </main>
     );
   }

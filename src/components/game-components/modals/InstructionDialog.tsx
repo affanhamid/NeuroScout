@@ -25,7 +25,6 @@ const Carousel = ({
             className="w-auto h-auto"
             width={700}
             height={400}
-            priority={true}
           />
         </div>
       )}
@@ -56,7 +55,7 @@ const InstructionDialog = ({
           <div className="absolute left-0 right-0 top-[50%] transform -translate-y-[50%] flex justify-between">
             <button
               onClick={() => handleClick(-1)}
-              className="text-green-500 cursor-pointer hover:text-green-400 active:text-green-600"
+              className="text-green-500 bg-transparent cursor-pointer hover:text-green-400 active:text-green-600"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -75,7 +74,7 @@ const InstructionDialog = ({
             </button>
             <button
               onClick={() => handleClick(1)}
-              className="text-green-500 cursor-pointer hover:text-green-400 active:text-green-600"
+              className="text-green-500 bg-transparent cursor-pointer hover:text-green-400 active:text-green-600"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -96,14 +95,11 @@ const InstructionDialog = ({
         </div>
       ) : (
         <div className="text-white flex flex-col gap-5 items-center">
-          <button
-            className="bg-green-700 px-5 py-3 rounded-full text-5xl cursor-pointer hover:bg-green-600"
-            onClick={onStart}
-          >
+          <button className="rounded-full" onClick={onStart}>
             Start Game
           </button>
           <button
-            className="bg-gray-700 px-5 py-3 rounded-full text-2xl cursor-pointer hover:bg-gray-600"
+            className="bg-gray-700 rounded-full"
             onClick={() => setStep(0)}
           >
             Read Instructions

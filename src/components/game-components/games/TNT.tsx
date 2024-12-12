@@ -132,7 +132,6 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
     selected: number[],
     actual: number[]
   ): { score: number; wrongBalls: number[]; correctBalls: number[] } => {
-    console.log(selected, actual);
     let score = 0;
     const wrongBalls: number[] = [];
     const correctBalls: number[] = [];
@@ -182,8 +181,8 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
             } as TNTGameState);
           }
           this.clickedBallsRef.current!.clear();
-
-          this.setState({ trial: this.state.trial + 1 });
+          this.wrongBallsRef.current = [];
+          this.correctBallsRef.current = [];
 
           if (
             this.state.isPractice &&
@@ -194,7 +193,7 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
               vts: this.paramsRef.current![0].data.startingVts
             } as TNTGameState);
           }
-          this.setState({ isRunning: false });
+          this.setState({ trial: this.state.trial + 1 });
         }
       }
     });

@@ -148,4 +148,8 @@
   h3 {
     @apply text-xl;
   }
+
+  button {
+    @apply bg-green-700 px-5 py-3 text-5xl cursor-pointer hover:bg-green-600;
+  }
 }
