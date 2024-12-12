@@ -146,9 +146,9 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
     return { score: score, wrongBalls: wrongBalls, correctBalls: correctBalls };
   };
 
-  clickEventDuringGame(event: MouseEvent) {}
+  handleMouseClickDuringGame(event: MouseEvent) {}
 
-  clickEventAfterGame(event: MouseEvent) {
+  handleMouseClickAfterGame(event: MouseEvent) {
     const rect = this.canvasRef.current!.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
@@ -161,7 +161,7 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
         this.clickedBallsRef.current!.add(index);
 
         if (this.clickedBallsRef.current!.size === 4) {
-          window.removeEventListener("click", this.clickEventAfterGame);
+          window.removeEventListener("click", this.handleMouseClickAfterGame);
 
           const { score, wrongBalls, correctBalls } = this.calculateScore(
             Array.from(this.clickedBallsRef.current!),

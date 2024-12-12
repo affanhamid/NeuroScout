@@ -40,9 +40,11 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
   resetGame() {}
   instructions: { step: number; image: string }[] = [];
   gameId: string;
-  clickEventAfterGame(e: MouseEvent) {}
-  clickEventDuringGame(e: MouseEvent) {}
+  handleMouseClickDuringGame(e: MouseEvent) {}
+  handleMouseClickAfterGame(e: MouseEvent) {}
   handleMouseMove(e: MouseEvent) {}
+  handleMouseDown(e: MouseEvent) {}
+  handleMouseUp(e: MouseEvent) {}
   gameEndTimeRef: MutableRefObject<number> = { current: 0 };
 
   constructor(props: GameProps) {
@@ -94,7 +96,7 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
 
       this.canvasRef.current!.addEventListener(
         "click",
-        this.clickEventDuringGame.bind(this)
+        this.handleMouseClickDuringGame.bind(this)
       );
 
       this.canvasRef.current!.addEventListener(
@@ -102,17 +104,26 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
         this.handleMouseMove.bind(this)
       );
 
+      this.canvasRef.current!.addEventListener(
+        "mousedown",
+        this.handleMouseDown.bind(this)
+      );
+      this.canvasRef.current!.addEventListener(
+        "mouseup",
+        this.handleMouseUp.bind(this)
+      );
+
       setTimeout(() => {
         this.resetGame();
 
         this.canvasRef.current!.addEventListener(
           "click",
-          this.clickEventAfterGame.bind(this)
+          this.handleMouseClickAfterGame.bind(this)
         );
 
         this.canvasRef.current!.removeEventListener(
           "click",
-          this.clickEventDuringGame.bind(this)
+          this.handleMouseClickAfterGame.bind(this)
         );
         this.gameEndTimeRef.current = Date.now();
       }, this.paramsRef.current![0].data.duration * 1000);
