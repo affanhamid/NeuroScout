@@ -1,25 +1,37 @@
 "use client";
 
-import Game, { GameProps, GameState } from "../Game";
+import Game, { GameProps } from "../Game";
 import type { GameType } from "@/types";
-import { MutableRefObject } from "react";
+import { createRef, MutableRefObject } from "react";
 
-interface ArrowGameState extends GameState {
-  primeTime: number;
-}
+const HIGHLIGHT_COLOR = "#FFFF00"; // Highlight color for yellow points
+const FADED_COLOR = "rgba(255, 255, 255, 0.2)"; // Faded color for non-highlighted points
 
-class ArrowGame extends Game<GameType["parameters"]> {
-  answersRef: MutableRefObject<boolean[]> = { current: [] };
-  state: ArrowGameState = {
-    ...this.state,
-    primeTime: 500
-  };
-
-  correctDirection: "top-right" | "top-left" | "bottom-right" | "bottom-left" =
-    "top-right"; // Holds the correct direction for the current trial
+class GridGame extends Game<GameType["parameters"]> {
+  gridSizeRef: MutableRefObject<number> = createRef(); // Number of rows/columns
+  gridTotalSizeRef: MutableRefObject<number> = createRef(); // Total grid size in pixels
+  yellowPointsRef: MutableRefObject<{ row: number; col: number }[]> =
+    createRef(); // Coordinates of highlighted points
+  hoveredPointRef: MutableRefObject<{ row: number; col: number } | null> =
+    createRef(); // Currently hovered point
+  currentLineRef: MutableRefObject<{ x: number; y: number } | null> =
+    createRef(); // Line starting point
+  mousePosRef: MutableRefObject<{ x: number; y: number } | null> = createRef(); // Current mouse position
+  linesRef: MutableRefObject<
+    { start: { x: number; y: number }; end: { x: number; y: number } }[]
+  > = createRef(); // List of all lines
+  showYellowRef: MutableRefObject<boolean> = createRef(); // Whether to show yellow points and fading
 
   constructor(props: GameProps) {
     super(props);
+    this.gridSizeRef.current = 5; // Default grid size: 5x5
+    this.gridTotalSizeRef.current = 600; // Fixed grid size (600px x 600px)
+    this.yellowPointsRef.current = []; // Initially no highlighted points
+    this.hoveredPointRef.current = null; // No hovered point initially
+    this.currentLineRef.current = null; // No line being drawn initially
+    this.mousePosRef.current = null; // No mouse position initially
+    this.linesRef.current = []; // No lines initially
+    this.showYellowRef.current = false; // Initially hide yellow points and fading
   }
 
   drawBackground() {
@@ -30,142 +42,235 @@ class ArrowGame extends Game<GameType["parameters"]> {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  drawRandomLines() {
+  drawGrid() {
     const ctx = this.ctxRef.current!;
     const canvas = this.canvasRef.current!;
+    const gridSize = this.gridSizeRef.current!;
+    const gridTotalSize = this.gridTotalSizeRef.current!;
+    const yellowPoints = this.yellowPointsRef.current!;
+    const hoveredPoint = this.hoveredPointRef.current;
+    const showYellow = this.showYellowRef.current;
 
-    for (let i = 0; i < 20; i++) {
-      const x1 = Math.random() * canvas.width;
-      const y1 = Math.random() * canvas.height;
-      const x2 = Math.random() * canvas.width;
-      const y2 = Math.random() * canvas.height;
+    const cellSize = gridTotalSize / (gridSize - 1); // Distance between points
+    const startX = (canvas.width - gridTotalSize) / 2; // Starting X position to center
+    const startY = (canvas.height - gridTotalSize) / 2; // Starting Y position to center
 
-      ctx.strokeStyle = "#FFFFFF";
+    for (let row = 0; row < gridSize; row++) {
+      for (let col = 0; col < gridSize; col++) {
+        const x = startX + col * cellSize;
+        const y = startY + row * cellSize;
+
+        // Check if the current point is in yellowPoints
+        const isYellow = yellowPoints.some(
+          (point) => point.row === row && point.col === col
+        );
+
+        ctx.fillStyle = showYellow
+          ? isYellow
+            ? HIGHLIGHT_COLOR
+            : FADED_COLOR
+          : "#FFFFFF"; // Show faded effect if yellow points are displayed
+        ctx.beginPath();
+        ctx.arc(x, y, 8, 0, Math.PI * 2); // Draw point
+        ctx.fill();
+
+        // Draw a ring if the point is hovered and is a highlighted point
+        if (
+          showYellow &&
+          isYellow &&
+          hoveredPoint &&
+          hoveredPoint.row === row &&
+          hoveredPoint.col === col
+        ) {
+          ctx.strokeStyle = HIGHLIGHT_COLOR;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(x, y, 12, 0, Math.PI * 2); // Draw ring slightly larger than the point
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  drawLine() {
+    const ctx = this.ctxRef.current!;
+    const start = this.currentLineRef.current;
+    const end = this.mousePosRef.current;
+
+    // Draw the current line being drawn
+    if (start && end) {
+      ctx.strokeStyle = HIGHLIGHT_COLOR;
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
+      ctx.moveTo(start.x, start.y);
+      ctx.lineTo(end.x, end.y);
       ctx.stroke();
     }
+
+    // Draw all stored lines
+    this.linesRef.current!.forEach((line) => {
+      ctx.strokeStyle = HIGHLIGHT_COLOR;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(line.start.x, line.start.y);
+      ctx.lineTo(line.end.x, line.end.y);
+      ctx.stroke();
+    });
   }
 
-  drawArrow(
-    x: number,
-    y: number,
-    direction: "left" | "right",
-    color = "#FFFFFF"
-  ) {
-    const ctx = this.ctxRef.current!;
-    ctx.fillStyle = color;
-    ctx.font = "48px Arial";
-    ctx.textAlign = "center";
+  generateYellowPoints() {
+    const gridSize = this.gridSizeRef.current!;
+    const rowCounts = Array(gridSize).fill(0);
+    const colCounts = Array(gridSize).fill(0);
+    const yellowPoints: { row: number; col: number }[] = [];
 
-    const arrow = direction === "left" ? "←" : "→";
-    ctx.fillText(arrow, x, y);
-  }
+    while (yellowPoints.length < 5) {
+      const row = Math.floor(Math.random() * gridSize);
+      const col = Math.floor(Math.random() * gridSize);
 
-  drawPrime(
-    x: number,
-    y: number,
-    direction: "top-right" | "top-left" | "bottom-right" | "bottom-left",
-    radius = 40,
-    color = "#FFFFFF"
-  ) {
-    const ctx = this.ctxRef.current!;
-
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = color;
-
-    // Draw the hollow circle
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Hide a single corner sector of the circle
-    ctx.fillStyle = "#1B1B1B"; // Match the background color
-    ctx.beginPath();
-
-    switch (direction) {
-      case "top-right":
-        console.log("Hiding Top-right (-90° to 0°)");
-        ctx.moveTo(x, y);
-        ctx.arc(x, y, radius + 2, -Math.PI / 2, 0, false); // Adjusted
-        break;
-
-      case "bottom-right":
-        console.log("Hiding Bottom-right (0° to 90°)");
-        ctx.moveTo(x, y);
-        ctx.arc(x, y, radius + 2, 0, Math.PI / 2, false); // Adjusted
-        break;
-
-      case "bottom-left":
-        console.log("Hiding Bottom-left (90° to 180°)");
-        ctx.moveTo(x, y);
-        ctx.arc(x, y, radius + 2, Math.PI / 2, Math.PI, false); // Adjusted
-        break;
-
-      case "top-left":
-        console.log("Hiding Top-left (180° to 270°)");
-        ctx.moveTo(x, y);
-        ctx.arc(x, y, radius + 2, Math.PI, (3 * Math.PI) / 2, false); // Adjusted
-        break;
+      // Ensure no row or column has more than 2 yellow points
+      if (rowCounts[row] < 2 && colCounts[col] < 2) {
+        // Ensure the point is not already selected
+        if (
+          !yellowPoints.some((point) => point.row === row && point.col === col)
+        ) {
+          yellowPoints.push({ row, col });
+          rowCounts[row]++;
+          colCounts[col]++;
+        }
+      }
     }
 
-    ctx.lineTo(x, y);
-    ctx.fill();
+    this.yellowPointsRef.current = yellowPoints; // Update highlighted points
   }
 
-  resetGame() {
-    this.setState({ isRunning: false });
+  handleMouseDown(event: MouseEvent) {
+    const canvas = this.canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    const gridSize = this.gridSizeRef.current!;
+    const gridTotalSize = this.gridTotalSizeRef.current!;
+    const cellSize = gridTotalSize / (gridSize - 1);
+    const startX = (canvas.width - gridTotalSize) / 2;
+    const startY = (canvas.height - gridTotalSize) / 2;
+
+    const yellowPoints = this.yellowPointsRef.current!;
+    for (const point of yellowPoints) {
+      const x = startX + point.col * cellSize;
+      const y = startY + point.row * cellSize;
+
+      const distance = Math.sqrt((mouseX - x) ** 2 + (mouseY - y) ** 2);
+
+      if (distance <= 12) {
+        this.currentLineRef.current = { x, y };
+        this.mousePosRef.current = { x, y };
+        this.startAnimationLoop();
+        return;
+      }
+    }
+  }
+
+  handleMouseMove(event: MouseEvent) {
+    const canvas = this.canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    const gridSize = this.gridSizeRef.current!;
+    const gridTotalSize = this.gridTotalSizeRef.current!;
+    const cellSize = gridTotalSize / (gridSize - 1);
+    const startX = (canvas.width - gridTotalSize) / 2;
+    const startY = (canvas.height - gridTotalSize) / 2;
+
+    let hoveredPoint = null;
+
+    const yellowPoints = this.yellowPointsRef.current!;
+    for (const point of yellowPoints) {
+      const x = startX + point.col * cellSize;
+      const y = startY + point.row * cellSize;
+      const distance = Math.sqrt((mouseX - x) ** 2 + (mouseY - y) ** 2);
+
+      if (distance <= 12) {
+        hoveredPoint = { row: point.row, col: point.col };
+        break;
+      }
+    }
+
+    this.hoveredPointRef.current = hoveredPoint; // Update the hovered point
+    this.mousePosRef.current = { x: mouseX, y: mouseY }; // Update mouse position for line drawing
+    this.drawBackground(); // Clear the canvas
+    this.drawGrid(); // Redraw the grid with hover state
+    this.drawLine(); // Redraw the line if it exists
+  }
+
+  handleMouseUp() {
+    const start = this.currentLineRef.current;
+    const mouseEnd = this.mousePosRef.current;
+
+    if (start && mouseEnd) {
+      const gridSize = this.gridSizeRef.current!;
+      const gridTotalSize = this.gridTotalSizeRef.current!;
+      const cellSize = gridTotalSize / (gridSize - 1);
+      const startX = (this.canvasRef.current!.width - gridTotalSize) / 2;
+      const startY = (this.canvasRef.current!.height - gridTotalSize) / 2;
+
+      const yellowPoints = this.yellowPointsRef.current!;
+
+      // Find the nearest yellow point to the mouse end position
+      for (const point of yellowPoints) {
+        const x = startX + point.col * cellSize;
+        const y = startY + point.row * cellSize;
+        const distance = Math.sqrt(
+          (mouseEnd.x - x) ** 2 + (mouseEnd.y - y) ** 2
+        );
+
+        if (distance <= 12) {
+          // Add a valid line only if the end point is a yellow point
+          this.linesRef.current!.push({ start: { ...start }, end: { x, y } });
+          break;
+        }
+      }
+    }
+
+    this.currentLineRef.current = null;
+    this.mousePosRef.current = null;
+  }
+
+  startAnimationLoop() {
+    let lastTimestamp = 0;
+
+    const animate = (timestamp: number) => {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+
+      lastTimestamp = timestamp;
+
+      // Clear canvas and redraw
+      this.drawBackground();
+      this.drawGrid();
+      this.drawLine();
+
+      if (this.currentLineRef.current) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
   }
 
   renderGame() {
-    const canvas = this.canvasRef.current!;
-    const ctx = this.ctxRef.current!;
-    const midX = canvas.width / 2;
-    const midY = canvas.height / 2;
-
-    // Randomly set the direction to one of the corner quadrants
-    const directions = ["top-right", "top-left", "bottom-right", "bottom-left"];
-    this.correctDirection =
-      directions[Math.floor(Math.random() * directions.length)];
-
-    // Display fixation for 750ms
     this.drawBackground();
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = "48px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("+", midX, midY);
+    this.drawGrid(); // Draw the initial grid
 
+    // After 1 second, generate and display highlighted points with fading effect
     setTimeout(() => {
-      // Display random lines for 200ms
+      this.generateYellowPoints();
+      this.showYellowRef.current = true; // Enable yellow points and fading
       this.drawBackground();
-      this.drawRandomLines();
-
-      setTimeout(() => {
-        // Display the prime (hollow circle with hidden corner sector)
-        this.drawBackground();
-        this.drawPrime(midX, midY, this.correctDirection);
-
-        setTimeout(() => {
-          // Display random lines for 33ms
-          this.drawBackground();
-          this.drawRandomLines();
-
-          setTimeout(() => {
-            // Display final arrows for 500ms and enable interaction
-            this.drawBackground();
-
-            // Redraw the prime for consistency
-            this.drawPrime(midX, midY, this.correctDirection);
-
-            // Draw left and right arrows
-            this.drawArrow(midX / 2, midY, "left");
-            this.drawArrow((3 * midX) / 2, midY, "right");
-          }, 33);
-        }, this.state.primeTime);
-      }, 200);
-    }, 750);
+      this.drawGrid(); // Redraw the grid with updated yellow points and fading
+    }, 1000);
   }
 }
 
-export default ArrowGame;
+export default GridGame;

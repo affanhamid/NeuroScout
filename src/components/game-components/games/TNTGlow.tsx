@@ -38,7 +38,7 @@ class TNTGlowGame extends TNT<GlowBall> {
     );
   };
 
-  clickEventDuringGame(event: MouseEvent) {
+  handleMouseClickDuringGame(event: MouseEvent) {
     const rect = this.canvasRef.current!.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
