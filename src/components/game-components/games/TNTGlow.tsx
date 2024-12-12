@@ -38,16 +38,12 @@ class TNTGlowGame extends TNT<GlowBall> {
     );
   };
 
-  clickEventDuringGame(
-    event: MouseEvent,
-    balls: GlowBall[],
-    canvas: HTMLCanvasElement
-  ) {
-    const rect = canvas.getBoundingClientRect();
+  clickEventDuringGame(event: MouseEvent) {
+    const rect = this.canvasRef.current!.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
     const glowDistance = 20;
-    balls.forEach((ball) => {
+    this.ballsRef.current.forEach((ball) => {
       const dx = mouseX - ball.x;
       const dy = mouseY - ball.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
