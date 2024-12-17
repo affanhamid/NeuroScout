@@ -1,4 +1,4 @@
-const InstructionDialog = ({
+const TrialCompleteDialog = ({
   onStart,
   onShowInstructions
 }: {
@@ -26,4 +26,4 @@ const InstructionDialog = ({
   );
 };
 
-export default InstructionDialog;
+export default TrialCompleteDialog;

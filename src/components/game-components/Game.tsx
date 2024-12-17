@@ -4,6 +4,8 @@ import { Component, createRef, MutableRefObject } from "react";
 import InstructionDialog from "./modals/InstructionDialog";
 import Countdown from "./Countdown";
 import TrialCompleteDialog from "./modals/TrialCompletedDialog";
+import PracticeCompleteDialog from "./modals/PracticeCompleteDialog";
+import ThankYouDialog from "./modals/ThankyouDialog";
 
 export interface GameState {
   trial: number;
@@ -36,8 +38,6 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
   animationFrameIdRef = createRef<number>();
   paramsRef: MutableRefObject<TParams | null> = { current: null };
   renderGame() {}
-  resetSelection() {}
-  resetGame() {}
   instructions: { step: number; image: string }[] = [];
   gameId: string;
   handleMouseClickDuringGame(e: MouseEvent) {}
@@ -45,6 +45,11 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
   handleMouseMove(e: MouseEvent) {}
   handleMouseDown(e: MouseEvent) {}
   handleMouseUp(e: MouseEvent) {}
+
+  // Timer tracking
+  timerIntervalRef: MutableRefObject<NodeJS.Timeout | null> = { current: null };
+  showTimer: number = 0; // Class variable for the timer
+
   gameEndTimeRef: MutableRefObject<number> = { current: 0 };
 
   constructor(props: GameProps) {
@@ -91,7 +96,6 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
       !prevState.isRunning &&
       this.state.isRunning
     ) {
-      console.log("starting new game");
       this.renderGame();
 
       this.canvasRef.current!.addEventListener(
@@ -127,10 +131,36 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
         );
         this.gameEndTimeRef.current = Date.now();
       }, this.paramsRef.current![0].data.duration * 1000);
+      this.startTimer(this.paramsRef.current![0].data.duration);
     }
     if (prevState.trial !== this.state.trial) {
       this.handleTrialCompletion();
     }
+  }
+
+  startTimer(duration: number) {
+    this.showTimer = duration; // Initialize timer
+    this.timerIntervalRef.current = setInterval(() => {
+      if (this.showTimer > 0) {
+        this.showTimer -= 1; // Decrement timer
+        this.forceUpdate(); // Trigger a re-render to update the UI
+      } else {
+        clearInterval(this.timerIntervalRef.current!); // Stop timer when it reaches 0
+      }
+    }, 1000); // Update every second
+  }
+
+  stopTimer() {
+    if (this.timerIntervalRef.current) {
+      clearInterval(this.timerIntervalRef.current); // Cleanup interval
+    }
+  }
+
+  drawBackground() {
+    const ctx = this.ctxRef.current!;
+    const canvas = this.canvasRef.current!;
+    ctx.fillStyle = "#1B1B1B";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
   handleTrialCompletion() {
@@ -139,29 +169,44 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
         this.state.trial ===
         this.paramsRef.current![0].data.practiceTrials + 1
       ) {
-        console.log(
-          "practice complete",
-          this.paramsRef.current![0].data.practiceTrials,
-          this.state.trial
-        );
         this.setState({
           trial: 1,
           showPracticeComplete: true,
           showReset: false,
           isPractice: false
         });
-      } else {
-        if (this.state.trial !== 1) {
-          console.log("showing trial complete");
-          this.setState({ showTrialComplete: true, showReset: false });
-        }
+      } else if (this.state.trial !== 1) {
+        this.setState({ showTrialComplete: true, showReset: false });
       }
-    } else {
+    } else if (this.state.trial !== 1) {
       if (this.state.trial === this.paramsRef.current![0].data.trials + 1) {
-        this.setState({ showThankYou: true, showReset: false });
+        this.setState({
+          showThankYou: true,
+          showReset: false,
+          showCountdown: false
+        });
       } else {
         this.setState({ showTrialComplete: true, showReset: false });
       }
+    }
+  }
+
+  resetGame() {
+    this.stopTimer(); // Stop the timer when the game resets
+    this.showTimer = 0;
+  }
+
+  getHUD() {
+    if (this.state.isRunning) {
+      return (
+        <div className="absolute top-10 right-10 text-white text-lg">
+          <span>
+            Trial: {this.state.trial} | Time Left: {this.showTimer}s
+          </span>
+        </div>
+      );
+    } else {
+      return <div></div>;
     }
   }
 
@@ -197,11 +242,25 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
             }
           />
         )}
-        {
-          <div className="absolute top-10 right-10 text-white">
-            {this.state.trial}
-          </div>
-        }
+
+        {this.state.showPracticeComplete && (
+          <PracticeCompleteDialog
+            onStart={() => {
+              this.setState({
+                showCountdown: true,
+                showPracticeComplete: false
+              });
+            }}
+            onShowInstructions={() =>
+              this.setState({
+                showInstructions: true,
+                showPracticeComplete: false
+              })
+            }
+          />
+        )}
+        {this.state.showThankYou && <ThankYouDialog redirectLink="/" />}
+        {this.getHUD()}
       </main>
     );
   }

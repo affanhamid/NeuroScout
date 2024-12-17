@@ -90,6 +90,36 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
   resetGame() {
     this.currentSpeedRef.current = 0.01;
     this.setState({ isRunning: false });
+    this.stopTimer();
+    this.showTimer = 0;
+  }
+
+  resetSelection = () => {
+    this.clickedBallsRef.current.clear();
+    this.highlightedBallsRef.current = [];
+    this.update(0);
+  };
+
+  getHUD() {
+    if (this.state.isRunning) {
+      return (
+        <div className="absolute top-10 right-10 text-white text-lg flex flex-col gap-2">
+          <span>
+            Trial: {this.state.trial} | Time Left: {this.showTimer}s
+          </span>
+          <span>
+            <button
+              className="text-xl rounded-full"
+              onClick={this.resetSelection}
+            >
+              Reset Selection
+            </button>
+          </span>
+        </div>
+      );
+    } else {
+      return <div></div>;
+    }
   }
 
   renderGame() {
@@ -106,13 +136,7 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
 
       lastTimestamp = timestamp;
 
-      this.ctxRef.current!.fillStyle = "#1B1B1B";
-      this.ctxRef.current!.fillRect(
-        0,
-        0,
-        this.canvasRef.current!.width,
-        this.canvasRef.current!.height
-      );
+      this.drawBackground();
 
       this.update(deltaTime);
       if (this.state.isRunning) {
@@ -152,17 +176,21 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
     const rect = this.canvasRef.current!.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
+
     this.ballsRef.current!.forEach((ball, index) => {
       const dx = mouseX - ball.x;
       const dy = mouseY - ball.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
+
       if (distance < ball.radius) {
-        ball.color = HIGHLIGHT_COLOR;
         this.clickedBallsRef.current!.add(index);
+        this.highlightedBallsRef.current!.push(index);
 
         if (this.clickedBallsRef.current!.size === 4) {
+          // Remove the event listener immediately to avoid extra clicks
           window.removeEventListener("click", this.handleMouseClickAfterGame);
 
+          // Calculate the score
           const { score, wrongBalls, correctBalls } = this.calculateScore(
             Array.from(this.clickedBallsRef.current!),
             this.actualBallsRef.current!
@@ -180,20 +208,27 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
               vts: this.state.vts - this.paramsRef.current![0].data.changeInVts
             } as TNTGameState);
           }
-          this.clickedBallsRef.current!.clear();
-          this.wrongBallsRef.current = [];
-          this.correctBallsRef.current = [];
 
-          if (
-            this.state.isPractice &&
-            this.state.trial + 1 >
-              this.paramsRef.current![0].data.practiceTrials
-          ) {
-            this.setState({
-              vts: this.paramsRef.current![0].data.startingVts
-            } as TNTGameState);
-          }
-          this.setState({ trial: this.state.trial + 1 });
+          // Add a delay before clearing and resetting
+          setTimeout(() => {
+            this.clickedBallsRef.current!.clear();
+            this.wrongBallsRef.current = [];
+            this.correctBallsRef.current = [];
+
+            if (
+              this.state.isPractice &&
+              this.state.trial + 1 >
+                this.paramsRef.current![0].data.practiceTrials
+            ) {
+              this.setState({
+                vts: this.paramsRef.current![0].data.startingVts
+              } as TNTGameState);
+            }
+            this.setState({ trial: this.state.trial + 1 });
+
+            // Force a canvas update to reflect the cleared state
+            this.update(0);
+          }, 1000); // Delay of 1 second
         }
       }
     });
