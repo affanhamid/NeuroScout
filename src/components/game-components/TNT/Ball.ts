@@ -34,7 +34,9 @@ export class Ball {
     return this.color;
   }
 
-  reset() {}
+  reset() {
+    this.color = BASE_COLOR;
+  }
 
   addMarks(
     ball: Ball,

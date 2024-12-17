@@ -152,4 +152,19 @@
   button {
     @apply bg-green-700 px-5 py-3 text-5xl cursor-pointer hover:bg-green-600;
   }
+
+  input {
+    @apply border border-gray-600 rounded p-2 w-full bg-white/20 text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-600;
+  }
+
+  input[type="number"] {
+    appearance: none;
+    -moz-appearance: textfield; /* Firefox */
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none; /* Chrome, Safari, Edge */
+    margin: 0;
+  }
 }
