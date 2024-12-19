@@ -1,4 +1,3 @@
-"use client";
 import { GetGamesResponse } from "@/types";
 import Footer from "../components/ui/Footer";
 import Gallery from "../components/ui/Gallery";
@@ -32,7 +31,7 @@ export default async function Home() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   try {
-    const result = await fetch(`${baseUrl}/api/games`, {
+    const result = await fetch(`/api/games`, {
       headers: {
         "Content-Type": "application/json"
       }
