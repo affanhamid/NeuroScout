@@ -37,6 +37,8 @@ export default async function Home() {
       }
     });
 
+    console.log(result);
+
     if (!result.ok) {
       const errorResponse = await result.json();
       throw new Error(
@@ -45,7 +47,6 @@ export default async function Home() {
     }
 
     // Parse the structured ApiResponse
-    console.log(result);
     const apiResponse: GetGamesResponse = await result.json();
 
     if (!apiResponse.data) {
