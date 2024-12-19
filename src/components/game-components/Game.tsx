@@ -71,8 +71,7 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
 
   async fetchParams() {
     try {
-      const baseUrl =
-        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
       const response = await fetch(`${baseUrl}/api/games/${this.gameId}`);
       const result = await response.json();
       this.paramsRef.current = result.data.parameters;
@@ -131,6 +130,7 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
         );
         this.gameEndTimeRef.current = Date.now();
       }, this.paramsRef.current![0].data.duration * 1000);
+
       this.startTimer(this.paramsRef.current![0].data.duration);
     }
     if (prevState.trial !== this.state.trial) {
