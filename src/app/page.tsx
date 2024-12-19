@@ -34,8 +34,7 @@ export default async function Home() {
     const result = await fetch(`${baseUrl}/api/games`, {
       headers: {
         "Content-Type": "application/json"
-      },
-      cache: "no-store"
+      }
     });
 
     if (!result.ok) {
