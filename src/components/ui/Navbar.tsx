@@ -1,7 +1,5 @@
 "use client";
 import * as React from "react";
-import ShadNavbar from "../ui/navigation-menu";
-import ShadSheet from "../ui/sheet";
 import Link from "next/link";
 
 const Navbar = () => {
@@ -12,14 +10,8 @@ const Navbar = () => {
           NeuroScout
         </div>
       </Link>
-      <div className="hidden md:flex flex-1 justify-center">
-        <ShadNavbar />
-      </div>
       <div className="hidden md:flex md:items-center md:gap-4">
         <button>Get Started</button>
-      </div>
-      <div>
-        <ShadSheet className="md:hidden" />
       </div>
     </nav>
   );
