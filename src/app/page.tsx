@@ -45,6 +45,7 @@ export default async function Home() {
     }
 
     // Parse the structured ApiResponse
+    console.log(result);
     const apiResponse: GetGamesResponse = await result.json();
 
     if (!apiResponse.data) {
