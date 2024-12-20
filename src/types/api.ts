@@ -1,14 +1,18 @@
-import { Types } from "mongoose";
 import type {
-  OrganizationType,
-  PlayerType,
-  GameType,
-  GameObservationType,
-  UserType,
-  ResultType,
-  MetricsTemplateType,
   OrganizationFields,
-  PlayerFields
+  PlayerFields,
+  GameFields,
+  GameTypeWithId,
+  GameObservationTypeWithId,
+  UserTypeWithId,
+  ResultTypeWithId,
+  MetricsTemplateTypeWithId,
+  OrganizationTypeWithId,
+  PlayerTypeWithId,
+  GameObservationFields,
+  ResultFields,
+  MetricsTemplateFields,
+  UserFields
 } from "../lib/db/schema";
 
 export class ApiResponse<T> {
@@ -49,107 +53,52 @@ export type UpdateOrganizationRequest = ApiRequest<
   Partial<CreateOrganizationRequest>
 >;
 
-export type GetOrganizationResponse = ApiResponse<
-  OrganizationType & { _id: Types.ObjectId }
->;
-export type GetOrganizationsResponse = ApiResponse<
-  OrganizationType & { _id: Types.ObjectId }[]
->;
+export type GetOrganizationResponse = ApiResponse<OrganizationTypeWithId>;
+export type GetOrganizationsResponse = ApiResponse<OrganizationTypeWithId[]>;
 
 // Player
 export type CreatePlayerRequest = ApiRequest<PlayerFields>;
 export type UpdatePlayerRequest = ApiRequest<Partial<CreatePlayerRequest>>;
 
-export type GetPlayerResponse = ApiResponse<
-  PlayerType & { _id: Types.ObjectId }
->;
-export type GetPlayersResponse = ApiResponse<
-  PlayerType & { _id: Types.ObjectId }[]
->;
+export type GetPlayerResponse = ApiResponse<PlayerTypeWithId>;
+export type GetPlayersResponse = ApiResponse<PlayerTypeWithId[]>;
 
 // Game
-export type CreateGameRequest = ApiRequest<{
-  name: string;
-  description: string;
-  image: string;
-  parameters: Array<{
-    id: string;
-    data: Record<string, unknown>; // Using `unknown` for flexibility
-  }>;
-  scoringMechanisms: Array<{
-    id: string;
-    description: string;
-    function: string; // Serialized function stored as a string
-  }>;
-}>;
+export type CreateGameRequest = ApiRequest<GameFields>;
 export type UpdateGameRequest = Partial<CreateGameRequest>;
 
-export type GetGameResponse = ApiResponse<GameType & { _id: Types.ObjectId }>;
-export type GetGamesResponse = ApiResponse<
-  GameType & { _id: Types.ObjectId }[]
->;
+export type GetGameResponse = ApiResponse<GameTypeWithId>;
+export type GetGamesResponse = ApiResponse<GameTypeWithId[]>;
 
 // Game Observation
-export type CreateGameObservationRequest = ApiRequest<{
-  playerId: string;
-  gameId: string;
-  data: Record<string, unknown>; // Using `unknown` for flexibility
-}>;
+export type CreateGameObservationRequest = ApiRequest<GameObservationFields>;
 export type UpdateGameObservationRequest =
   Partial<CreateGameObservationRequest>;
 
-export type GetGameObservationResponse = ApiResponse<
-  GameObservationType & { _id: Types.ObjectId }
->;
-export type GetGameObservationsResponse = ApiResponse<
-  GameObservationType & { _id: Types.ObjectId }[]
->;
+export type GetGameObservationResponse = ApiResponse<GameObservationTypeWithId>;
+export type GetGameObservationsResponse =
+  ApiResponse<GameObservationTypeWithId>;
 
 // User
-export type CreateUserRequest = ApiRequest<{
-  email: string;
-  password: string;
-  role: "admin" | "user" | "manager";
-  organizationId: string;
-}>;
+export type CreateUserRequest = ApiRequest<UserFields>;
 export type UpdateUserRequest = Partial<CreateUserRequest>;
 
-export type GetUserResponse = ApiResponse<UserType & { _id: Types.ObjectId }>;
-export type GetUsersResponse = ApiResponse<
-  UserType & { _id: Types.ObjectId }[]
->;
+export type GetUserResponse = ApiResponse<UserTypeWithId>;
+export type GetUsersResponse = ApiResponse<UserTypeWithId[]>;
 
 // Result
-export type CreateResultRequest = ApiRequest<{
-  gameId: string;
-  playerId: string;
-  metrics: Record<string, unknown>; // Adjusted for flexibility
-  resultDate?: Date;
-}>;
+export type CreateResultRequest = ApiRequest<ResultFields>;
 export type UpdateResultRequest = Partial<CreateResultRequest>;
 
-export type GetResultResponse = ApiResponse<
-  ResultType & { _id: Types.ObjectId }
->;
-export type GetResultsResponse = ApiResponse<
-  ResultType & { _id: Types.ObjectId }[]
->;
+export type GetResultResponse = ApiResponse<ResultTypeWithId>;
+export type GetResultsResponse = ApiResponse<ResultTypeWithId[]>;
 
 // Metrics Template
-export type CreateMetricsTemplateRequest = ApiRequest<{
-  gameId: string;
-  metrics: Array<{
-    name: string;
-    description: string;
-    type: "number" | "string";
-  }>;
-}>;
+export type CreateMetricsTemplateRequest = ApiRequest<MetricsTemplateFields>;
 export type UpdateMetricsTemplateRequest =
   Partial<CreateMetricsTemplateRequest>;
 
-export type GetMetricsTemplateResponse = ApiResponse<
-  MetricsTemplateType & { _id: Types.ObjectId }
->;
+export type GetMetricsTemplateResponse = ApiResponse<MetricsTemplateTypeWithId>;
 export type GetMetricsTemplatesResponse = ApiResponse<
-  MetricsTemplateType & { _id: Types.ObjectId }[]
+  MetricsTemplateTypeWithId[]
 >;

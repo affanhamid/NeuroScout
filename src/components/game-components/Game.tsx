@@ -6,6 +6,7 @@ import Countdown from "./Countdown";
 import TrialCompleteDialog from "./modals/TrialCompletedDialog";
 import PracticeCompleteDialog from "./modals/PracticeCompleteDialog";
 import ThankYouDialog from "./modals/ThankyouDialog";
+import games from "./gameSequence";
 
 export interface GameState {
   trial: number;
@@ -40,11 +41,21 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
   renderGame() {}
   instructions: { step: number; image: string }[] = [];
   gameId: string;
-  handleMouseClickDuringGame(e: MouseEvent) {}
-  handleMouseClickAfterGame(e: MouseEvent) {}
-  handleMouseMove(e: MouseEvent) {}
-  handleMouseDown(e: MouseEvent) {}
-  handleMouseUp(e: MouseEvent) {}
+  handleMouseClickDuringGame(e: MouseEvent) {
+    console.log(e);
+  }
+  handleMouseClickAfterGame(e: MouseEvent) {
+    console.log(e);
+  }
+  handleMouseMove(e: MouseEvent) {
+    console.log(e);
+  }
+  handleMouseDown(e: MouseEvent) {
+    console.log(e);
+  }
+  handleMouseUp(e: MouseEvent) {
+    console.log(e);
+  }
 
   // Timer tracking
   timerIntervalRef: MutableRefObject<NodeJS.Timeout | null> = { current: null };
@@ -210,6 +221,12 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
     }
   }
 
+  getNextgameId() {
+    const thisGameIndex = games.findIndex((gameId) => gameId === this.gameId);
+    if (!!thisGameIndex || thisGameIndex === games.length - 1) return "/";
+    return games[thisGameIndex + 1];
+  }
+
   render() {
     return (
       <main>
@@ -259,7 +276,9 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
             }
           />
         )}
-        {this.state.showThankYou && <ThankYouDialog redirectLink="/" />}
+        {this.state.showThankYou && (
+          <ThankYouDialog redirectLink={this.getNextgameId()} />
+        )}
         {this.getHUD()}
       </main>
     );

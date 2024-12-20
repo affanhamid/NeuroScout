@@ -1,4 +1,4 @@
-import { Schema, InferSchemaType } from "mongoose";
+import { Schema, InferSchemaType, Types } from "mongoose";
 
 export const OrganizationSchema = new Schema(
   {
@@ -210,6 +210,18 @@ export type GameObservationType = InferSchemaType<typeof GameObservationSchema>;
 export type UserType = InferSchemaType<typeof UserSchema>;
 export type ResultType = InferSchemaType<typeof ResultSchema>;
 export type MetricsTemplateType = InferSchemaType<typeof MetricsTemplateSchema>;
+
+export type OrganizationTypeWithId = OrganizationType & { _id: Types.ObjectId };
+export type PlayerTypeWithId = PlayerType & { _id: Types.ObjectId };
+export type GameTypeWithId = GameType & { _id: Types.ObjectId };
+export type GameObservationTypeWithId = GameObservationType & {
+  _id: Types.ObjectId;
+};
+export type UserTypeWithId = UserType & { _id: Types.ObjectId };
+export type ResultTypeWithId = ResultType & { _id: Types.ObjectId };
+export type MetricsTemplateTypeWithId = MetricsTemplateType & {
+  _id: Types.ObjectId;
+};
 
 // Just the fields
 export type OrganizationFields = Omit<

@@ -153,7 +153,8 @@
     @apply bg-green-700 px-5 py-3 text-5xl cursor-pointer hover:bg-green-600;
   }
 
-  input {
+  input,
+  select {
     @apply border border-gray-600 rounded p-2 w-full bg-white/20 text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-600;
   }
 

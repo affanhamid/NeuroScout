@@ -3,13 +3,14 @@ import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-
-interface PlayerFormInputs {
-  firstName: string;
-  lastName: string;
-  age: number;
-  position: string;
-}
+import {
+  OrganizationTypeWithId,
+  PlayerFields,
+  PlayerTypeWithId
+} from "@/types";
+import { apiClient } from "@/lib/api/apiClient";
+import { useRouter } from "next/navigation";
+import games from "../game-components";
 
 const validationSchema = yup.object().shape({
   firstName: yup
@@ -33,17 +34,32 @@ const validationSchema = yup.object().shape({
   position: yup.string().required("Position is required")
 });
 
-const PlayerForm: React.FC = () => {
+export type PlayerFormFields = Omit<PlayerFields, "organizationId">;
+
+const PlayerForm = ({
+  organization
+}: {
+  organization: OrganizationTypeWithId;
+}) => {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
     formState: { errors }
-  } = useForm<PlayerFormInputs>({
+  } = useForm<PlayerFormFields>({
     resolver: yupResolver(validationSchema)
   });
 
-  const onSubmit: SubmitHandler<PlayerFormInputs> = (data) => {
-    console.log("Form Submitted:", data);
+  const onSubmit: SubmitHandler<PlayerFormFields> = async (data) => {
+    const response: { data: PlayerTypeWithId } = await apiClient(
+      "/api/players",
+      {
+        method: "POST",
+        body: { ...data, organizationId: organization._id }
+      }
+    );
+    sessionStorage.setItem("playerId", response.data._id.toString());
+    router.push(`/games/${Object.keys(games)[0]}`);
   };
 
   return (
@@ -53,16 +69,14 @@ const PlayerForm: React.FC = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-6 bg-white/5 w-[25vw] border-2 border-white/20 text-gray-100 p-6 rounded-md shadow-md max-w-lg mx-auto"
       >
-        <h2 className="text-2xl text-center">Organization: </h2>
+        <h2 className="text-2xl text-center">
+          Organization: {organization.name}
+        </h2>
         <div>
           <label htmlFor="firstName" className="block mb-1 font-semibold">
             First Name
           </label>
-          <input
-            id="firstName"
-            {...register("firstName")}
-            className="border border-gray-600 rounded p-2 w-full bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-600"
-          />
+          <input id="firstName" {...register("firstName")} />
           {errors.firstName && (
             <p className="text-red-400 mt-1 text-sm">
               {errors.firstName.message}
@@ -74,11 +88,7 @@ const PlayerForm: React.FC = () => {
           <label htmlFor="lastName" className="block mb-1 font-semibold">
             Last Name
           </label>
-          <input
-            id="lastName"
-            {...register("lastName")}
-            className="border border-gray-600 rounded p-2 w-full bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-600"
-          />
+          <input id="lastName" {...register("lastName")} />
           {errors.lastName && (
             <p className="text-red-400 mt-1 text-sm">
               {errors.lastName.message}
@@ -90,15 +100,7 @@ const PlayerForm: React.FC = () => {
           <label htmlFor="age" className="block mb-1 font-semibold">
             Age
           </label>
-          <input
-            id="age"
-            type="number"
-            {...register("age")}
-            className="
-    border border-gray-600 rounded p-2 w-full bg-gray-700 text-gray-100
-    focus:outline-none focus:ring-2 focus:ring-green-600
-  "
-          />
+          <input id="age" type="number" {...register("age")} />
           {errors.age && (
             <p className="text-red-400 mt-1 text-sm">{errors.age.message}</p>
           )}
@@ -108,11 +110,7 @@ const PlayerForm: React.FC = () => {
           <label htmlFor="position" className="block mb-1 font-semibold">
             Position
           </label>
-          <select
-            id="position"
-            {...register("position")}
-            className="border border-gray-600 rounded p-2 w-full bg-gray-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-600"
-          >
+          <select id="position" {...register("position")}>
             <option value="">Select Position</option>
             <option value="Forward">Forward</option>
             <option value="Midfielder">Midfielder</option>

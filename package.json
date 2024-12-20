@@ -24,6 +24,7 @@
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.54.1",
+    "swr": "^2.2.5",
     "tailwindcss": "^4.0.0-beta.4",
     "yup": "^1.5.0"
   },
