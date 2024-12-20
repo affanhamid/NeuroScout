@@ -9,9 +9,16 @@ import {
   validateReferences
 } from "../db";
 import { handleApiError } from "@/errors";
+import { connect } from "../db";
 
 export class BaseAPI<TObject> {
-  constructor(public model: Model<TObject>) {}
+  constructor(public model: Model<TObject>) {
+    this.connectToDb();
+  }
+
+  async connectToDb() {
+    await connect();
+  }
 
   async getOne(id: string): Promise<Response> {
     try {

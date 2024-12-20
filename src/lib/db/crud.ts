@@ -7,32 +7,25 @@ export const addOne = async <TObject>(
   model: Model<TObject>,
   item: TObject // Input type is TObject
 ): Promise<Document & TObject> => {
-  await connect();
   const newItem = await model.create(item); // Create item using TObject
-  await disconnect();
   return newItem;
 };
 
 export const getOne = async <TObject>(
   model: Model<TObject>,
-  id: string // Input type is id
+  id: string
 ): Promise<TObject & Document> => {
-  await connect();
-
   const item = await model.findById(id);
   if (!item) {
     throw new e.NotFoundError(`Item with ID ${id} not found`);
   }
-  await disconnect();
   return item;
 };
 
 export const getAll = async <TObject>(
   model: Model<TObject>
 ): Promise<(Document & TObject)[]> => {
-  await connect();
   const items = await model.find();
-  await disconnect();
   return items;
 };
 
@@ -42,14 +35,12 @@ export const updateOne = async <TObject>(
   updates: Partial<TObject & Document>, // Updates are Partial<TModel>
   isNew: boolean
 ): Promise<Document & TObject> => {
-  await connect();
   const updatedItem = await model
     .findByIdAndUpdate(id, updates, {
       new: isNew,
       runValidators: true
     })
     .exec();
-  await disconnect();
   if (!updatedItem) {
     throw new e.NotFoundError(`Item with ID ${id} not found for update`);
   }
@@ -60,7 +51,6 @@ export const deleteOne = async <TObject>(
   model: Model<TObject>,
   id: string // Input type is id
 ): Promise<Document & TObject> => {
-  await connect();
   const updatedItem = await model
     .findByIdAndUpdate(
       id,
@@ -68,7 +58,6 @@ export const deleteOne = async <TObject>(
       { new: true, runValidators: true } // Return the updated document
     )
     .exec();
-  await disconnect();
   if (!updatedItem) {
     throw new e.NotFoundError(`Item with ID ${id} not found for soft deletion`);
   }
@@ -85,7 +74,6 @@ export const validateReferences = async <
   if (!(references instanceof Map) || references.size === 0) {
     return false;
   }
-  await connect();
   try {
     for (const [model, key] of references.entries()) {
       if (!Types.ObjectId.isValid(key as string)) {
@@ -100,10 +88,8 @@ export const validateReferences = async <
         );
       }
     }
-    await disconnect();
     return true;
   } catch (err) {
-    await disconnect();
     throw new e.DatabaseError(`Error Validating References: ${err}`);
   }
 };
