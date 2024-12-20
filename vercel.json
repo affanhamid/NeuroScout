@@ -1,5 +1,7 @@
 {
   "functions": {
-    "regions": ["fra1"]
+    "*": {
+      "regions": ["fra1"]
+    }
   }
 }
