@@ -1,11 +1,11 @@
-import games from "../../../components/game-components";
+import games from "@/components/game-components";
 
 async function page({ params }: { params: Promise<{ gameId: string }> }) {
   const resolvedParams = await params;
-  const id = resolvedParams.gameId;
+  const gameId = resolvedParams.gameId;
 
-  const SelectedGame = games[id];
-  return <SelectedGame gameId={id} />;
+  const SelectedGame = games[gameId];
+  return <SelectedGame gameId={gameId} />;
 }
 
 export default page;

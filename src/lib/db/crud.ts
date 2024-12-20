@@ -1,13 +1,12 @@
 import { Model, Document, Types } from "mongoose";
 import * as e from "@/errors";
 import { handleDBError } from "@/errors";
-import { connect, disconnect } from "./database";
 
 export const addOne = async <TObject>(
   model: Model<TObject>,
-  item: TObject // Input type is TObject
+  item: TObject
 ): Promise<Document & TObject> => {
-  const newItem = await model.create(item); // Create item using TObject
+  const newItem = await model.create(item);
   return newItem;
 };
 

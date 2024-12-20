@@ -1,9 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { GameType } from "@/types";
-import { Types } from "mongoose";
-
-type GameTypeWithId = GameType & { _id: Types.ObjectId };
+import { GameTypeWithId } from "@/types";
 
 const Gallery = async ({ games }: { games: GameTypeWithId[] }) => {
   return (
