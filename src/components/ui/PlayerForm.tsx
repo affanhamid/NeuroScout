@@ -29,7 +29,7 @@ const validationSchema = yup.object().shape({
     .number()
     .required("Age is required")
     .typeError("Age must be a number")
-    .min(11, "Age must be at least 11")
+    .min(6, "Age must be at least 11")
     .max(99, "Age must be less than 100"),
   position: yup.string().required("Position is required")
 });
