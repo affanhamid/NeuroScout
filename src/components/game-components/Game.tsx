@@ -2,12 +2,11 @@
 
 import { Component, createRef, MutableRefObject } from "react";
 import InstructionDialog from "./modals/InstructionDialog";
-import Countdown from "./utils/Countdown";
+import { Countdown, GameObserver } from "./utils";
 import TrialCompleteDialog from "./modals/TrialCompletedDialog";
 import PracticeCompleteDialog from "./modals/PracticeCompleteDialog";
 import ThankYouDialog from "./modals/ThankyouDialog";
 import games from "./gameSequence";
-import { GameObserver } from "./utils/GameObserver";
 
 export interface GameState {
   trial: number;
