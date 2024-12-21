@@ -110,7 +110,6 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
       this.gameObserver?.addListener("mouseup", this.handleMouseUp);
 
       setTimeout(() => {
-        console.log("resetting everything");
         this.resetGame();
 
         this.gameObserver?.removeListener(

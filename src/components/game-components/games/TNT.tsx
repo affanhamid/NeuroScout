@@ -104,14 +104,18 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
           <span>
             Trial: {this.state.trial} | Time Left: {this.showTimer}s
           </span>
-          <span>
-            <button
-              className="text-xl rounded-full"
-              onClick={this.resetSelection}
-            >
-              Reset Selection
-            </button>
-          </span>
+          {this.showTimer === 0 ? (
+            <span>
+              <button
+                className="text-xl rounded-full"
+                onClick={this.resetSelection}
+              >
+                Reset Selection
+              </button>
+            </span>
+          ) : (
+            <span></span>
+          )}
         </div>
       );
     } else {
