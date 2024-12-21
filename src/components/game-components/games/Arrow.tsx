@@ -103,12 +103,6 @@ class ArrowGame extends Game<GameType["parameters"]> {
     }, 1000);
   }
 
-  resetGame() {
-    this.setState({ isRunning: false });
-    this.stopTimer();
-    this.showTimer = 0;
-  }
-
   renderGame() {
     const canvas = this.canvasRef.current!;
     const ctx = this.ctxRef.current!;
@@ -145,9 +139,9 @@ class ArrowGame extends Game<GameType["parameters"]> {
             this.drawBackground();
 
             // Redraw the prime for consistency
-            this.drawPrime(midX, midY+25, this.correctDirection);
+            this.drawPrime(midX, midY + 25, this.correctDirection);
             this.drawPrime(midX, midY, this.correctDirection);
-            this.drawPrime(midX, midY-25, this.correctDirection);
+            this.drawPrime(midX, midY - 25, this.correctDirection);
 
             // Draw left and right arrows
             this.drawArrow(midX / 2, midY, "left");
