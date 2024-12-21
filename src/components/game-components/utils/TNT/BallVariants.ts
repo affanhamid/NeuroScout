@@ -26,7 +26,8 @@ export class GlowBall extends Ball {
     this.shadowSize = 0;
   }
 
-  reset() {
+  reset = () => {
+    console.log("resetting ball");
     this.isGlowed = false;
     this.glowIntensity = 0;
     this.shadowSize = 0;
@@ -34,7 +35,7 @@ export class GlowBall extends Ball {
       clearInterval(this.strobeInterval);
       this.strobeInterval = null;
     }
-  }
+  };
 
   glow() {
     this.isGlowed = true;
@@ -55,16 +56,9 @@ export class GlowBall extends Ball {
     }, 100);
   }
 
-  resetGlow() {
-    this.isGlowed = false;
-    this.glowIntensity = 0;
-    this.shadowSize = 0;
-    clearInterval(this.strobeInterval!);
-  }
-
   click(glowNextBall: () => void) {
     this.isGlowed = false;
-    this.resetGlow();
+    this.reset();
     this.reactionTimesRef.current.push(Date.now());
     glowNextBall();
   }

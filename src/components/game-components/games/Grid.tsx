@@ -3,13 +3,14 @@
 import Game, { GameProps, GameState } from "../Game";
 import type { GameType } from "@/types";
 import { MutableRefObject } from "react";
-import { Point, PolygonType } from "../utils/Point";
-import { Line } from "../utils/Line";
 import {
+  Point,
+  PolygonType,
+  Line,
   detectPolygons,
   getMaxPolygons,
   highlightAndFadePolygon
-} from "../utils/Polygons";
+} from "../utils";
 
 const HIGHLIGHT_COLOR = "#FFFF00";
 const FADED_COLOR = "rgba(255, 255, 255, 0.2)";
