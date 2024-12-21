@@ -89,6 +89,7 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
   resetGame() {
     super.resetGame();
     this.currentSpeedRef.current = 0.01;
+    this.ballsRef.current.forEach((ball) => ball.reset());
   }
 
   resetSelection = () => {

@@ -1,4 +1,4 @@
-import { Point } from "../Grid/Point";
+import { Point } from "../Point";
 
 export class Line {
   start: Point;
