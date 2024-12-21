@@ -2,11 +2,12 @@
 
 import { Component, createRef, MutableRefObject } from "react";
 import InstructionDialog from "./modals/InstructionDialog";
-import Countdown from "./Countdown";
+import Countdown from "./utils/Countdown";
 import TrialCompleteDialog from "./modals/TrialCompletedDialog";
 import PracticeCompleteDialog from "./modals/PracticeCompleteDialog";
 import ThankYouDialog from "./modals/ThankyouDialog";
 import games from "./gameSequence";
+import { GameObserver } from "./utils/GameObserver";
 
 export interface GameState {
   trial: number;
@@ -41,21 +42,12 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
   renderGame() {}
   instructions: { step: number; image: string }[] = [];
   gameId: string;
-  handleMouseClickDuringGame(e: MouseEvent) {
-    console.log(e);
-  }
-  handleMouseClickAfterGame(e: MouseEvent) {
-    console.log(e);
-  }
-  handleMouseMove(e: MouseEvent) {
-    console.log(e);
-  }
-  handleMouseDown(e: MouseEvent) {
-    console.log(e);
-  }
-  handleMouseUp(e: MouseEvent) {
-    console.log(e);
-  }
+  handleMouseClickDuringGame(e: MouseEvent) {}
+  handleMouseClickAfterGame(e: MouseEvent) {}
+  handleMouseMove(e: MouseEvent) {}
+  handleMouseDown(e: MouseEvent) {}
+  handleMouseUp(e: MouseEvent) {}
+  gameObserver: GameObserver | null = null;
 
   // Timer tracking
   timerIntervalRef: MutableRefObject<NodeJS.Timeout | null> = { current: null };
@@ -98,6 +90,7 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
     this.ctxRef.current = this.canvasRef.current!.getContext("2d")!;
     this.canvasRef.current!.width = window.innerWidth;
     this.canvasRef.current!.height = window.innerHeight;
+    this.gameObserver = new GameObserver(this.canvasRef.current!);
   }
 
   componentDidUpdate(prevProps: Readonly<GameProps>, prevState: GameState) {
@@ -108,42 +101,30 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
     ) {
       this.renderGame();
 
-      this.canvasRef.current!.addEventListener(
-        "click",
-        this.handleMouseClickDuringGame.bind(this)
-      );
+      this.gameObserver?.removeAllListeners();
 
-      this.canvasRef.current!.addEventListener(
-        "mousemove",
-        this.handleMouseMove.bind(this)
-      );
-
-      this.canvasRef.current!.addEventListener(
-        "mousedown",
-        this.handleMouseDown.bind(this)
-      );
-      this.canvasRef.current!.addEventListener(
-        "mouseup",
-        this.handleMouseUp.bind(this)
-      );
+      // Add listeners for the game using GameObserver
+      this.gameObserver?.addListener("click", this.handleMouseClickDuringGame);
+      this.gameObserver?.addListener("mousemove", this.handleMouseMove);
+      this.gameObserver?.addListener("mousedown", this.handleMouseDown);
+      this.gameObserver?.addListener("mouseup", this.handleMouseUp);
 
       setTimeout(() => {
+        console.log("resetting everything");
         this.resetGame();
 
-        this.canvasRef.current!.addEventListener(
+        this.gameObserver?.removeListener(
           "click",
-          this.handleMouseClickAfterGame.bind(this)
+          this.handleMouseClickDuringGame
         );
+        this.gameObserver?.addListener("click", this.handleMouseClickAfterGame);
 
-        this.canvasRef.current!.removeEventListener(
-          "click",
-          this.handleMouseClickAfterGame.bind(this)
-        );
         this.gameEndTimeRef.current = Date.now();
       }, this.paramsRef.current![0].data.duration * 1000);
 
       this.startTimer(this.paramsRef.current![0].data.duration);
     }
+
     if (prevState.trial !== this.state.trial) {
       this.handleTrialCompletion();
     }
@@ -203,7 +184,8 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
   }
 
   resetGame() {
-    this.stopTimer(); // Stop the timer when the game resets
+    this.setState({ isRunning: false });
+    this.stopTimer();
     this.showTimer = 0;
   }
 

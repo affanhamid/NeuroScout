@@ -3,29 +3,25 @@
 import Game, { GameProps, GameState } from "../Game";
 import type { GameType } from "@/types";
 import { MutableRefObject } from "react";
-import { Point, PolygonType } from "../Grid/Point";
-import { Line } from "../Grid/Line";
+import { Point, PolygonType } from "../utils/Point";
+import { Line } from "../utils/Line";
 import {
   detectPolygons,
   getMaxPolygons,
   highlightAndFadePolygon
-} from "../Grid/Polygons";
+} from "../utils/Polygons";
 
 const HIGHLIGHT_COLOR = "#FFFF00";
 const FADED_COLOR = "rgba(255, 255, 255, 0.2)";
-const RADIUS = 30;
 
 interface GridGameState extends GameState {
   completedPolygons: Set<string>;
 }
 
-
 type PointType = {
   x: number;
   y: number;
-}
-
-
+};
 
 class GridGame extends Game<GameType["parameters"]> {
   // Grid
@@ -37,6 +33,7 @@ class GridGame extends Game<GameType["parameters"]> {
   yellowPointsRef: MutableRefObject<Point[]> = { current: [] };
   hoveredPointRef: MutableRefObject<Point | null> = { current: null };
   showYellowRef: MutableRefObject<boolean> = { current: false };
+  interactivityRadius = 30;
 
   // Lines
   currentLineRef: MutableRefObject<Point | null> = {
@@ -62,8 +59,9 @@ class GridGame extends Game<GameType["parameters"]> {
 
   calculateDistance(p1: PointType, p2: PointType): number {
     const distance = Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
-    return distance
+    return distance;
   }
+
   initializePoints() {
     const gridSize = this.gridSizeRef.current;
     const gridTotalSize = this.gridTotalSizeRef.current;
@@ -200,7 +198,7 @@ class GridGame extends Game<GameType["parameters"]> {
 
     this.yellowPointsRef.current.forEach((point) => {
       const distance = this.calculateDistance({ x, y }, point);
-      if (distance <= RADIUS) {
+      if (distance <= this.interactivityRadius) {
         this.currentLineRef.current = point;
         this.mousePosRef.current = { x: point.x, y: point.y };
       }
@@ -212,7 +210,7 @@ class GridGame extends Game<GameType["parameters"]> {
 
     this.pointsRef.current.flat().forEach((point) => {
       const distance = this.calculateDistance({ x, y }, point);
-      point.setHovered(distance <= RADIUS && point.isYellow);
+      point.setHovered(distance <= this.interactivityRadius && point.isYellow);
     });
 
     this.mousePosRef.current = { x, y };
@@ -228,7 +226,7 @@ class GridGame extends Game<GameType["parameters"]> {
     if (start && mouseEnd) {
       this.yellowPointsRef.current.forEach((point) => {
         const distance = this.calculateDistance(mouseEnd, point);
-        if (distance <= RADIUS) {
+        if (distance <= this.interactivityRadius) {
           const newLine = new Line(start, point);
           this.linesRef.current.push(newLine);
 
@@ -259,9 +257,8 @@ class GridGame extends Game<GameType["parameters"]> {
   }
 
   resetGame() {
-    this.setState({ trial: this.state.trial + 1, isRunning: false });
-    this.stopTimer();
-    this.showTimer = 0;
+    super.resetGame();
+    this.setState({ trial: this.state.trial + 1 });
   }
 
   renderGame() {

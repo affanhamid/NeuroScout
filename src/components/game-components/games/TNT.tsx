@@ -5,10 +5,9 @@ import type { GameType } from "@/types";
 import {
   Ball,
   createBalls,
-  HIGHLIGHT_COLOR,
   resolveCollisions,
   resolveCollisionsWithWalls
-} from "../TNT";
+} from "../utils";
 import { MutableRefObject } from "react";
 
 interface TNTGameState extends GameState {
@@ -88,10 +87,8 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
   };
 
   resetGame() {
+    super.resetGame();
     this.currentSpeedRef.current = 0.01;
-    this.setState({ isRunning: false });
-    this.stopTimer();
-    this.showTimer = 0;
   }
 
   resetSelection = () => {
@@ -170,9 +167,9 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
     return { score: score, wrongBalls: wrongBalls, correctBalls: correctBalls };
   };
 
-  handleMouseClickDuringGame(event: MouseEvent) {}
+  handleMouseClickDuringGame = (event: MouseEvent) => {};
 
-  handleMouseClickAfterGame(event: MouseEvent) {
+  handleMouseClickAfterGame = (event: MouseEvent) => {
     const rect = this.canvasRef.current!.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
@@ -236,7 +233,7 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
     setTimeout(() => {
       this.update(0);
     }, 10);
-  }
+  };
 }
 
 export default TNT;

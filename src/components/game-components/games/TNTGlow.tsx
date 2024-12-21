@@ -2,7 +2,7 @@
 
 import { MutableRefObject } from "react";
 import { GameProps } from "../Game";
-import { createBalls, GlowBall } from "../TNT";
+import { createBalls, GlowBall } from "../utils";
 import TNT from "./TNT";
 
 class TNTGlowGame extends TNT<GlowBall> {
