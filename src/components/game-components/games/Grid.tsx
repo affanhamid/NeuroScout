@@ -18,6 +18,14 @@ interface GridGameState extends GameState {
   completedPolygons: Set<string>;
 }
 
+
+type PointType = {
+  x: number;
+  y: number;
+}
+
+
+
 class GridGame extends Game<GameType["parameters"]> {
   // Grid
   gridSizeRef: MutableRefObject<number> = { current: 5 };
@@ -51,6 +59,10 @@ class GridGame extends Game<GameType["parameters"]> {
     super(props);
   }
 
+  calculateDistance(p1: PointType, p2: PointType): number {
+    const distance = Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+    return distance
+  }
   initializePoints() {
     const gridSize = this.gridSizeRef.current;
     const gridTotalSize = this.gridTotalSizeRef.current;
@@ -186,8 +198,8 @@ class GridGame extends Game<GameType["parameters"]> {
     const { x, y } = this.getMousePosition(event);
 
     this.yellowPointsRef.current.forEach((point) => {
-      const distance = Math.sqrt((x - point.x) ** 2 + (y - point.y) ** 2);
-      if (distance <= 12) {
+      const distance = this.calculateDistance({ x, y }, point);
+      if (distance <= 30) {
         this.currentLineRef.current = point;
         this.mousePosRef.current = { x: point.x, y: point.y };
       }
@@ -198,8 +210,8 @@ class GridGame extends Game<GameType["parameters"]> {
     const { x, y } = this.getMousePosition(event);
 
     this.pointsRef.current.flat().forEach((point) => {
-      const distance = Math.sqrt((x - point.x) ** 2 + (y - point.y) ** 2);
-      point.setHovered(distance <= 12 && point.isYellow);
+      const distance = this.calculateDistance({ x, y }, point);
+      point.setHovered(distance <= 30 && point.isYellow);
     });
 
     this.mousePosRef.current = { x, y };
@@ -214,11 +226,8 @@ class GridGame extends Game<GameType["parameters"]> {
 
     if (start && mouseEnd) {
       this.yellowPointsRef.current.forEach((point) => {
-        const distance = Math.sqrt(
-          (mouseEnd.x - point.x) ** 2 + (mouseEnd.y - point.y) ** 2
-        );
-
-        if (distance <= 12) {
+        const distance = this.calculateDistance(mouseEnd, point);
+        if (distance <= 30) {
           const newLine = new Line(start, point);
           this.linesRef.current.push(newLine);
 
