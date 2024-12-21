@@ -185,15 +185,15 @@ class GridGame extends Game<GameType["parameters"]> {
     }
   }
 
-  getMousePosition(event: MouseEvent) {
+  getMousePosition = (event: MouseEvent) => {
     const rect = this.canvasRef.current!.getBoundingClientRect();
     return {
       x: event.clientX - rect.left,
       y: event.clientY - rect.top
     };
-  }
+  };
 
-  handleMouseDown(event: MouseEvent) {
+  handleMouseDown = (event: MouseEvent) => {
     const { x, y } = this.getMousePosition(event);
 
     this.yellowPointsRef.current.forEach((point) => {
@@ -203,9 +203,9 @@ class GridGame extends Game<GameType["parameters"]> {
         this.mousePosRef.current = { x: point.x, y: point.y };
       }
     });
-  }
+  };
 
-  handleMouseMove(event: MouseEvent) {
+  handleMouseMove = (event: MouseEvent) => {
     const { x, y } = this.getMousePosition(event);
 
     this.pointsRef.current.flat().forEach((point) => {
@@ -217,9 +217,9 @@ class GridGame extends Game<GameType["parameters"]> {
     this.drawBackground();
     this.drawGrid();
     this.drawLine();
-  }
+  };
 
-  handleMouseUp() {
+  handleMouseUp = () => {
     const start = this.currentLineRef.current;
     const mouseEnd = this.mousePosRef.current;
 
@@ -254,7 +254,7 @@ class GridGame extends Game<GameType["parameters"]> {
 
     this.currentLineRef.current = null;
     this.mousePosRef.current = null;
-  }
+  };
 
   resetGame() {
     super.resetGame();

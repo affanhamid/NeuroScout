@@ -22,7 +22,6 @@ export class BaseTest<TModel, TObject> {
   ) {}
 
   async createObject() {
-    console.log("created object fn 1");
     await connect();
     const createdDoc = await this.model.create(this.testObject);
     await disconnect();

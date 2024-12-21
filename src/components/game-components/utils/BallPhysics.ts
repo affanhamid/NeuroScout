@@ -30,10 +30,10 @@ export const resolveCollisions = <BallType extends Ball>(
         const separationX = (normalX * overlap) / 2;
         const separationY = (normalY * overlap) / 2;
 
-        ballA.x -= separationX * deltaTime;
-        ballA.y -= separationY * deltaTime;
-        ballB.x += separationX * deltaTime;
-        ballB.y += separationY * deltaTime;
+        ballA.x -= separationX / 2;
+        ballA.y -= separationY / 2;
+        ballB.x += separationX / 2;
+        ballB.y += separationY / 2;
 
         // Calculate velocities along normal and tangent
         const tangentX = -normalY;
