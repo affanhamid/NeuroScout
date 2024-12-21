@@ -13,6 +13,7 @@ import {
 
 const HIGHLIGHT_COLOR = "#FFFF00";
 const FADED_COLOR = "rgba(255, 255, 255, 0.2)";
+const RADIUS = 30;
 
 interface GridGameState extends GameState {
   completedPolygons: Set<string>;
@@ -199,7 +200,7 @@ class GridGame extends Game<GameType["parameters"]> {
 
     this.yellowPointsRef.current.forEach((point) => {
       const distance = this.calculateDistance({ x, y }, point);
-      if (distance <= 30) {
+      if (distance <= RADIUS) {
         this.currentLineRef.current = point;
         this.mousePosRef.current = { x: point.x, y: point.y };
       }
@@ -211,7 +212,7 @@ class GridGame extends Game<GameType["parameters"]> {
 
     this.pointsRef.current.flat().forEach((point) => {
       const distance = this.calculateDistance({ x, y }, point);
-      point.setHovered(distance <= 30 && point.isYellow);
+      point.setHovered(distance <= RADIUS && point.isYellow);
     });
 
     this.mousePosRef.current = { x, y };
@@ -227,7 +228,7 @@ class GridGame extends Game<GameType["parameters"]> {
     if (start && mouseEnd) {
       this.yellowPointsRef.current.forEach((point) => {
         const distance = this.calculateDistance(mouseEnd, point);
-        if (distance <= 30) {
+        if (distance <= RADIUS) {
           const newLine = new Line(start, point);
           this.linesRef.current.push(newLine);
 
