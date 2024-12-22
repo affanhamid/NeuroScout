@@ -3,10 +3,11 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-const ThankYouDialog = ({ redirectLink = "/" }: { redirectLink?: string }) => {
+const ThankYouDialog = ({ redirectLink = "/", onSubmit = () => {}, }: { redirectLink?: string; onSubmit?: () => void;}) => {
   const router = useRouter();
 
   useEffect(() => {
+    onSubmit();
     if (redirectLink) {
       const timer = setTimeout(() => {
         router.push(redirectLink); // Redirect after a delay

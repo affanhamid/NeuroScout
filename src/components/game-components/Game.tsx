@@ -7,6 +7,8 @@ import TrialCompleteDialog from "./modals/TrialCompletedDialog";
 import PracticeCompleteDialog from "./modals/PracticeCompleteDialog";
 import ThankYouDialog from "./modals/ThankyouDialog";
 import games from "./gameSequence";
+import { apiClient } from "@/lib/api/apiClient";
+import { GameObservationType } from "@/types";
 
 export interface GameState {
   trial: number;
@@ -57,6 +59,8 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
   constructor(props: GameProps) {
     super(props);
     this.gameId = props.gameId;
+    this.onSubmit = this.onSubmit.bind(this);
+    console.log("Game ID initialized:", this.gameId);
     this.state = {
       trial: 1,
       instructions: [],
@@ -71,6 +75,26 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
     };
   }
 
+  async onSubmit(data: GameObservationType | {} = {}) {
+    const playerId = sessionStorage.getItem("playerId")
+    if (!!!playerId) {
+      alert("player id does not exist")
+      return
+    }
+    console.log("Game ID in onSubmit:", this.gameId);
+    if (!!!this.gameId) {
+      alert("game id does not exist")
+      return
+    }
+    await apiClient(
+      "/api/game-observations",
+      {
+        method: "POST",
+        body: { ...data, gameId: this.gameId, playerId }
+      }
+    );
+  };
+  
   async fetchParams() {
     try {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -257,7 +281,7 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
           />
         )}
         {this.state.showThankYou && (
-          <ThankYouDialog redirectLink={this.getNextgameId()} />
+          <ThankYouDialog redirectLink={this.getNextgameId()} onSubmit={this.onSubmit} />
         )}
         {this.getHUD()}
       </main>
