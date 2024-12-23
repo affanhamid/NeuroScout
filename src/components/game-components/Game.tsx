@@ -8,7 +8,7 @@ import PracticeCompleteDialog from "./modals/PracticeCompleteDialog";
 import ThankYouDialog from "./modals/ThankyouDialog";
 import games from "./gameSequence";
 import { apiClient } from "@/lib/api/apiClient";
-import { GameObservationType } from "@/types";
+import { GameObservationFields, GameObservationType } from "@/types";
 
 export interface GameState {
   trial: number;
@@ -27,6 +27,10 @@ export interface GameProps {
   gameId: string;
 }
 
+export type GameSubmission<T> = GameObservationFields & {
+  data: T;
+};
+
 type BaseParams = {
   data: {
     duration: number;
@@ -35,7 +39,10 @@ type BaseParams = {
   };
 }[];
 
-class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
+class Game<TData, TParams extends BaseParams> extends Component<
+  GameProps,
+  GameState
+> {
   canvasRef = createRef<HTMLCanvasElement>();
   ctxRef: MutableRefObject<CanvasRenderingContext2D | null> = { current: null };
   animationFrameIdRef = createRef<number>();
@@ -56,11 +63,11 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
 
   gameEndTimeRef: MutableRefObject<number> = { current: 0 };
 
+  data: TData;
+
   constructor(props: GameProps) {
     super(props);
     this.gameId = props.gameId;
-    this.onSubmit = this.onSubmit.bind(this);
-    console.log("Game ID initialized:", this.gameId);
     this.state = {
       trial: 1,
       instructions: [],
@@ -73,28 +80,23 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
       showReset: false,
       showThankYou: false
     };
+    this.data = {} as TData;
   }
 
-  async onSubmit(data: GameObservationType | {} = {}) {
-    const playerId = sessionStorage.getItem("playerId")
-    if (!!!playerId) {
-      alert("player id does not exist")
-      return
+  onSubmit = async () => {
+    const playerId =
+      sessionStorage.getItem("playerId") || "67654d960116637461a070f1";
+    console.log(this.gameId);
+    if (!playerId || !this.gameId || !this.data) {
+      alert(`something is missing: ${playerId}, ${this.gameId}, ${this.data}`);
+      return;
     }
-    console.log("Game ID in onSubmit:", this.gameId);
-    if (!!!this.gameId) {
-      alert("game id does not exist")
-      return
-    }
-    await apiClient(
-      "/api/game-observations",
-      {
-        method: "POST",
-        body: { ...data, gameId: this.gameId, playerId }
-      }
-    );
+    await apiClient("/api/game-observations", {
+      method: "POST",
+      body: { data: this.data, gameId: this.gameId, playerId }
+    });
   };
-  
+
   async fetchParams() {
     try {
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -194,6 +196,7 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
       }
     } else if (this.state.trial !== 1) {
       if (this.state.trial === this.paramsRef.current![0].data.trials + 1) {
+        this.onSubmit();
         this.setState({
           showThankYou: true,
           showReset: false,
@@ -228,7 +231,8 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
   getNextgameId() {
     const thisGameIndex = games.findIndex((gameId) => gameId === this.gameId);
     if (!!thisGameIndex || thisGameIndex === games.length - 1) return "/";
-    return games[thisGameIndex + 1];
+    // return games[thisGameIndex];
+    return this.gameId;
   }
 
   render() {
@@ -281,7 +285,7 @@ class Game<TParams extends BaseParams> extends Component<GameProps, GameState> {
           />
         )}
         {this.state.showThankYou && (
-          <ThankYouDialog redirectLink={this.getNextgameId()} onSubmit={this.onSubmit} />
+          <ThankYouDialog redirectLink={this.getNextgameId()} />
         )}
         {this.getHUD()}
       </main>

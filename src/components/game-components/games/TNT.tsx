@@ -14,7 +14,15 @@ interface TNTGameState extends GameState {
   vts: number;
 }
 
-class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
+export type BaseTNTData = {
+  vts: number;
+  scores: number[];
+};
+
+class TNT<TNTData extends BaseTNTData, BallType extends Ball> extends Game<
+  TNTData,
+  GameType["parameters"]
+> {
   ballsRef: MutableRefObject<BallType[]> = { current: [] };
   ballSizeRef: MutableRefObject<number> = { current: 50 };
   state: TNTGameState = {
@@ -33,6 +41,10 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
 
   constructor(props: GameProps) {
     super(props);
+    this.data = {
+      vts: 0,
+      scores: []
+    };
   }
 
   createBalls() {
@@ -200,6 +212,11 @@ class TNT<BallType extends Ball> extends Game<GameType["parameters"]> {
 
           this.wrongBallsRef.current = wrongBalls;
           this.correctBallsRef.current = correctBalls;
+
+          this.data = {
+            vts: this.state.vts,
+            scores: [...this.data.scores, score]
+          } as TNTData;
 
           if (score === 4) {
             this.setState({

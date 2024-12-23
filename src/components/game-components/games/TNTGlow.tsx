@@ -3,9 +3,13 @@
 import { MutableRefObject } from "react";
 import { GameProps } from "../Game";
 import { createBalls, GlowBall } from "../utils";
-import TNT from "./TNT";
+import TNT, { BaseTNTData } from "./TNT";
 
-class TNTGlowGame extends TNT<GlowBall> {
+type TNTGlowData = BaseTNTData & {
+  reactionTimes: number[];
+};
+
+class TNTGlowGame extends TNT<TNTGlowData, GlowBall> {
   reactionTimesRef: MutableRefObject<number[]> = { current: [] };
   shouldGlowRef: MutableRefObject<boolean> = { current: true };
 
