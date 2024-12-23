@@ -67,7 +67,7 @@ class ArrowGame extends Game<GameType["parameters"]> {
     this.drawArrow(x, y, direction, color);
   }
 
-  handleMouseClickAfterGame(event: MouseEvent) {
+  handleMouseClickAfterGame = (event: MouseEvent) => {
     const canvas = this.canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
     const clickX = event.clientX - rect.left;
@@ -101,7 +101,7 @@ class ArrowGame extends Game<GameType["parameters"]> {
     setTimeout(() => {
       this.setState({ trial: this.state.trial + 1 });
     }, 1000);
-  }
+  };
 
   renderGame() {
     const canvas = this.canvasRef.current!;
