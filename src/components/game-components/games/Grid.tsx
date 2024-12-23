@@ -299,8 +299,12 @@ class GridGame extends Game<GridData, GameType["parameters"]> {
     this.data = {
       noOfPolygons: this.state.completedPolygons.size
     };
+    this.polygonsRef.current.clear();
     super.resetGame();
-    this.setState({ trial: this.state.trial + 1 });
+    this.setState({
+      completedPolygons: new Set(),
+      trial: this.state.trial + 1
+    } as GridGameState);
   }
 
   renderGame() {
