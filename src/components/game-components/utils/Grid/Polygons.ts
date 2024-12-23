@@ -4,7 +4,8 @@ import { Line } from "./Line";
 export const detectPolygons = (
   lines: Line[],
   completedPolygons: Set<string>,
-  onPolygonDetected: (newPolygonKey: string, polygon: Set<Point>) => void
+  onPolygonDetected: (newPolygonKey: string, polygon: Set<Point>) => void,
+  onDuplicatePolygon: (polygonKey: string, polygon: Set<Point>) => void
 ): Set<Point> | null => {
   const adjList = new Map<Point, Set<Point>>();
   const detectedPolygons: Set<Point>[] = [];
@@ -33,6 +34,8 @@ export const detectPolygons = (
         if (!completedPolygons.has(polygonKey)) {
           // Notify about the newly detected polygon
           onPolygonDetected(polygonKey, polygon);
+        } else {
+          onDuplicatePolygon(polygonKey, polygon);
         }
         return;
       }
