@@ -84,11 +84,8 @@ class Game<TData, TParams extends BaseParams> extends Component<
   }
 
   onSubmit = async () => {
-    const playerId =
-      sessionStorage.getItem("playerId") || "67654d960116637461a070f1";
-    console.log(this.gameId);
+    const playerId = sessionStorage.getItem("playerId");
     if (!playerId || !this.gameId || !this.data) {
-      alert(`something is missing: ${playerId}, ${this.gameId}, ${this.data}`);
       return;
     }
     await apiClient("/api/game-observations", {
