@@ -152,6 +152,7 @@ class ArrowGame extends Game<ArrowData, GameType["parameters"]> {
           this.drawRandomLines();
 
           setTimeout(() => {
+
             // Display final arrows for 500ms and enable interaction
             this.drawBackground();
 
@@ -163,6 +164,8 @@ class ArrowGame extends Game<ArrowData, GameType["parameters"]> {
             // Draw left and right arrows
             this.drawArrow(midX / 2, midY, "left");
             this.drawArrow((3 * midX) / 2, midY, "right");
+
+            this.arrowDisplayTimeRef.current = Date.now();
           }, 33);
         }, this.state.primeTime);
       }, 200);
