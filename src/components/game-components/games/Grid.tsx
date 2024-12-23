@@ -11,6 +11,7 @@ import {
   getMaxPolygons,
   highlightAndFadePolygon
 } from "../utils";
+import { number } from "yup";
 
 const HIGHLIGHT_COLOR = "#FFFF00";
 const FADED_COLOR = "rgba(255, 255, 255, 0.2)";
@@ -25,7 +26,7 @@ type PointType = {
 };
 
 export type GridData = {
-  noOfPolygons: number[];
+  noOfPolygons: number;
 };
 
 class GridGame extends Game<GridData, GameType["parameters"]> {
@@ -61,7 +62,7 @@ class GridGame extends Game<GridData, GameType["parameters"]> {
   constructor(props: GameProps) {
     super(props);
     this.data = {
-      noOfPolygons: []
+      noOfPolygons: 0
     };
   }
 
@@ -266,9 +267,8 @@ class GridGame extends Game<GridData, GameType["parameters"]> {
 
   resetGame() {
     this.data = {
-      ...this.data,
-      noOfPolygons: [...this.data.noOfPolygons, this.state.completedPolygons.size]
-    };
+      noOfPolygons: this.state.completedPolygons.size
+    }
     super.resetGame();
     this.setState({ trial: this.state.trial + 1 });
   }
