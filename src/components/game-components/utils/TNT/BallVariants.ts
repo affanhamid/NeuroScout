@@ -8,6 +8,7 @@ export class GlowBall extends Ball {
   glowIntensity: number;
   maxGlowIntensity: number;
   shadowSize: number;
+  lastGlowedTime: number;
 
   constructor(
     x: number,
@@ -39,7 +40,7 @@ export class GlowBall extends Ball {
 
   glow() {
     this.isGlowed = true;
-    this.reactionTimesRef.current.push(Date.now());
+    this.lastGlowedTime = Date.now();
     this.increaseGlow();
   }
 
@@ -59,7 +60,7 @@ export class GlowBall extends Ball {
   click(glowNextBall: () => void) {
     this.isGlowed = false;
     this.reset();
-    this.reactionTimesRef.current.push(Date.now());
+    this.reactionTimesRef.current.push(Date.now() - this.lastGlowedTime);
     glowNextBall();
   }
 
