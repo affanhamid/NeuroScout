@@ -12,7 +12,6 @@ interface ArrowGameState extends GameState {
 export type ArrowData = {
   reactionTimes: number[];
   accuracy: number[];
-
 }
 
 const CORRECT_COLOR = "#00FF00"; // Green for correct

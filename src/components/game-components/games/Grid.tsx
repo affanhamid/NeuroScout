@@ -24,7 +24,11 @@ type PointType = {
   y: number;
 };
 
-class GridGame extends Game<GameType["parameters"]> {
+export type GridData = {
+  noOfPolygons: number[];
+};
+
+class GridGame extends Game<GridData, GameType["parameters"]> {
   // Grid
   gridSizeRef: MutableRefObject<number> = { current: 5 };
   gridTotalSizeRef: MutableRefObject<number> = { current: 600 };
@@ -56,6 +60,9 @@ class GridGame extends Game<GameType["parameters"]> {
 
   constructor(props: GameProps) {
     super(props);
+    this.data = {
+      noOfPolygons: []
+    };
   }
 
   calculateDistance(p1: PointType, p2: PointType): number {
@@ -258,6 +265,10 @@ class GridGame extends Game<GameType["parameters"]> {
   };
 
   resetGame() {
+    this.data = {
+      ...this.data,
+      noOfPolygons: [...this.data.noOfPolygons, this.state.completedPolygons.size]
+    };
     super.resetGame();
     this.setState({ trial: this.state.trial + 1 });
   }
