@@ -6,22 +6,35 @@ import { MutableRefObject } from "react";
 
 interface ArrowGameState extends GameState {
   primeTime: number;
+  reactionTime: number;
+}
+
+export type ArrowData = {
+  reactionTimes: number[];
+  accuracy: number[];
+
 }
 
 const CORRECT_COLOR = "#00FF00"; // Green for correct
 const INCORRECT_COLOR = "#FF0000"; // Red for incorrect
 
-class ArrowGame extends Game<GameType["parameters"]> {
+class ArrowGame extends Game<ArrowData, GameType["parameters"]> {
   answersRef: MutableRefObject<boolean[]> = { current: [] };
+  arrowDisplayTimeRef: MutableRefObject<number> = { current: 0 };
   state: ArrowGameState = {
     ...this.state,
-    primeTime: 33
+    primeTime: 33,
+    reactionTime: 0
   };
 
   correctDirection: "left" | "right" = "right"; // Holds the correct direction for the current trial
 
   constructor(props: GameProps) {
     super(props);
+    this.data = {
+      reactionTimes: [],
+      accuracy: []
+    };
   }
 
   drawRandomLines() {
@@ -73,12 +86,16 @@ class ArrowGame extends Game<GameType["parameters"]> {
     const clickX = event.clientX - rect.left;
     const canvasMid = canvas.width / 2;
 
+    const reactionTime = Date.now() - this.arrowDisplayTimeRef.current;
+
     // Determine the direction of the click
     const clickedDirection = clickX < canvasMid ? "left" : "right";
 
     // Check if the clicked direction matches the correct direction
     const isCorrect = clickedDirection === this.correctDirection;
 
+    this.data.reactionTimes.push(reactionTime);
+    this.data.accuracy.push(isCorrect ? 1 : 0);
     // Highlight the prime arrow in green or red based on correctness
     this.drawBackground();
     const midX = canvas.width / 2;
