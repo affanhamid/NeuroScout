@@ -11,7 +11,6 @@ import {
   getMaxPolygons,
   highlightAndFadePolygon
 } from "../utils";
-import { number } from "yup";
 
 const HIGHLIGHT_COLOR = "#FFFF00";
 const FADED_COLOR = "rgba(255, 255, 255, 0.2)";
@@ -42,7 +41,7 @@ class GridGame extends Game<GridData, GameType["parameters"]> {
   interactivityRadius = 30;
 
   // Lines
-  currentLineRef: MutableRefObject<Point | null> = {
+  currentLineStartRef: MutableRefObject<Point | null> = {
     current: null
   };
   mousePosRef: MutableRefObject<{ x: number; y: number } | null> = {
@@ -99,7 +98,7 @@ class GridGame extends Game<GridData, GameType["parameters"]> {
 
   drawLine() {
     const ctx = this.ctxRef.current!;
-    const start = this.currentLineRef.current;
+    const start = this.currentLineStartRef.current;
     const end = this.mousePosRef.current;
 
     if (start && end) {
@@ -208,67 +207,98 @@ class GridGame extends Game<GridData, GameType["parameters"]> {
     this.yellowPointsRef.current.forEach((point) => {
       const distance = this.calculateDistance({ x, y }, point);
       if (distance <= this.interactivityRadius) {
-        this.currentLineRef.current = point;
+        this.currentLineStartRef.current = point; // Set the starting point
         this.mousePosRef.current = { x: point.x, y: point.y };
       }
     });
   };
 
-  handleMouseMove = (event: MouseEvent) => {
+  handleMouseInteraction = (event: MouseEvent) => {
     const { x, y } = this.getMousePosition(event);
 
+    // Hover detection
     this.pointsRef.current.flat().forEach((point) => {
       const distance = this.calculateDistance({ x, y }, point);
       point.setHovered(distance <= this.interactivityRadius && point.isYellow);
     });
 
-    this.mousePosRef.current = { x, y };
+    const start = this.currentLineStartRef.current;
+
+    if (start) {
+      // Draw a temporary line
+      this.mousePosRef.current = { x, y };
+      this.drawBackground();
+      this.drawGrid();
+      this.drawLine();
+
+      // Check for proximity to yellow points
+      this.yellowPointsRef.current.forEach((point) => {
+        const distance = this.calculateDistance({ x, y }, point);
+        if (distance <= this.interactivityRadius) {
+          const newLine = new Line(start, point);
+
+          // Avoid duplicate lines
+          if (!this.linesRef.current.some((line) => line.equals(newLine))) {
+            this.linesRef.current.push(newLine); // Add the new line
+            this.currentLineStartRef.current = point; // Update the starting point
+
+            // Polygon detection after a valid line
+            detectPolygons(
+              this.linesRef.current,
+              this.state.completedPolygons,
+              (newPolygonKey, newPolygon) => {
+                const updatedPolygons = new Set<string>(
+                  this.state.completedPolygons
+                );
+                updatedPolygons.add(newPolygonKey);
+                this.setState({
+                  completedPolygons: updatedPolygons
+                } as GridGameState);
+
+                // Highlight and fade the polygon
+                highlightAndFadePolygon(newPolygon, this.linesRef.current);
+                setTimeout(() => {
+                  this.linesRef.current = [];
+                }, 500);
+              },
+              (polygonKey, polygon) => {
+                // Highlight duplicate polygons in red
+                highlightAndFadePolygon(
+                  polygon,
+                  this.linesRef.current,
+                  "#FF0000"
+                );
+
+                setTimeout(() => {
+                  this.linesRef.current = [];
+                }, 500);
+              }
+            );
+          }
+        }
+      });
+    }
+
+    // Final redraw
     this.drawBackground();
     this.drawGrid();
     this.drawLine();
   };
 
+  handleMouseMove = this.handleMouseInteraction;
+
   handleMouseUp = () => {
-    const start = this.currentLineRef.current;
-    const mouseEnd = this.mousePosRef.current;
-
-    if (start && mouseEnd) {
-      this.yellowPointsRef.current.forEach((point) => {
-        const distance = this.calculateDistance(mouseEnd, point);
-        if (distance <= this.interactivityRadius) {
-          const newLine = new Line(start, point);
-          this.linesRef.current.push(newLine);
-
-          // Detect the newly formed polygon
-          detectPolygons(
-            this.linesRef.current,
-            this.state.completedPolygons,
-            (newPolygonKey, newPolygon) => {
-              // Create a new Set to ensure immutability
-              const updatedPolygons = new Set<string>(
-                this.state.completedPolygons
-              );
-              updatedPolygons.add(newPolygonKey);
-              this.setState({
-                completedPolygons: updatedPolygons
-              } as GridGameState);
-
-              // Highlight and fade out the polygon
-              highlightAndFadePolygon(newPolygon, this.linesRef.current);
-            }
-          );
-        }
-      });
-    }
-
-    this.currentLineRef.current = null;
-    this.mousePosRef.current = null;
+    this.currentLineStartRef.current = null; // Clear the starting point
+    this.mousePosRef.current = null; // Clear the mouse position
   };
 
   resetGame() {
+    this.currentLineStartRef.current = null;
+    this.mousePosRef.current = null;
+    this.linesRef.current = [];
     this.data = {
       noOfPolygons: this.state.completedPolygons.size
-    }
+    };
     super.resetGame();
     this.setState({ trial: this.state.trial + 1 });
   }
