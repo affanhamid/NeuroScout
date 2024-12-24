@@ -42,6 +42,7 @@ const InstructionDialog = ({
   onStart: () => void;
 }) => {
   const [step, setStep] = useState(0);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   const handleClick = (direction: 1 | -1) => {
     const newStep = step + direction;
@@ -68,55 +69,72 @@ const InstructionDialog = ({
         </span>
       </div>
 
-      {step < instructions.length ? (
+      {showInstructions ? (
         <div className="relative px-60">
           {/* Carousel */}
           <Carousel instructions={instructions} step={step} />
 
           {/* Navigation Buttons */}
-          <div className="absolute left-0 right-0 top-[50%] transform -translate-y-[50%] flex justify-between">
-            <button
-              onClick={() => handleClick(-1)}
-              className="text-green-500 bg-transparent cursor-pointer hover:text-green-400 active:text-green-600"
-              aria-label="Previous Step"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-10 h-10"
+          {step < instructions.length ? (
+            <div className="absolute left-0 right-0 top-[50%] transform -translate-y-[50%] flex justify-between">
+              <button
+                onClick={() => handleClick(-1)}
+                className="text-green-500 bg-transparent cursor-pointer hover:text-green-400 active:text-green-600"
+                aria-label="Previous Step"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
-                />
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-10 h-10"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+                  />
+                </svg>
+              </button>
 
-            <button
-              onClick={() => handleClick(1)}
-              className="text-green-500 bg-transparent cursor-pointer hover:text-green-400 active:text-green-600"
-              aria-label="Next Step"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-10 h-10"
+              <button
+                onClick={() => handleClick(1)}
+                className="text-green-500 bg-transparent cursor-pointer hover:text-green-400 active:text-green-600"
+                aria-label="Next Step"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                />
-              </svg>
-            </button>
-          </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-10 h-10"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                  />
+                </svg>
+              </button>
+            </div>
+          ) : (
+            <div className="text-white flex flex-col gap-5 items-center">
+          <button
+            className="rounded-full px-5 py-2 bg-green-700 hover:bg-green-600 active:bg-green-600 text-white"
+            onClick={onStart}
+          >
+            Start Game
+          </button>
+          <button
+            className="rounded-full px-5 py-2 bg-gray-700 hover:bg-gray-600 active:bg-gray-800 text-white"
+            onClick={() => setStep(0)}
+          >
+            Show Instructions
+          </button>
+        </div>   
+          )}
         </div>
       ) : (
         <div className="text-white flex flex-col gap-5 items-center">
@@ -128,7 +146,7 @@ const InstructionDialog = ({
           </button>
           <button
             className="rounded-full px-5 py-2 bg-gray-700 hover:bg-gray-600 active:bg-gray-800 text-white"
-            onClick={() => setStep(0)}
+            onClick={() => setShowInstructions(true)}
           >
             Read Instructions
           </button>
