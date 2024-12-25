@@ -19,7 +19,7 @@ const Carousel = ({
 }) => {
   return (
     <div>
-      {instructions.length !== 0 && (
+      {instructions.length !== 0 && step < instructions.length && (
         <div>
           <Image
             src={instructions[step].image}
@@ -46,8 +46,13 @@ const InstructionDialog = ({
 
   const handleClick = (direction: 1 | -1) => {
     const newStep = step + direction;
-    if (newStep >= 0 && newStep <= instructions.length) {
-      setStep(newStep);
+    if (newStep >= 0) {
+      if (newStep >= instructions.length) {
+        setShowInstructions(false);
+        setStep(0);
+      } else {
+        setStep(newStep);
+      }
     }
   };
 
