@@ -70,7 +70,7 @@ const PlayerForm = ({
         className="space-y-6 bg-white/5 w-[25vw] border-2 border-white/20 text-gray-100 p-6 rounded-md shadow-md max-w-lg mx-auto"
       >
         <h2 className="text-2xl text-center">
-          Organization: {organization.name}
+          Organisation: {organization.name}
         </h2>
         <div>
           <label htmlFor="firstName" className="block mb-1 font-semibold">
