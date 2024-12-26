@@ -59,6 +59,10 @@ const InstructionDialog = ({
       }
     }
   };
+  const handleBack = () => {
+    setShowInstructions(false);
+    setStep(0);
+  };
 
   return (
     <div className="bg-game-background absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
@@ -80,6 +84,29 @@ const InstructionDialog = ({
 
       {showInstructions ? (
         <div className="relative px-60">
+          {/* Back Button */}
+          <div className="absolute top-2 right-2">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 text-green-500 bg-transparent hover:text-green-400 active:text-green-600 text-base"
+              aria-label="Back to Menu"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={3}
+                stroke="currentColor"
+                className="w-8 h-8"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
           {/* Carousel */}
           <Carousel instructions={instructions} step={step} />
 
