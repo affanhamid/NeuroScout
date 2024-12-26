@@ -4,11 +4,11 @@ import { GameTypeWithId } from "@/types";
 
 const Gallery = async ({ games }: { games: GameTypeWithId[] }) => {
   return (
-    <div className="grid grid-cols-3 gap-10">
+    <div className="grid grid-cols-3 gap-10 -mt-15">
       {games &&
         games[0] &&
         games.map((gameItem) => (
-          <div key={gameItem.name}>
+          <div key={gameItem.name} className="flex flex-col space-y-4">
             <Link
               href={`games/${gameItem._id}`}
               className="text-purple-500 hover:text-purple-600 text-xl"
@@ -18,11 +18,11 @@ const Gallery = async ({ games }: { games: GameTypeWithId[] }) => {
                 src={gameItem.image}
                 width={800}
                 height={450}
-                alt=""
+                alt={gameItem.name}
               />
             </Link>
-            <div className="text-center">
-              <h3 className="text-gray-600 text-3xl pt-3 pb-1 font-bold">
+            <div className="text-center space-y-2">
+              <h3 className="text-gray-600 text-3xl font-bold">
                 {gameItem.name}
               </h3>
               <p className="text-gray-600 text-xl">{gameItem.description}</p>
