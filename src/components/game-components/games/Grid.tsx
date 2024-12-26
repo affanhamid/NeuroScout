@@ -156,6 +156,14 @@ class GridGame extends Game<GridData, GameType["parameters"]> {
         <span>
         {this.state.isPractice ? `Practice Trial: ${this.state.trial}` : `Trial: ${this.state.trial}`} | Time Left: {this.showTimer}s
         </span>
+        {this.state.isPractice && !this.state.showInstructions && (
+          <button
+            onClick={this.skipPractice}
+            className="text-xl rounded-full"
+          >
+            Skip Practice
+          </button>
+        )}
         {this.state.isRunning && (
           <>
             <span>Total Shapes: {this.state.completedPolygons.size}</span>

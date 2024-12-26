@@ -111,29 +111,29 @@ class TNT<TNTData extends BaseTNTData, BallType extends Ball> extends Game<
   };
 
   getHUD() {
-    if (this.state.isRunning) {
       return (
         <div className="absolute top-10 right-10 text-white text-lg flex flex-col gap-2">
           <span>
           {this.state.isPractice ? `Practice Trial: ${this.state.trial}` : `Trial: ${this.state.trial}`} | Time Left: {this.showTimer}s
           </span>
-          {this.showTimer === 0 ? (
-            <span>
-              <button
-                className="text-xl rounded-full"
-                onClick={this.resetSelection}
-              >
-                Reset Selection
-              </button>
-            </span>
-          ) : (
-            <span></span>
+          {this.state.isPractice && !this.state.showInstructions && (
+          <button
+            onClick={this.skipPractice}
+            className="text-xl rounded-full"
+          >
+            Skip Practice
+          </button>
           )}
+          {this.state.isRunning && this.showTimer === 0 && (
+                <button
+                  className="text-xl rounded-full"
+                  onClick={this.resetSelection}
+                >
+                  Reset Selection
+                </button>
+            )}
         </div>
       );
-    } else {
-      return <div></div>;
-    }
   }
 
   renderGame() {

@@ -59,12 +59,10 @@ class Game<TData, TParams extends BaseParams> extends Component<
   handleMouseUp(e: MouseEvent) {}
   gameObserver: GameObserver | null = null;
 
-  // Timer tracking
   timerIntervalRef: MutableRefObject<NodeJS.Timeout | null> = { current: null };
   showTimer: number = 0; // Class variable for the timer
 
   gameEndTimeRef: MutableRefObject<number> = { current: 0 };
-
   data: TData;
 
   constructor(props: GameProps) {
@@ -85,6 +83,19 @@ class Game<TData, TParams extends BaseParams> extends Component<
       gameDescription: ""
     };
     this.data = {} as TData;
+    this.skipPractice = this.skipPractice.bind(this);
+  }
+
+  skipPractice() {
+    this.setState({
+      trial: 1,
+      isPractice: false,
+      isRunning: false,
+      showCountdown: true,
+      showInstructions: false,
+      showPracticeComplete: false,
+      showTrialComplete: false
+    });
   }
 
   onSubmit = async () => {
@@ -129,7 +140,6 @@ class Game<TData, TParams extends BaseParams> extends Component<
 
       this.gameObserver?.removeAllListeners();
 
-      // Add listeners for the game using GameObserver
       this.gameObserver?.addListener("click", this.handleMouseClickDuringGame);
       this.gameObserver?.addListener("mousemove", this.handleMouseMove);
       this.gameObserver?.addListener("mousedown", this.handleMouseDown);
@@ -216,17 +226,23 @@ class Game<TData, TParams extends BaseParams> extends Component<
   }
 
   getHUD() {
-    if (this.state.isRunning) {
       return (
         <div className="absolute top-10 right-10 text-white text-lg">
+        {this.state.isRunning && (
           <span>
           {this.state.isPractice ? `Practice Trial: ${this.state.trial}` : `Trial: ${this.state.trial}`} | Time Left: {this.showTimer}s
           </span>
+        )}
+        {this.state.isPractice && !this.state.showInstructions && (
+          <button
+            onClick={this.skipPractice}
+            className="text-xl rounded-full"
+          >
+            Skip Practice
+          </button>
+        )}
         </div>
       );
-    } else {
-      return <div></div>;
-    }
   }
 
   getNextgameId() {
@@ -256,7 +272,6 @@ class Game<TData, TParams extends BaseParams> extends Component<
             gameDescription = {this.state.gameDescription}
             practiceTrials={this.paramsRef.current?.[0].data.practiceTrials ?? 0}
             mainTrials={this.paramsRef.current?.[0].data.trials ?? 0}
-        
           />
         )}
         {this.state.showTrialComplete && (
@@ -272,7 +287,6 @@ class Game<TData, TParams extends BaseParams> extends Component<
             }
           />
         )}
-
         {this.state.showPracticeComplete && (
           <PracticeCompleteDialog
             onStart={() => {
