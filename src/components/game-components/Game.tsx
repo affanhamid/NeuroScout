@@ -22,6 +22,7 @@ export interface GameState {
   showReset: boolean;
   showThankYou: boolean;
   gameTitle: string;
+  gameDescription: string;
 }
 
 export interface GameProps {
@@ -80,7 +81,8 @@ class Game<TData, TParams extends BaseParams> extends Component<
       showTrialComplete: false,
       showReset: false,
       showThankYou: false,
-      gameTitle: ""
+      gameTitle: "",
+      gameDescription: ""
     };
     this.data = {} as TData;
   }
@@ -102,7 +104,7 @@ class Game<TData, TParams extends BaseParams> extends Component<
       const response = await fetch(`${baseUrl}/api/games/${this.gameId}`);
       const result = await response.json();
       this.paramsRef.current = result.data.parameters;
-      this.setState({ instructions: result.data.instructions, gameTitle: result.data.name });
+      this.setState({ instructions: result.data.instructions, gameTitle: result.data.name, gameDescription: result.data.description });
     } catch (error) {
       console.error("Error fetching TNT params:", error);
     }
@@ -251,6 +253,7 @@ class Game<TData, TParams extends BaseParams> extends Component<
               this.setState({ showCountdown: true, showInstructions: false })
             }
             gameTitle = {this.state.gameTitle}
+            gameDescription = {this.state.gameDescription}
           />
         )}
         {this.state.showTrialComplete && (

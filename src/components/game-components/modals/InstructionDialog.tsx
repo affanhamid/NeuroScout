@@ -37,11 +37,13 @@ const Carousel = ({
 const InstructionDialog = ({
   instructions,
   onStart,
-  gameTitle
+  gameTitle,
+  gameDescription
 }: {
   instructions: Instructions;
   onStart: () => void;
   gameTitle: string;
+  gameDescription: string;
 }) => {
   const [step, setStep] = useState(0);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -128,16 +130,17 @@ const InstructionDialog = ({
         </div>
       ) : (
         <div className="text-white flex flex-col gap-8 items-center">
-          <h1 className="text-6xl font-bold text-white mb-25">{gameTitle}</h1>
-          <div className="flex flex-col gap-5 items-center h-full justify-center mb-50">
+          <h1 className="text-6xl font-bold text-white mb-10">{gameTitle}</h1>
+          <h2 className="text-2xl max-w-3xl text-center text-white mb-16">{gameDescription}</h2>
+          <div className="flex flex-col gap-5 items-center h-full justify-center mb-20">
             <button
-              className="rounded-full px-5 py-2 bg-green-700 hover:bg-green-600 active:bg-green-600 text-white"
+              className="rounded-full px-4 py-4 bg-green-700 hover:bg-green-600 active:bg-green-600 text-white"
               onClick={onStart}
             >
               Start Game
             </button>
             <button
-              className="rounded-full px-5 py-2 bg-gray-700 hover:bg-gray-600 active:bg-gray-800 text-white"
+              className="rounded-full px-4 py-4 bg-gray-700 hover:bg-gray-600 active:bg-gray-800 text-white"
               onClick={() => setShowInstructions(true)}
             >
               Read Instructions
