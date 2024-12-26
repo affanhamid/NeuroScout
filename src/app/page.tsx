@@ -10,7 +10,7 @@ export default function Home() {
         <div>
           <h1 className="text-center text-7xl mb-5 text-primary">NeuroScout</h1>
           <p className="text-3xl text-bold mb-36 text-center">
-            Optimising talent selection through cognitive insight.
+            Optimising talent selection through cognitive insight
           </p>
           <DataProvider<GameTypeWithId[]> endpoint="games">
             {(games) => <Gallery games={games} />}
