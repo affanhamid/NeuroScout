@@ -12,7 +12,7 @@ const TrialCompleteDialog = ({
 
         <div className="flex flex-col gap-5">
           <button onClick={onStart} className="rounded-lg">
-            Start New Round
+            Start Next Trial
           </button>
           <button
             onClick={onShowInstructions}
