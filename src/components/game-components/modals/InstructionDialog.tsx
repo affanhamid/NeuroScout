@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { HomeIcon } from "@heroicons/react/24/outline"; // Importing the home icon from Heroicons
+import { HomeIcon } from "@heroicons/react/24/outline";
 
 type Instruction = {
   step: number;
@@ -36,10 +36,12 @@ const Carousel = ({
 
 const InstructionDialog = ({
   instructions,
-  onStart
+  onStart,
+  gameTitle
 }: {
   instructions: Instructions;
   onStart: () => void;
+  gameTitle: string;
 }) => {
   const [step, setStep] = useState(0);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -80,64 +82,67 @@ const InstructionDialog = ({
           <Carousel instructions={instructions} step={step} />
 
           {/* Navigation Buttons */}
-            <div className="absolute left-0 right-0 top-[50%] transform -translate-y-[50%] flex justify-between">
-              <button
-                onClick={() => handleClick(-1)}
-                className="text-green-500 bg-transparent cursor-pointer hover:text-green-400 active:text-green-600"
-                aria-label="Previous Step"
+          <div className="absolute left-0 right-0 top-[50%] transform -translate-y-[50%] flex justify-between">
+            <button
+              onClick={() => handleClick(-1)}
+              className="text-green-500 bg-transparent cursor-pointer hover:text-green-400 active:text-green-600"
+              aria-label="Previous Step"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-10 h-10"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-10 h-10"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
-                  />
-                </svg>
-              </button>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+                />
+              </svg>
+            </button>
 
-              <button
-                onClick={() => handleClick(1)}
-                className="text-green-500 bg-transparent cursor-pointer hover:text-green-400 active:text-green-600"
-                aria-label="Next Step"
+            <button
+              onClick={() => handleClick(1)}
+              className="text-green-500 bg-transparent cursor-pointer hover:text-green-400 active:text-green-600"
+              aria-label="Next Step"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-10 h-10"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-10 h-10"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                  />
-                </svg>
-              </button>
-            </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       ) : (
-        <div className="text-white flex flex-col gap-5 items-center">
-          <button
-            className="rounded-full px-5 py-2 bg-green-700 hover:bg-green-600 active:bg-green-600 text-white"
-            onClick={onStart}
-          >
-            Start Game
-          </button>
-          <button
-            className="rounded-full px-5 py-2 bg-gray-700 hover:bg-gray-600 active:bg-gray-800 text-white"
-            onClick={() => setShowInstructions(true)}
-          >
-            Read Instructions
-          </button>
+        <div className="text-white flex flex-col gap-8 items-center">
+          <h1 className="text-6xl font-bold text-white mb-25">{gameTitle}</h1>
+          <div className="flex flex-col gap-5 items-center h-full justify-center mb-50">
+            <button
+              className="rounded-full px-5 py-2 bg-green-700 hover:bg-green-600 active:bg-green-600 text-white"
+              onClick={onStart}
+            >
+              Start Game
+            </button>
+            <button
+              className="rounded-full px-5 py-2 bg-gray-700 hover:bg-gray-600 active:bg-gray-800 text-white"
+              onClick={() => setShowInstructions(true)}
+            >
+              Read Instructions
+            </button>
+          </div>
         </div>
       )}
     </div>
