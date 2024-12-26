@@ -115,7 +115,7 @@ class TNT<TNTData extends BaseTNTData, BallType extends Ball> extends Game<
       return (
         <div className="absolute top-10 right-10 text-white text-lg flex flex-col gap-2">
           <span>
-            Trial: {this.state.trial} | Time Left: {this.showTimer}s
+          {this.state.isPractice ? `Practice Trial: ${this.state.trial}` : `Trial: ${this.state.trial}`} | Time Left: {this.showTimer}s
           </span>
           {this.showTimer === 0 ? (
             <span>

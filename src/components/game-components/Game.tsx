@@ -220,7 +220,7 @@ class Game<TData, TParams extends BaseParams> extends Component<
       return (
         <div className="absolute top-10 right-10 text-white text-lg">
           <span>
-            Trial: {this.state.trial} | Time Left: {this.showTimer}s
+          {this.state.isPractice ? `Practice Trial: ${this.state.trial}` : `Trial: ${this.state.trial}`} | Time Left: {this.showTimer}s
           </span>
         </div>
       );
