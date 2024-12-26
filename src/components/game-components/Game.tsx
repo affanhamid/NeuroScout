@@ -254,6 +254,9 @@ class Game<TData, TParams extends BaseParams> extends Component<
             }
             gameTitle = {this.state.gameTitle}
             gameDescription = {this.state.gameDescription}
+            practiceTrials={this.paramsRef.current?.[0].data.practiceTrials ?? 0}
+            mainTrials={this.paramsRef.current?.[0].data.trials ?? 0}
+        
           />
         )}
         {this.state.showTrialComplete && (

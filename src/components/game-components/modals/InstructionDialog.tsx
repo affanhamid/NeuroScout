@@ -38,12 +38,16 @@ const InstructionDialog = ({
   instructions,
   onStart,
   gameTitle,
-  gameDescription
+  gameDescription,
+  practiceTrials,
+  mainTrials,
 }: {
   instructions: Instructions;
   onStart: () => void;
   gameTitle: string;
   gameDescription: string;
+  practiceTrials: number;
+  mainTrials: number;
 }) => {
   const [step, setStep] = useState(0);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -159,6 +163,7 @@ const InstructionDialog = ({
         <div className="text-white flex flex-col gap-8 items-center">
           <h1 className="text-6xl font-bold text-white mb-10">{gameTitle}</h1>
           <h2 className="text-2xl max-w-3xl text-center text-white mb-16">{gameDescription}</h2>
+          <h2 className="text-2xl max-w-3xl text-center text-white mb-16">First, you'll complete {practiceTrials} practice trials (not scored), followed by {mainTrials} main trials.</h2>
           <div className="flex flex-col gap-5 items-center h-full justify-center mb-20">
             <button
               className="rounded-full px-4 py-4 bg-green-700 hover:bg-green-600 active:bg-green-600 text-white"
