@@ -113,9 +113,11 @@ class TNT<TNTData extends BaseTNTData, BallType extends Ball> extends Game<
   getHUD() {
       return (
         <div className="absolute top-10 right-10 text-white text-lg flex flex-col gap-2">
+          {this.showTimer != -1 && (
           <span>
           {this.state.isPractice ? `Practice Trial: ${this.state.trial}` : `Trial: ${this.state.trial}`} | Time Left: {this.showTimer}s
           </span>
+          )}
           {this.state.isPractice && !this.state.showInstructions && (
           <button
             onClick={this.skipPractice}
@@ -124,7 +126,7 @@ class TNT<TNTData extends BaseTNTData, BallType extends Ball> extends Game<
             Skip Practice
           </button>
           )}
-          {this.state.isRunning && this.showTimer === 0 && (
+          {this.showTimer === 0 && this.clickedBallsRef.current.size >= 0 && this.actualBallsRef.current.length === 0 && (
                 <button
                   className="text-xl rounded-full"
                   onClick={this.resetSelection}

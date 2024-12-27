@@ -60,7 +60,7 @@ class Game<TData, TParams extends BaseParams> extends Component<
   gameObserver: GameObserver | null = null;
 
   timerIntervalRef: MutableRefObject<NodeJS.Timeout | null> = { current: null };
-  showTimer: number = 0; // Class variable for the timer
+  showTimer: number = -1; // Class variable for the timer
 
   gameEndTimeRef: MutableRefObject<number> = { current: 0 };
   data: TData;
@@ -228,7 +228,7 @@ class Game<TData, TParams extends BaseParams> extends Component<
   getHUD() {
       return (
         <div className="absolute top-10 right-10 text-white text-lg">
-        {this.state.isRunning && (
+        {this.showTimer != -1 && (
           <span>
           {this.state.isPractice ? `Practice Trial: ${this.state.trial}` : `Trial: ${this.state.trial}`} | Time Left: {this.showTimer}s
           </span>

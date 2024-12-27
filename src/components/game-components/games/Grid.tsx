@@ -153,9 +153,11 @@ class GridGame extends Game<GridData, GameType["parameters"]> {
   getHUD() {
     return (
       <div className="absolute top-10 right-10 text-white text-lg flex flex-col gap-2">
+        {this.showTimer != -1 && (
         <span>
         {this.state.isPractice ? `Practice Trial: ${this.state.trial}` : `Trial: ${this.state.trial}`} | Time Left: {this.showTimer}s
         </span>
+        )}
         {this.state.isPractice && !this.state.showInstructions && (
           <button
             onClick={this.skipPractice}
