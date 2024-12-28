@@ -141,10 +141,6 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
       isCorrect ? CORRECT_COLOR : INCORRECT_COLOR
     );
 
-    // Redraw the arrows
-    this.drawArrow(midX / 2, midY, "left");
-    this.drawArrow((3 * midX) / 2, midY, "right");
-
     // Store the result in the answers array
     this.answersRef.current.push(isCorrect);
 
