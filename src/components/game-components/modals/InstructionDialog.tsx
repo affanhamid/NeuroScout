@@ -4,24 +4,6 @@ import Carousel from "./Carousel";
 import GameIntroduction from "./GameIntroduction";
 import { GameType } from "@/types";
 
-const HomeButton = () => {
-  return (
-    <div className="absolute top-5 left-5 flex flex-col items-center group">
-      <Link href="/" passHref>
-        <button
-          className="flex items-center justify-center bg-gray-800 hover:bg-gray-700 p-2 rounded-full"
-          aria-label="Go to Home"
-        >
-          <HomeIcon className="text-green-600 h-7 w-7" />
-        </button>
-      </Link>
-      {/* Tooltip */}
-      <span className="mt-1 text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity">
-        Exit to Home
-      </span>
-    </div>
-  );
-};
 const InstructionDialog = ({
   gameInfo,
   onStart,
@@ -33,7 +15,7 @@ const InstructionDialog = ({
 }) => {
   return (
     <div className="bg-game-background absolute top-0 left-0 right-0 bottom-0 flex flex-col items-center justify-center">
-      <HomeButton />
+  
       <GameIntroduction gameInfo={gameInfo} />
 
       <button
