@@ -19,7 +19,7 @@ export default function Home() {
           />
         </div>
       </section>
-      <section className="mb-16">
+      <section className="mb-10">
         <h1 className="text-center text-7xl mb-5 text-primary">NeuroScout</h1>
         <p className="text-3xl text-bold text-center">
           Optimising talent selection through cognitive insight
