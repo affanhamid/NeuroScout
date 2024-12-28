@@ -194,6 +194,14 @@ class TNT<
     return { score: score, wrongBalls: wrongBalls, correctBalls: correctBalls };
   };
 
+  addEventListenersDuringGame = () => {
+    this.eventHandler!.add("click", this.handleMouseClickDuringGame);
+  };
+
+  addEventListenersAfterGame = () => {
+    this.eventHandler!.add("click", this.handleMouseClickAfterGame);
+  };
+
   handleMouseClickDuringGame = (event: MouseEvent) => {
     void event;
   };
