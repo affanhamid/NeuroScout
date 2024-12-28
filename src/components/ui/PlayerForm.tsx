@@ -63,13 +63,13 @@ const PlayerForm = ({
   };
 
   return (
-    <main className="bg-game-background w-screen min-h-screen flex flex-col gap-8 justify-center items-center">
+    <main className="bg-game-background w-screen h-screen flex flex-col gap-20 justify-center items-center">
       <h1 className="text-white">NeuroScout Assessment Centre</h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="space-y-6 bg-white/5 w-[25vw] border-2 border-white/20 text-gray-100 p-6 rounded-md shadow-md max-w-lg mx-auto"
+        className="space-y-2 bg-white/5 w-120 border-2 border-white/20 text-gray-100 p-4 rounded-md shadow-md mx-auto"
       >
-        <h2 className="text-2xl text-center">
+        <h2 className="text-xl text-center">
           Organisation: {organization.name}
         </h2>
         <div>
@@ -123,16 +123,16 @@ const PlayerForm = ({
             </p>
           )}
         </div>
-
-        <div className="bg-blue-900/30 p-4 rounded-md text-sm">
-          <p className="font-medium">Important Notice:</p>
-          <p>• Estimated time to complete: 20 minutes</p>
-          <p>• Assessment must be completed in one sitting for results to be processed</p>
+        <div className="mt-6">
+          <div className="bg-primary/30 p-3 rounded-md text-sm">
+            <p className="font-medium">Important Notice:</p>
+            <p>• Must complete assessment in one sitting</p>
+            <p>• Estimated time to complete: 20 minutes</p>
+          </div>
         </div>
-
         <button
           type="submit"
-          className="bg-green-600 text-white rounded px-4 py-2 w-full hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600 text-xl"
+          className="bg-green-600 text-white rounded px-4 py-2 w-full hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600 text-xl mt-5"
         >
           Start Assessment
         </button>
