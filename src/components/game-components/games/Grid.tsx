@@ -171,6 +171,13 @@ class GridGame extends Game<GridGameData, GridGameParams> {
   }
 
   getHUD() {
+    const shouldShowHUD = !this.state.showInstructions && 
+                         !this.state.showTrialComplete && 
+                         !this.state.showPracticeComplete && 
+                         !this.state.showThankYou;
+
+    if (!shouldShowHUD) return null;
+
     return (
       <div className="absolute top-10 right-10 text-white text-lg flex flex-col gap-2">
         {this.showTimer != -1 && (
@@ -179,12 +186,8 @@ class GridGame extends Game<GridGameData, GridGameParams> {
               ? `Practice Trial: ${this.state.trial}`
               : `Trial: ${this.state.trial}`}{" "}
             | Time Left: {this.showTimer}s
+            | Total Shapes: {this.state.completedPolygons.size}
           </span>
-        )}
-        {this.state.isRunning && (
-          <>
-            <span>Total Shapes: {this.state.completedPolygons.size}</span>
-          </>
         )}
       </div>
     );

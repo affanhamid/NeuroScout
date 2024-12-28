@@ -118,26 +118,33 @@ class TNT<
   };
 
   getHUD() {
+    const shouldShowHUD = !this.state.showInstructions && 
+    !this.state.showTrialComplete && 
+    !this.state.showPracticeComplete && 
+    !this.state.showThankYou;
+
+    if (!shouldShowHUD) return null;
+
     return (
       <div className="absolute top-10 right-10 text-white text-lg flex flex-col gap-2">
         {this.showTimer != -1 && (
           <span>
             {this.state.isPractice
-              ? `Practice Trial: ${this.state.trial}`
-              : `Trial: ${this.state.trial}`}{" "}
+            ? `Practice Trial: ${this.state.trial}`
+            : `Trial: ${this.state.trial}`}{" "}
             | Time Left: {this.showTimer}s
           </span>
         )}
         {this.showTimer === 0 &&
           this.clickedBallsRef.current.size >= 0 &&
           this.actualBallsRef.current.length === 0 && (
-            <button
-              className="text-xl rounded-full"
-              onClick={this.resetSelection}
-            >
-              Reset Selection
-            </button>
-          )}
+          <button
+            className="text-xl rounded-full"
+            onClick={this.resetSelection}
+          >
+            Reset Selection
+          </button>
+        )}
       </div>
     );
   }
