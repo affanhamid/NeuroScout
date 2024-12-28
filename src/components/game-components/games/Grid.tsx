@@ -65,6 +65,16 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     };
   }
 
+  addEventListenersDuringGame = () => {
+    this.eventHandler!.add("mousedown", this.handleInteractionStart);
+    this.eventHandler!.add("mousemove", this.handleIntearctionMove);
+    this.eventHandler!.add("mouseup", this.handleInteractionEnd);
+
+    this.eventHandler!.add("touchstart", this.handleInteractionStart);
+    this.eventHandler!.add("touchmove", this.handleIntearctionMove);
+    this.eventHandler!.add("touchend", this.handleInteractionEnd);
+  };
+
   calculateDistance(p1: PointType, p2: PointType): number {
     const distance = Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
     return distance;
@@ -199,28 +209,36 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     }
   }
 
-  getMousePosition = (event: MouseEvent) => {
+  getInteractionPos = (event: MouseEvent | TouchEvent) => {
     const rect = this.canvasRef.current!.getBoundingClientRect();
-    return {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top
-    };
+    if (event instanceof MouseEvent) {
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      };
+    } else {
+      const touch = event.touches[0];
+      return {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
+      };
+    }
   };
 
-  handleMouseDown = (event: MouseEvent) => {
-    const { x, y } = this.getMousePosition(event);
+  handleInteractionStart = (event: MouseEvent | TouchEvent) => {
+    const { x, y } = this.getInteractionPos(event);
 
     this.yellowPointsRef.current.forEach((point) => {
       const distance = this.calculateDistance({ x, y }, point);
       if (distance <= this.interactivityRadius) {
-        this.currentLineStartRef.current = point; // Set the starting point
+        this.currentLineStartRef.current = point;
         this.mousePosRef.current = { x: point.x, y: point.y };
       }
     });
   };
 
-  handleMouseInteraction = (event: MouseEvent) => {
-    const { x, y } = this.getMousePosition(event);
+  handleIntearctionMove = (event: MouseEvent) => {
+    const { x, y } = this.getInteractionPos(event);
 
     // Hover detection
     this.pointsRef.current.flat().forEach((point) => {
@@ -292,9 +310,7 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     this.drawLine();
   };
 
-  handleMouseMove = this.handleMouseInteraction;
-
-  handleMouseUp = () => {
+  handleInteractionEnd = () => {
     this.currentLineStartRef.current = null; // Clear the starting point
     this.mousePosRef.current = null; // Clear the mouse position
   };
