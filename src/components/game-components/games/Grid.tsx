@@ -2,13 +2,7 @@
 
 import Game, { BaseGameParams, GameProps, GameState } from "../Game";
 import { MutableRefObject } from "react";
-import {
-  Point,
-  PolygonType,
-  Line,
-  detectPolygons,
-  highlightAndFadePolygon
-} from "../utils";
+import { Point, Line, detectPolygons, highlightAndFadePolygon } from "../utils";
 
 const HIGHLIGHT_COLOR = "#FFFF00";
 const FADED_COLOR = "rgba(255, 255, 255, 0.2)";
@@ -23,7 +17,7 @@ type PointType = {
 };
 
 export type GridGameData = {
-  noOfPolygons: number;
+  polygons: string[];
 };
 
 type GridGameParams = BaseGameParams & {};
@@ -50,7 +44,6 @@ class GridGame extends Game<GridGameData, GridGameParams> {
   linesRef: MutableRefObject<Line[]> = { current: [] };
 
   // Polygons
-  polygonsRef: MutableRefObject<Set<PolygonType>> = { current: new Set() };
   animationFrameId: number | null = null;
 
   state: GridGameState = {
@@ -61,7 +54,7 @@ class GridGame extends Game<GridGameData, GridGameParams> {
   constructor(props: GameProps) {
     super(props);
     this.data = {
-      noOfPolygons: 0
+      polygons: []
     };
   }
 
@@ -337,9 +330,11 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     this.mousePosRef.current = null;
     this.linesRef.current = [];
     this.data = {
-      noOfPolygons: this.state.completedPolygons.size
+      polygons: [
+        ...this.data.polygons,
+        ...Array.from(this.state.completedPolygons)
+      ]
     };
-    this.polygonsRef.current.clear();
     super.resetGame();
     this.setState({
       completedPolygons: new Set(),
