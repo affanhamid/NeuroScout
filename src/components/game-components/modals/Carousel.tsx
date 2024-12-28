@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 type Instruction = {
   step: number;
@@ -32,26 +33,13 @@ const Carousel = ({ instructions }: { instructions: Instructions }) => {
       {showInstructions && (
         <div className="absolute top-0 left-0 right-0 bottom-0 px-60 flex justify-center items-center bg-game-background">
           <div className="relative px-60">
-            <div className="absolute top-2 right-2">
+            <div className="absolute top-2 left-2">
               <button
                 onClick={() => setShowInstructions(false)}
-                className="flex items-center gap-2 text-green-500 bg-transparent hover:text-green-400 active:text-green-600 text-base"
+                className="flex items-center justify-center bg-gray-800 hover:bg-gray-700 p-2 rounded-full"
                 aria-label="Back to Menu"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={3}
-                  stroke="currentColor"
-                  className="w-8 h-8"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <XMarkIcon className="text-green-600 h-4 w-4" />
               </button>
             </div>
             {instructions.length !== 0 && step < instructions.length && (
