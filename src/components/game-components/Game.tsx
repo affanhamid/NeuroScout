@@ -2,13 +2,14 @@
 
 import { Component, createRef, MutableRefObject } from "react";
 import InstructionDialog from "./modals/InstructionDialog";
-import { Countdown, GameObserver } from "./utils";
+import { Countdown } from "./utils";
 import TrialCompleteDialog from "./modals/TrialCompletedDialog";
 import PracticeCompleteDialog from "./modals/PracticeCompleteDialog";
 import ThankYouDialog from "./modals/ThankyouDialog";
 import games from "./gameSequence";
 import { apiClient } from "@/lib/api/apiClient";
 import { GameObservationFields, GameType } from "@/types";
+import EventHandler from "./utils/EventHandler";
 
 export interface GameState {
   trial: number;
@@ -62,7 +63,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   handleMouseUp = (e: MouseEvent) => {
     void e;
   };
-  gameObserver: GameObserver | null = null;
+  eventHandler: EventHandler | null = null;
 
   timerIntervalRef: MutableRefObject<NodeJS.Timeout | null> = { current: null };
   showTimer: number = -1;
@@ -87,13 +88,13 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
     };
     this.data = {} as TData;
 
-    this.paramsRef.current = props.gameInfo.parameters[0].data;
+    this.paramsRef.current! = props.gameInfo.parameters[0].data;
   }
 
   skipPractice = () => {
     this.stopTimer();
     this.setState({
-      trial: this.paramsRef.current.practiceTrials + 1,
+      trial: this.paramsRef.current!.practiceTrials + 1,
       isPractice: false,
       isRunning: false
     });
@@ -114,8 +115,12 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
     this.ctxRef.current = this.canvasRef.current!.getContext("2d")!;
     this.canvasRef.current!.width = window.innerWidth;
     this.canvasRef.current!.height = window.innerHeight;
-    this.gameObserver = new GameObserver(this.canvasRef.current!);
+    this.eventHandler = new EventHandler(this.canvasRef.current!);
   }
+
+  addEventListenersDuringGame = () => {};
+
+  addEventListenersAfterGame = () => {};
 
   componentDidUpdate(prevProps: Readonly<GameProps>, prevState: GameState) {
     void prevProps;
@@ -125,27 +130,19 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
       this.state.isRunning
     ) {
       this.renderGame();
-
-      this.gameObserver?.removeAllListeners();
-
-      this.gameObserver?.addListener("click", this.handleMouseClickDuringGame);
-      this.gameObserver?.addListener("mousemove", this.handleMouseMove);
-      this.gameObserver?.addListener("mousedown", this.handleMouseDown);
-      this.gameObserver?.addListener("mouseup", this.handleMouseUp);
+      this.eventHandler?.removeAll();
+      this.addEventListenersDuringGame();
 
       this.gameTimeout = setTimeout(() => {
         this.resetGame();
 
-        this.gameObserver?.removeListener(
-          "click",
-          this.handleMouseClickDuringGame
-        );
-        this.gameObserver?.addListener("click", this.handleMouseClickAfterGame);
+        this.eventHandler?.removeAll();
+        this.addEventListenersAfterGame();
 
         this.gameEndTimeRef.current = Date.now();
-      }, this.paramsRef.current.duration * 1000);
+      }, this.paramsRef.current!.duration * 1000);
 
-      this.startTimer(this.paramsRef.current.duration);
+      this.startTimer(this.paramsRef.current!.duration);
     }
 
     if (prevState.trial !== this.state.trial) {
@@ -198,7 +195,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
 
   handleTrialCompletion() {
     if (this.state.isPractice) {
-      if (this.state.trial === this.paramsRef.current.practiceTrials + 1) {
+      if (this.state.trial === this.paramsRef.current!.practiceTrials + 1) {
         this.setState({
           trial: 1,
           showPracticeComplete: true,
@@ -209,7 +206,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
         this.setState({ showTrialComplete: true, showReset: false });
       }
     } else if (this.state.trial !== 1) {
-      if (this.state.trial === this.paramsRef.current.trials + 1) {
+      if (this.state.trial === this.paramsRef.current!.trials + 1) {
         this.onSubmit();
         this.setState({
           showThankYou: true,
