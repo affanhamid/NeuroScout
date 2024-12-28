@@ -80,6 +80,10 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
     this.drawArrow(x, y, direction, color);
   }
 
+  addEventListenersAfterGame = () => {
+    this.eventHandler!.add("click", this.handleMouseClickAfterGame);
+  };
+
   handleMouseClickAfterGame = (event: MouseEvent) => {
     const canvas = this.canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
