@@ -8,17 +8,6 @@ import Image from "next/image";
 export default function Home() {
   return (
     <main className="relative">
-      <section className="absolute top-0 right-0 p-4">
-        <div className="w-96 h-40 relative">
-          <Image
-            src="https://utfs.io/f/OA98Upl9HVAuvpSSFXFEoOw4kpIy6bEPGclZf1CmNaUt7H5L"
-            alt="NeuroScout Logo"
-            fill
-            priority
-            className="object-contain"
-          />
-        </div>
-      </section>
       <section className="mb-10">
         <h1 className="text-center text-7xl mb-5 text-primary">NeuroScout</h1>
         <p className="text-3xl text-bold text-center">
