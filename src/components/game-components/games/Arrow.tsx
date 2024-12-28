@@ -28,8 +28,8 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
   };
   correctDirection: "left" | "right" = "right"; // Holds the correct direction for the current trial
   rapidTrials = true;
-  arrowShaftLength = 60; // Total length of the shaft
-  arrowWingLength = 15; // Length of each wing
+  arrowShaftLength = 100; // Total length of the shaft
+  arrowWingLength = 20; // Length of each wing
   lineWidth = 3; // Thickness of the arrow lines
 
   constructor(props: GameProps) {
@@ -199,10 +199,6 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
               midY - (2 * this.arrowWingLength + 10),
               this.correctDirection
             );
-
-            // Draw left and right arrows
-            this.drawArrow(midX / 2, midY, "left");
-            this.drawArrow((3 * midX) / 2, midY, "right");
 
             this.arrowDisplayTimeRef.current = Date.now();
           }, 33);
