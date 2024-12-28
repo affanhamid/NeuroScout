@@ -94,9 +94,6 @@ export const resolveCollisionsWithWalls = <BallType extends Ball>(
     const nextX = ball.x + ball.vx * deltaTime;
     const nextY = ball.y + ball.vy * deltaTime;
 
-    // Check if the ball would enter the forbidden zone
-
-    // Normal movement if not entering forbidden zone
     ball.x = nextX;
     ball.y = nextY;
 

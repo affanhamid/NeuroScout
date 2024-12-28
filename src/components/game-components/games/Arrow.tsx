@@ -26,8 +26,8 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
     primeTime: 33,
     reactionTime: 0
   };
-
   correctDirection: "left" | "right" = "right"; // Holds the correct direction for the current trial
+  rapidTrials = true;
 
   constructor(props: GameProps) {
     super(props);

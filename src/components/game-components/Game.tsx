@@ -72,6 +72,8 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   data: TData;
   gameTimeout: ReturnType<typeof setTimeout> | null = null;
 
+  rapidTrials = false;
+
   constructor(props: GameProps) {
     super(props);
     this.gameId = props.gameId;
@@ -180,10 +182,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
     }
 
     // Remove all event listeners
-    this.gameObserver?.removeAllListeners();
-
-    // Reset refs
-    this.ctxRef.current = null;
+    this.eventHandler?.removeAll();
   }
 
   drawBackground() {
@@ -203,7 +202,11 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
           isPractice: false
         });
       } else if (this.state.trial !== 1) {
-        this.setState({ showTrialComplete: true, showReset: false });
+        this.setState({
+          showTrialComplete: !this.rapidTrials,
+          showCountdown: this.rapidTrials,
+          showReset: false
+        });
       }
     } else if (this.state.trial !== 1) {
       if (this.state.trial === this.paramsRef.current!.trials + 1) {
