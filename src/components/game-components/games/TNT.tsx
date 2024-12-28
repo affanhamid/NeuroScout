@@ -128,11 +128,6 @@ class TNT<
             | Time Left: {this.showTimer}s
           </span>
         )}
-        {this.state.isPractice && !this.state.showInstructions && (
-          <button onClick={this.skipPractice} className="text-xl rounded-full">
-            Skip Practice
-          </button>
-        )}
         {this.showTimer === 0 &&
           this.clickedBallsRef.current.size >= 0 &&
           this.actualBallsRef.current.length === 0 && (

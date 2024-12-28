@@ -186,11 +186,6 @@ class GridGame extends Game<GridGameData, GridGameParams> {
             <span>Total Shapes: {this.state.completedPolygons.size}</span>
           </>
         )}
-        {this.state.isPractice && !this.state.showInstructions && (
-          <button onClick={this.skipPractice} className="text-xl rounded-full">
-            Skip Practice
-          </button>
-        )}
       </div>
     );
   }
