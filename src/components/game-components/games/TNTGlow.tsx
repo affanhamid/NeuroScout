@@ -3,13 +3,18 @@
 import { MutableRefObject } from "react";
 import { GameProps } from "../Game";
 import { createBalls, GlowBall } from "../utils";
-import TNT, { BaseTNTData } from "./TNT";
+import TNT, { BaseTNTGameData, BaseTNTParams } from "./TNT";
 
-type TNTGlowData = BaseTNTData & {
+type TNTGlowGameData = BaseTNTGameData & {
   reactionTimes: number[];
 };
 
-class TNTGlowGame extends TNT<TNTGlowData, GlowBall> {
+type TNTGlowParams = BaseTNTParams & {
+  randomnessMean: number;
+  randomnessStd: number;
+};
+
+class TNTGlowGame extends TNT<TNTGlowParams, TNTGlowGameData, GlowBall> {
   reactionTimesRef: MutableRefObject<number[]> = { current: [] };
   shouldGlowRef: MutableRefObject<boolean> = { current: true };
 
@@ -36,8 +41,8 @@ class TNTGlowGame extends TNT<TNTGlowData, GlowBall> {
         }
       },
       this.randomGaussian(
-        this.paramsRef.current![0].data.randomnessMean,
-        this.paramsRef.current![0].data.randomnessStd
+        this.paramsRef.current!.randomnessMean,
+        this.paramsRef.current!.randomnessStd
       )
     );
   };
@@ -63,7 +68,7 @@ class TNTGlowGame extends TNT<TNTGlowData, GlowBall> {
     this.ballsRef.current = createBalls(
       this.canvasRef.current!,
       this.ballSizeRef.current!,
-      this.paramsRef.current![0].data.numOfBalls,
+      this.paramsRef.current!.numOfBalls,
       GlowBall,
       this.reactionTimesRef
     );
@@ -75,7 +80,7 @@ class TNTGlowGame extends TNT<TNTGlowData, GlowBall> {
         () => {
           this.shouldGlowRef.current = false;
         },
-        this.paramsRef.current![0].data.duration * 1000 - 3000
+        this.paramsRef.current!.duration * 1000 - 3000
       );
     }, 3000);
   }

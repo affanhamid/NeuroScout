@@ -1,7 +1,6 @@
 "use client";
 
-import Game, { GameProps, GameState } from "../Game";
-import type { GameType } from "@/types";
+import Game, { BaseGameParams, GameProps, GameState } from "../Game";
 import { MutableRefObject } from "react";
 
 interface ArrowGameState extends GameState {
@@ -9,15 +8,17 @@ interface ArrowGameState extends GameState {
   reactionTime: number;
 }
 
-export type ArrowData = {
+export type ArrowGameData = {
   reactionTimes: number[];
   accuracy: number[];
-}
+};
+
+type ArrowGameParams = BaseGameParams & {};
 
 const CORRECT_COLOR = "#00FF00"; // Green for correct
 const INCORRECT_COLOR = "#FF0000"; // Red for incorrect
 
-class ArrowGame extends Game<ArrowData, GameType["parameters"]> {
+class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
   answersRef: MutableRefObject<boolean[]> = { current: [] };
   arrowDisplayTimeRef: MutableRefObject<number> = { current: 0 };
   state: ArrowGameState = {
@@ -151,7 +152,6 @@ class ArrowGame extends Game<ArrowData, GameType["parameters"]> {
           this.drawRandomLines();
 
           setTimeout(() => {
-
             // Display final arrows for 500ms and enable interaction
             this.drawBackground();
 
