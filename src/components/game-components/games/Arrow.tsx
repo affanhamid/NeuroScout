@@ -31,6 +31,8 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
   arrowShaftLength = 100; // Total length of the shaft
   arrowWingLength = 20; // Length of each wing
   lineWidth = 3; // Thickness of the arrow lines
+  topFlankDirection: "left" | "right" = "right";
+  bottomFlankDirection: "left" | "right" = "right";
 
   constructor(props: GameProps) {
     super(props);
@@ -160,6 +162,8 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
 
     // Randomly set the direction to left or right
     this.correctDirection = Math.random() < 0.5 ? "left" : "right";
+    this.topFlankDirection = Math.random() < 0.5 ? "left" : "right";
+    this.bottomFlankDirection = Math.random() < 0.5 ? "left" : "right";
 
     // Display fixation for 750ms
     this.drawBackground();
@@ -188,17 +192,9 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
             this.drawBackground();
 
             // Redraw the prime for consistency
-            this.drawPrime(
-              midX,
-              midY + (2 * this.arrowWingLength + 10),
-              this.correctDirection
-            );
+            this.drawPrime(midX, midY - (2 * this.arrowWingLength + 10), this.topFlankDirection);
             this.drawPrime(midX, midY, this.correctDirection);
-            this.drawPrime(
-              midX,
-              midY - (2 * this.arrowWingLength + 10),
-              this.correctDirection
-            );
+            this.drawPrime(midX, midY + (2 * this.arrowWingLength + 10), this.bottomFlankDirection);
 
             this.arrowDisplayTimeRef.current = Date.now();
           }, 33);
