@@ -255,6 +255,9 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   }
 
   render() {
+    const totalTrials: number = this.state.isPractice
+    ? (this.paramsRef.current!.practiceTrials as number)
+    : (this.paramsRef.current!.trials as number);
     return (
       <main>
         <canvas ref={this.canvasRef} className="block" />
@@ -287,6 +290,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
             }
             nextTrialNum={this.state.trial}
             isPractice={this.state.isPractice}
+            totalTrials={totalTrials}
           />
         )}
         {this.state.showPracticeComplete && (
