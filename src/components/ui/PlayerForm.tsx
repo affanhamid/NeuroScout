@@ -63,7 +63,7 @@ const PlayerForm = ({
   };
 
   return (
-    <main className="bg-game-background w-screen h-screen flex flex-col gap-20 justify-center items-center">
+    <main className="bg-game-background w-screen min-h-screen flex flex-col gap-8 justify-center items-center">
       <h1 className="text-white">NeuroScout Assessment Centre</h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -122,6 +122,12 @@ const PlayerForm = ({
               {errors.position.message}
             </p>
           )}
+        </div>
+
+        <div className="bg-blue-900/30 p-4 rounded-md text-sm">
+          <p className="font-medium">Important Notice:</p>
+          <p>• Estimated time to complete: 20 minutes</p>
+          <p>• Assessment must be completed in one sitting for results to be processed</p>
         </div>
 
         <button
