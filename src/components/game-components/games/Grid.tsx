@@ -139,9 +139,28 @@ class GridGame extends Game<GridGameData, GridGameParams> {
 
   generateYellowPoints() {
     const gridSize = this.gridSizeRef.current!;
-    const rowCounts = Array(gridSize).fill(0);
-    const colCounts = Array(gridSize).fill(0);
     const yellowPoints: Point[] = [];
+
+    // Helper function to check if three points are collinear
+    const areCollinear = (p1: Point, p2: Point, p3: Point): boolean => {
+      // Use the area of the triangle formed by the three points
+      // If the area is 0, they are collinear
+      return (
+        p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y) === 0
+      );
+    };
+
+    // Check if adding a new point violates the collinearity constraint
+    const isValidPoint = (newPoint: Point) => {
+      for (let i = 0; i < yellowPoints.length; i++) {
+        for (let j = i + 1; j < yellowPoints.length; j++) {
+          if (areCollinear(yellowPoints[i], yellowPoints[j], newPoint)) {
+            return false; // Found three collinear points
+          }
+        }
+      }
+      return true; // No collinearity issues
+    };
 
     while (yellowPoints.length < 5) {
       const row = Math.floor(Math.random() * gridSize);
@@ -149,11 +168,9 @@ class GridGame extends Game<GridGameData, GridGameParams> {
 
       const point = this.pointsRef.current![row][col];
 
-      if (rowCounts[row] < 2 && colCounts[col] < 2 && !point.isYellow) {
+      if (!point.isYellow && isValidPoint(point)) {
         point.setYellow(true);
         yellowPoints.push(point);
-        rowCounts[row]++;
-        colCounts[col]++;
       }
     }
 
