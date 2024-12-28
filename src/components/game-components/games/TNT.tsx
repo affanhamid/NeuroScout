@@ -1,7 +1,6 @@
 "use client";
 
-import Game, { GameProps, GameState } from "../Game";
-import type { GameType } from "@/types";
+import Game, { BaseGameParams, GameProps, GameState } from "../Game";
 import {
   Ball,
   createBalls,
@@ -14,15 +13,23 @@ interface TNTGameState extends GameState {
   vts: number;
 }
 
-export type BaseTNTData = {
+export type BaseTNTGameData = {
   vts: number;
   scores: number[];
 };
 
-class TNT<TNTData extends BaseTNTData, BallType extends Ball> extends Game<
-  TNTData,
-  GameType["parameters"]
-> {
+export type BaseTNTParams = BaseGameParams & {
+  numOfBalls: number;
+  duration: number;
+  startingVts: number;
+  changeInVts: number;
+};
+
+class TNT<
+  TNTParams extends BaseTNTParams,
+  TNTData extends BaseTNTGameData,
+  BallType extends Ball
+> extends Game<TNTData, TNTParams> {
   ballsRef: MutableRefObject<BallType[]> = { current: [] };
   ballSizeRef: MutableRefObject<number> = { current: 50 };
   state: TNTGameState = {
@@ -51,7 +58,7 @@ class TNT<TNTData extends BaseTNTData, BallType extends Ball> extends Game<
     this.ballsRef.current = createBalls(
       this.canvasRef.current!,
       this.ballSizeRef.current!,
-      this.paramsRef.current![0].data.numOfBalls,
+      this.paramsRef.current!.numOfBalls,
       Ball
     ) as BallType[];
   }
@@ -111,31 +118,33 @@ class TNT<TNTData extends BaseTNTData, BallType extends Ball> extends Game<
   };
 
   getHUD() {
-      return (
-        <div className="absolute top-10 right-10 text-white text-lg flex flex-col gap-2">
-          {this.showTimer != -1 && (
+    return (
+      <div className="absolute top-10 right-10 text-white text-lg flex flex-col gap-2">
+        {this.showTimer != -1 && (
           <span>
-          {this.state.isPractice ? `Practice Trial: ${this.state.trial}` : `Trial: ${this.state.trial}`} | Time Left: {this.showTimer}s
+            {this.state.isPractice
+              ? `Practice Trial: ${this.state.trial}`
+              : `Trial: ${this.state.trial}`}{" "}
+            | Time Left: {this.showTimer}s
           </span>
-          )}
-          {this.state.isPractice && !this.state.showInstructions && (
-          <button
-            onClick={this.skipPractice}
-            className="text-xl rounded-full"
-          >
+        )}
+        {this.state.isPractice && !this.state.showInstructions && (
+          <button onClick={this.skipPractice} className="text-xl rounded-full">
             Skip Practice
           </button>
+        )}
+        {this.showTimer === 0 &&
+          this.clickedBallsRef.current.size >= 0 &&
+          this.actualBallsRef.current.length === 0 && (
+            <button
+              className="text-xl rounded-full"
+              onClick={this.resetSelection}
+            >
+              Reset Selection
+            </button>
           )}
-          {this.showTimer === 0 && this.clickedBallsRef.current.size >= 0 && this.actualBallsRef.current.length === 0 && (
-                <button
-                  className="text-xl rounded-full"
-                  onClick={this.resetSelection}
-                >
-                  Reset Selection
-                </button>
-            )}
-        </div>
-      );
+      </div>
+    );
   }
 
   renderGame() {
@@ -162,8 +171,7 @@ class TNT<TNTData extends BaseTNTData, BallType extends Ball> extends Game<
     requestAnimationFrame(animate);
 
     setTimeout(() => {
-      this.currentSpeedRef.current =
-        this.paramsRef.current![0].data.startingVts;
+      this.currentSpeedRef.current = this.paramsRef.current!.startingVts;
       this.highlightedBallsRef.current = [];
     }, 1000);
   }
@@ -186,7 +194,9 @@ class TNT<TNTData extends BaseTNTData, BallType extends Ball> extends Game<
     return { score: score, wrongBalls: wrongBalls, correctBalls: correctBalls };
   };
 
-  handleMouseClickDuringGame = (event: MouseEvent) => {};
+  handleMouseClickDuringGame = (event: MouseEvent) => {
+    void event;
+  };
 
   handleMouseClickAfterGame = (event: MouseEvent) => {
     const rect = this.canvasRef.current!.getBoundingClientRect();
@@ -222,11 +232,11 @@ class TNT<TNTData extends BaseTNTData, BallType extends Ball> extends Game<
 
           if (score === 4) {
             this.setState({
-              vts: this.state.vts + this.paramsRef.current![0].data.changeInVts
+              vts: this.state.vts + this.paramsRef.current!.changeInVts
             } as TNTGameState);
           } else if (this.state.vts > 50) {
             this.setState({
-              vts: this.state.vts - this.paramsRef.current![0].data.changeInVts
+              vts: this.state.vts - this.paramsRef.current!.changeInVts
             } as TNTGameState);
           }
 
@@ -238,11 +248,10 @@ class TNT<TNTData extends BaseTNTData, BallType extends Ball> extends Game<
 
             if (
               this.state.isPractice &&
-              this.state.trial + 1 >
-                this.paramsRef.current![0].data.practiceTrials
+              this.state.trial + 1 > this.paramsRef.current!.practiceTrials
             ) {
               this.setState({
-                vts: this.paramsRef.current![0].data.startingVts
+                vts: this.paramsRef.current!.startingVts
               } as TNTGameState);
             }
             this.setState({ trial: this.state.trial + 1 });

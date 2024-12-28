@@ -1,14 +1,12 @@
 "use client";
 
-import Game, { GameProps, GameState } from "../Game";
-import type { GameType } from "@/types";
+import Game, { BaseGameParams, GameProps, GameState } from "../Game";
 import { MutableRefObject } from "react";
 import {
   Point,
   PolygonType,
   Line,
   detectPolygons,
-  getMaxPolygons,
   highlightAndFadePolygon
 } from "../utils";
 
@@ -24,11 +22,13 @@ type PointType = {
   y: number;
 };
 
-export type GridData = {
+export type GridGameData = {
   noOfPolygons: number;
 };
 
-class GridGame extends Game<GridData, GameType["parameters"]> {
+type GridGameParams = BaseGameParams & {};
+
+class GridGame extends Game<GridGameData, GridGameParams> {
   // Grid
   gridSizeRef: MutableRefObject<number> = { current: 5 };
   gridTotalSizeRef: MutableRefObject<number> = { current: 600 };
@@ -154,20 +154,20 @@ class GridGame extends Game<GridData, GameType["parameters"]> {
     return (
       <div className="absolute top-10 right-10 text-white text-lg flex flex-col gap-2">
         {this.showTimer != -1 && (
-        <span>
-        {this.state.isPractice ? `Practice Trial: ${this.state.trial}` : `Trial: ${this.state.trial}`} | Time Left: {this.showTimer}s
-        </span>
+          <span>
+            {this.state.isPractice
+              ? `Practice Trial: ${this.state.trial}`
+              : `Trial: ${this.state.trial}`}{" "}
+            | Time Left: {this.showTimer}s
+          </span>
         )}
         {this.state.isRunning && (
           <>
             <span>Total Shapes: {this.state.completedPolygons.size}</span>
           </>
         )}
-                {this.state.isPractice && !this.state.showInstructions && (
-          <button
-            onClick={this.skipPractice}
-            className="text-xl rounded-full"
-          >
+        {this.state.isPractice && !this.state.showInstructions && (
+          <button onClick={this.skipPractice} className="text-xl rounded-full">
             Skip Practice
           </button>
         )}
@@ -268,6 +268,7 @@ class GridGame extends Game<GridData, GameType["parameters"]> {
                 }, 500);
               },
               (polygonKey, polygon) => {
+                void polygonKey;
                 // Highlight duplicate polygons in red
                 highlightAndFadePolygon(
                   polygon,

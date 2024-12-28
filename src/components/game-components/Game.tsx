@@ -8,11 +8,10 @@ import PracticeCompleteDialog from "./modals/PracticeCompleteDialog";
 import ThankYouDialog from "./modals/ThankyouDialog";
 import games from "./gameSequence";
 import { apiClient } from "@/lib/api/apiClient";
-import { GameObservationFields, GameObservationType } from "@/types";
+import { GameObservationFields, GameType } from "@/types";
 
 export interface GameState {
   trial: number;
-  instructions: { step: number; image: string }[];
   showInstructions: boolean;
   showCountdown: boolean;
   isRunning: boolean;
@@ -21,27 +20,24 @@ export interface GameState {
   showTrialComplete: boolean;
   showReset: boolean;
   showThankYou: boolean;
-  gameTitle: string;
-  gameDescription: string;
 }
 
 export interface GameProps {
   gameId: string;
+  gameInfo: GameType;
 }
 
 export type GameSubmission<T> = GameObservationFields & {
   data: T;
 };
 
-type BaseParams = {
-  data: {
-    duration: number;
-    trials: number;
-    practiceTrials: number;
-  };
-}[];
+export type BaseGameParams = {
+  duration: number;
+  trials: number;
+  practiceTrials: number;
+};
 
-class Game<TData, TParams extends BaseParams> extends Component<
+class Game<TData, TParams extends BaseGameParams> extends Component<
   GameProps,
   GameState
 > {
@@ -50,27 +46,36 @@ class Game<TData, TParams extends BaseParams> extends Component<
   animationFrameIdRef = createRef<number>();
   paramsRef: MutableRefObject<TParams | null> = { current: null };
   renderGame() {}
-  instructions: { step: number; image: string }[] = [];
   gameId: string;
-  handleMouseClickDuringGame(e: MouseEvent) {}
-  handleMouseClickAfterGame(e: MouseEvent) {}
-  handleMouseMove(e: MouseEvent) {}
-  handleMouseDown(e: MouseEvent) {}
-  handleMouseUp(e: MouseEvent) {}
+  handleMouseClickDuringGame = (e: MouseEvent) => {
+    void e;
+  };
+  handleMouseClickAfterGame = (e: MouseEvent) => {
+    void e;
+  };
+  handleMouseMove = (e: MouseEvent) => {
+    void e;
+  };
+  handleMouseDown = (e: MouseEvent) => {
+    void e;
+  };
+  handleMouseUp = (e: MouseEvent) => {
+    void e;
+  };
   gameObserver: GameObserver | null = null;
 
   timerIntervalRef: MutableRefObject<NodeJS.Timeout | null> = { current: null };
-  showTimer: number = -1; // Class variable for the timer
+  showTimer: number = -1;
 
   gameEndTimeRef: MutableRefObject<number> = { current: 0 };
   data: TData;
+  gameTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(props: GameProps) {
     super(props);
     this.gameId = props.gameId;
     this.state = {
       trial: 1,
-      instructions: [],
       showInstructions: true,
       showCountdown: false,
       isRunning: false,
@@ -78,25 +83,21 @@ class Game<TData, TParams extends BaseParams> extends Component<
       showPracticeComplete: false,
       showTrialComplete: false,
       showReset: false,
-      showThankYou: false,
-      gameTitle: "",
-      gameDescription: ""
+      showThankYou: false
     };
     this.data = {} as TData;
-    this.skipPractice = this.skipPractice.bind(this);
+
+    this.paramsRef.current = props.gameInfo.parameters[0].data;
   }
 
-  skipPractice() {
+  skipPractice = () => {
+    this.stopTimer();
     this.setState({
-      trial: 1,
+      trial: this.paramsRef.current.practiceTrials + 1,
       isPractice: false,
-      isRunning: false,
-      showCountdown: true,
-      showInstructions: false,
-      showPracticeComplete: false,
-      showTrialComplete: false
+      isRunning: false
     });
-  }
+  };
 
   onSubmit = async () => {
     const playerId = sessionStorage.getItem("playerId");
@@ -109,21 +110,7 @@ class Game<TData, TParams extends BaseParams> extends Component<
     });
   };
 
-  async fetchParams() {
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      const response = await fetch(`${baseUrl}/api/games/${this.gameId}`);
-      const result = await response.json();
-      this.paramsRef.current = result.data.parameters;
-      this.setState({ instructions: result.data.instructions, gameTitle: result.data.name, gameDescription: result.data.description });
-    } catch (error) {
-      console.error("Error fetching TNT params:", error);
-    }
-  }
-
   componentDidMount() {
-    this.fetchParams();
-
     this.ctxRef.current = this.canvasRef.current!.getContext("2d")!;
     this.canvasRef.current!.width = window.innerWidth;
     this.canvasRef.current!.height = window.innerHeight;
@@ -131,6 +118,7 @@ class Game<TData, TParams extends BaseParams> extends Component<
   }
 
   componentDidUpdate(prevProps: Readonly<GameProps>, prevState: GameState) {
+    void prevProps;
     if (
       this.canvasRef.current &&
       !prevState.isRunning &&
@@ -145,7 +133,7 @@ class Game<TData, TParams extends BaseParams> extends Component<
       this.gameObserver?.addListener("mousedown", this.handleMouseDown);
       this.gameObserver?.addListener("mouseup", this.handleMouseUp);
 
-      setTimeout(() => {
+      this.gameTimeout = setTimeout(() => {
         this.resetGame();
 
         this.gameObserver?.removeListener(
@@ -155,9 +143,9 @@ class Game<TData, TParams extends BaseParams> extends Component<
         this.gameObserver?.addListener("click", this.handleMouseClickAfterGame);
 
         this.gameEndTimeRef.current = Date.now();
-      }, this.paramsRef.current![0].data.duration * 1000);
+      }, this.paramsRef.current.duration * 1000);
 
-      this.startTimer(this.paramsRef.current![0].data.duration);
+      this.startTimer(this.paramsRef.current.duration);
     }
 
     if (prevState.trial !== this.state.trial) {
@@ -170,7 +158,7 @@ class Game<TData, TParams extends BaseParams> extends Component<
     this.timerIntervalRef.current = setInterval(() => {
       if (this.showTimer > 0) {
         this.showTimer -= 1; // Decrement timer
-        this.forceUpdate(); // Trigger a re-render to update the UI
+        this.forceUpdate();
       } else {
         clearInterval(this.timerIntervalRef.current!); // Stop timer when it reaches 0
       }
@@ -178,9 +166,27 @@ class Game<TData, TParams extends BaseParams> extends Component<
   }
 
   stopTimer() {
+    if (this.gameTimeout) {
+      clearTimeout(this.gameTimeout);
+    }
     if (this.timerIntervalRef.current) {
       clearInterval(this.timerIntervalRef.current); // Cleanup interval
     }
+  }
+
+  componentWillUnmount() {
+    this.stopTimer();
+
+    // Cancel animation frame
+    if (this.animationFrameIdRef.current) {
+      cancelAnimationFrame(this.animationFrameIdRef.current);
+    }
+
+    // Remove all event listeners
+    this.gameObserver?.removeAllListeners();
+
+    // Reset refs
+    this.ctxRef.current = null;
   }
 
   drawBackground() {
@@ -192,10 +198,7 @@ class Game<TData, TParams extends BaseParams> extends Component<
 
   handleTrialCompletion() {
     if (this.state.isPractice) {
-      if (
-        this.state.trial ===
-        this.paramsRef.current![0].data.practiceTrials + 1
-      ) {
+      if (this.state.trial === this.paramsRef.current.practiceTrials + 1) {
         this.setState({
           trial: 1,
           showPracticeComplete: true,
@@ -206,7 +209,7 @@ class Game<TData, TParams extends BaseParams> extends Component<
         this.setState({ showTrialComplete: true, showReset: false });
       }
     } else if (this.state.trial !== 1) {
-      if (this.state.trial === this.paramsRef.current![0].data.trials + 1) {
+      if (this.state.trial === this.paramsRef.current.trials + 1) {
         this.onSubmit();
         this.setState({
           showThankYou: true,
@@ -226,23 +229,18 @@ class Game<TData, TParams extends BaseParams> extends Component<
   }
 
   getHUD() {
-      return (
-        <div className="absolute top-10 right-10 text-white text-lg">
+    return (
+      <div className="absolute top-10 right-10 text-white text-lg">
         {this.showTimer != -1 && (
           <span>
-          {this.state.isPractice ? `Practice Trial: ${this.state.trial}` : `Trial: ${this.state.trial}`} | Time Left: {this.showTimer}s
+            {this.state.isPractice
+              ? `Practice Trial: ${this.state.trial}`
+              : `Trial: ${this.state.trial}`}{" "}
+            | Time Left: {this.showTimer}s
           </span>
         )}
-        {this.state.isPractice && !this.state.showInstructions && (
-          <button
-            onClick={this.skipPractice}
-            className="text-xl rounded-full"
-          >
-            Skip Practice
-          </button>
-        )}
-        </div>
-      );
+      </div>
+    );
   }
 
   getNextgameId() {
@@ -252,9 +250,6 @@ class Game<TData, TParams extends BaseParams> extends Component<
   }
 
   render() {
-    const totalTrials = this.state.isPractice 
-    ? this.paramsRef.current?.[0].data.practiceTrials 
-    : this.paramsRef.current?.[0].data.trials;
     return (
       <main>
         <canvas ref={this.canvasRef} className="block" />
@@ -267,14 +262,11 @@ class Game<TData, TParams extends BaseParams> extends Component<
         )}
         {this.state.showInstructions && (
           <InstructionDialog
-            instructions={this.state.instructions}
+            gameInfo={this.props.gameInfo}
             onStart={() =>
               this.setState({ showCountdown: true, showInstructions: false })
             }
-            gameTitle = {this.state.gameTitle}
-            gameDescription = {this.state.gameDescription}
-            practiceTrials={this.paramsRef.current?.[0].data.practiceTrials ?? 0}
-            mainTrials={this.paramsRef.current?.[0].data.trials ?? 0}
+            skipPractice={this.skipPractice}
           />
         )}
         {this.state.showTrialComplete && (
@@ -290,7 +282,6 @@ class Game<TData, TParams extends BaseParams> extends Component<
             }
             nextTrialNum={this.state.trial}
             isPractice={this.state.isPractice}
-            totalTrials={totalTrials ?? 0}
           />
         )}
         {this.state.showPracticeComplete && (
@@ -319,3 +310,4 @@ class Game<TData, TParams extends BaseParams> extends Component<
 }
 
 export default Game;
+
