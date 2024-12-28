@@ -229,16 +229,21 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   }
 
   getHUD() {
+    const shouldShowHUD = !this.state.showInstructions && 
+                         !this.state.showTrialComplete && 
+                         !this.state.showPracticeComplete && 
+                         !this.state.showThankYou;
+
+    if (!shouldShowHUD || this.showTimer === -1) return null;
+
     return (
       <div className="absolute top-10 right-10 text-white text-lg">
-        {this.showTimer != -1 && (
-          <span>
-            {this.state.isPractice
-              ? `Practice Trial: ${this.state.trial}`
-              : `Trial: ${this.state.trial}`}{" "}
-            | Time Left: {this.showTimer}s
-          </span>
-        )}
+        <span>
+          {this.state.isPractice
+            ? `Practice Trial: ${this.state.trial}`
+            : `Trial: ${this.state.trial}`}{" "}
+          | Time Left: {this.showTimer}s
+        </span>
       </div>
     );
   }
