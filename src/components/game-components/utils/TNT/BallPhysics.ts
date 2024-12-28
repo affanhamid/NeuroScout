@@ -89,70 +89,47 @@ export const resolveCollisionsWithWalls = <BallType extends Ball>(
   height: number,
   deltaTime: number
 ) => {
-
-  const forbiddenZone = {
-    x: width - 300, 
-    y: 0,
-    width: 300,
-    height: 125 
-  };
-
   balls.forEach((ball) => {
     // Move the ball, scaling velocity by deltaTime for consistent movement
     const nextX = ball.x + ball.vx * deltaTime;
     const nextY = ball.y + ball.vy * deltaTime;
 
     // Check if the ball would enter the forbidden zone
-    const wouldEnterForbiddenZone = 
-      nextX + ball.radius > forbiddenZone.x &&
-      nextX - ball.radius < forbiddenZone.x + forbiddenZone.width &&
-      nextY + ball.radius > forbiddenZone.y &&
-      nextY - ball.radius < forbiddenZone.y + forbiddenZone.height;
 
-    if (wouldEnterForbiddenZone) {
-      // Determine which edge of the forbidden zone the ball is closest to
-      const distToLeft = Math.abs(nextX - forbiddenZone.x);
-      const distToBottom = Math.abs(nextY - (forbiddenZone.y + forbiddenZone.height));
-      
-      if (distToLeft < distToBottom) {
-        // Bounce off left edge of forbidden zone
-        ball.x = forbiddenZone.x - ball.radius;
-        ball.vx *= -1;
-      } else {
-        // Bounce off bottom edge of forbidden zone
-        ball.y = forbiddenZone.y + forbiddenZone.height + ball.radius;
-        ball.vy *= -1;
-      }
-    } else {
-      // Normal movement if not entering forbidden zone
-      ball.x = nextX;
-      ball.y = nextY;
+    // Normal movement if not entering forbidden zone
+    ball.x = nextX;
+    ball.y = nextY;
 
-      // Regular wall collisions
-      if (ball.x - ball.radius < 0) {
-        ball.x = ball.radius;
-        ball.vx *= -1;
-      }
-      if (ball.x + ball.radius > width) {
-        ball.x = width - ball.radius;
-        ball.vx *= -1;
-      }
-      if (ball.y - ball.radius < 0) {
-        ball.y = ball.radius;
-        ball.vy *= -1;
-      }
-      if (ball.y + ball.radius > height) {
-        ball.y = height - ball.radius;
-        ball.vy *= -1;
-      }
+    // Regular wall collisions
+    if (ball.x - ball.radius < 0) {
+      ball.x = ball.radius;
+      ball.vx *= -1;
+    }
+    if (ball.x + ball.radius > width) {
+      ball.x = width - ball.radius;
+      ball.vx *= -1;
+    }
+    if (ball.y - ball.radius < 0) {
+      ball.y = ball.radius;
+      ball.vy *= -1;
+    }
+    if (ball.y + ball.radius > height) {
+      ball.y = height - ball.radius;
+      ball.vy *= -1;
     }
 
     // Maintain constant speed
-    const currentSpeedMagnitude = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
-    if (currentSpeedMagnitude > 1e-6 && currentSpeedMagnitude !== currentSpeed) {
+    const currentSpeedMagnitude = Math.sqrt(
+      ball.vx * ball.vx + ball.vy * ball.vy
+    );
+    if (
+      currentSpeedMagnitude > 1e-6 &&
+      currentSpeedMagnitude !== currentSpeed
+    ) {
       const scale = currentSpeed / currentSpeedMagnitude;
       ball.vx *= scale;
       ball.vy *= scale;
     }
   });
 };
+
