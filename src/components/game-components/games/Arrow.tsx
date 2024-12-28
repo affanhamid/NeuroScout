@@ -28,6 +28,9 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
   };
   correctDirection: "left" | "right" = "right"; // Holds the correct direction for the current trial
   rapidTrials = true;
+  arrowShaftLength = 60; // Total length of the shaft
+  arrowWingLength = 15; // Length of each wing
+  lineWidth = 3; // Thickness of the arrow lines
 
   constructor(props: GameProps) {
     super(props);
@@ -62,12 +65,37 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
     color = "#FFFFFF"
   ) {
     const ctx = this.ctxRef.current!;
-    ctx.fillStyle = color;
-    ctx.font = "48px Arial";
-    ctx.textAlign = "center";
 
-    const arrow = direction === "left" ? "←" : "→";
-    ctx.fillText(arrow, x, y);
+    // Define variables for arrow dimens
+    // Set canvas styles
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = this.lineWidth;
+
+    ctx.beginPath();
+
+    if (direction === "left") {
+      // Draw left-pointing arrow
+      const startX = x + this.arrowShaftLength / 2;
+      const endX = x - this.arrowShaftLength / 2;
+      ctx.moveTo(startX, y); // Start at the arrow's tail
+      ctx.lineTo(endX, y); // Draw the shaft
+      ctx.lineTo(endX + this.arrowWingLength, y - this.arrowWingLength); // Top wing
+      ctx.moveTo(endX, y); // Return to the shaft
+      ctx.lineTo(endX + this.arrowWingLength, y + this.arrowWingLength); // Bottom wing
+    } else {
+      // Draw right-pointing arrow
+      const startX = x - this.arrowShaftLength / 2;
+      const endX = x + this.arrowShaftLength / 2;
+      ctx.moveTo(startX, y); // Start at the arrow's tail
+      ctx.lineTo(endX, y); // Draw the shaft
+      ctx.lineTo(endX - this.arrowWingLength, y - this.arrowWingLength); // Top wing
+      ctx.moveTo(endX, y); // Return to the shaft
+      ctx.lineTo(endX - this.arrowWingLength, y + this.arrowWingLength); // Bottom wing
+    }
+
+    ctx.stroke(); // Outline the arrow
+    ctx.closePath();
   }
 
   drawPrime(
@@ -160,9 +188,17 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
             this.drawBackground();
 
             // Redraw the prime for consistency
-            this.drawPrime(midX, midY + 25, this.correctDirection);
+            this.drawPrime(
+              midX,
+              midY + (2 * this.arrowWingLength + 10),
+              this.correctDirection
+            );
             this.drawPrime(midX, midY, this.correctDirection);
-            this.drawPrime(midX, midY - 25, this.correctDirection);
+            this.drawPrime(
+              midX,
+              midY - (2 * this.arrowWingLength + 10),
+              this.correctDirection
+            );
 
             // Draw left and right arrows
             this.drawArrow(midX / 2, midY, "left");
