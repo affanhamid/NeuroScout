@@ -13,6 +13,11 @@ export default function Home() {
           Optimising talent selection through cognitive insight
         </p>
       </section>
+      <section className="pt-24 px-20 flex justify-center h-[55vh]">
+        <DataProvider<GameTypeWithId[]> endpoint="games">
+          {(games) => <Gallery games={games} />}
+        </DataProvider>
+      </section>
       <section className="flex flex-col mb-16 items-center justify-center">
         <div className="text-3xl mb-5">
           Test your skills now by playing our games
@@ -23,11 +28,6 @@ export default function Home() {
         >
           Play Games
         </Link>
-      </section>
-      <section className="pt-24 px-20 flex justify-center h-[100vh]">
-        <DataProvider<GameTypeWithId[]> endpoint="games">
-          {(games) => <Gallery games={games} />}
-        </DataProvider>
       </section>
       <Footer />
     </main>
