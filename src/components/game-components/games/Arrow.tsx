@@ -44,7 +44,7 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
     const ctx = this.ctxRef.current!;
     const canvas = this.canvasRef.current!;
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 100; i++) {
       const x1 = Math.random() * canvas.width;
       const y1 = Math.random() * canvas.height;
       const x2 = Math.random() * canvas.width;
