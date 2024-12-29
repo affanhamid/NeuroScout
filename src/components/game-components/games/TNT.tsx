@@ -210,6 +210,9 @@ class TNT<
   };
 
   handleMouseClickAfterGame = (event: MouseEvent) => {
+    if (this.clickedBallsRef.current!.size >= 4) {
+      return;
+    }
     const rect = this.canvasRef.current!.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
