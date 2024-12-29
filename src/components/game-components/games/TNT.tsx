@@ -121,7 +121,8 @@ class TNT<
     const shouldShowHUD = !this.state.showInstructions && 
     !this.state.showTrialComplete && 
     !this.state.showPracticeComplete && 
-    !this.state.showThankYou;
+    !this.state.showThankYou &&
+    !this.state.showCountdown;
 
     if (!shouldShowHUD) return null;
 
