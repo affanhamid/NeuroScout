@@ -136,9 +136,9 @@ class TNT<
             | Time Left: {this.showTimer}s
           </span>
         )}
-        {this.showTimer === 0 &&
-          this.clickedBallsRef.current.size >= 0 &&
-          this.actualBallsRef.current.length === 0 && (
+      ${this.showTimer}
+      ${this.clickedBallsRef.current.size}
+        {this.showTimer === 0 && (
           <button
             className="text-xl rounded-full"
             onClick={this.resetSelection}
