@@ -131,8 +131,8 @@ class TNT<
         {this.showTimer != -1 && (
           <span>
             {this.state.isPractice
-            ? `Practice Trial: ${this.state.trial}`
-            : `Trial: ${this.state.trial}`}{" "}
+              ? `Practice Trial ${this.state.trial} of ${this.paramsRef.current!.practiceTrials}`
+              : `Trial ${this.state.trial} of ${this.paramsRef.current!.trials}`}{" "}
             | Time Left: {this.showTimer}s
           </span>
         )}
