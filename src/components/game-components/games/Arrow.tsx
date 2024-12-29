@@ -181,9 +181,9 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
     return (
       <div className="absolute top-10 right-10 text-white text-lg">
         <span>
-          {this.state.isPractice
-            ? `Practice Trial: ${this.state.trial}`
-            : `Trial: ${this.state.trial}`}{" "}
+        {this.state.isPractice
+            ? `Practice Trial ${this.state.trial} of ${this.paramsRef.current!.practiceTrials}`
+            : `Trial ${this.state.trial} of ${this.paramsRef.current!.trials}`}{" "}
         </span>
       </div>
     );
