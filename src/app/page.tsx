@@ -8,7 +8,7 @@ import Image from "next/image";
 export default function Home() {
   return (
     <main className="relative">
-      <section className="mb-10">
+      <section className="mb-10 pt-16">
         <h1 className="text-center text-7xl mb-5 text-primary">NeuroScout</h1>
         <p className="text-3xl text-bold text-center">
           Optimising talent selection through cognitive insight
