@@ -82,18 +82,37 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
       const endX = x - this.arrowShaftLength / 2;
       ctx.moveTo(startX, y); // Start at the arrow's tail
       ctx.lineTo(endX, y); // Draw the shaft
-      ctx.lineTo(endX + this.arrowWingLength, y - this.arrowWingLength); // Top wing
-      ctx.moveTo(endX, y); // Return to the shaft
-      ctx.lineTo(endX + this.arrowWingLength, y + this.arrowWingLength); // Bottom wing
+
+      // Draw the wings from the tip point
+      const wingAngle = Math.PI / 6; // 30 degrees
+      const wingX = Math.cos(wingAngle) * this.arrowWingLength;
+      const wingY = Math.sin(wingAngle) * this.arrowWingLength;
+            
+      // Top wing
+      ctx.moveTo(endX, y);
+      ctx.lineTo(endX + wingX, y - wingY);
+      
+      // Bottom wing
+      ctx.moveTo(endX, y);
+      ctx.lineTo(endX + wingX, y + wingY);
     } else {
       // Draw right-pointing arrow
       const startX = x - this.arrowShaftLength / 2;
       const endX = x + this.arrowShaftLength / 2;
       ctx.moveTo(startX, y); // Start at the arrow's tail
       ctx.lineTo(endX, y); // Draw the shaft
-      ctx.lineTo(endX - this.arrowWingLength, y - this.arrowWingLength); // Top wing
-      ctx.moveTo(endX, y); // Return to the shaft
-      ctx.lineTo(endX - this.arrowWingLength, y + this.arrowWingLength); // Bottom wing
+      // Draw the wings from the tip point
+      const wingAngle = Math.PI / 6; // 30 degrees
+      const wingX = Math.cos(wingAngle) * this.arrowWingLength;
+      const wingY = Math.sin(wingAngle) * this.arrowWingLength;
+      
+      // Top wing
+      ctx.moveTo(endX, y);
+      ctx.lineTo(endX - wingX, y - wingY);
+      
+      // Bottom wing
+      ctx.moveTo(endX, y);
+      ctx.lineTo(endX - wingX, y + wingY);
     }
 
     ctx.stroke(); // Outline the arrow
