@@ -116,6 +116,7 @@ const PlayerForm = ({
             <option value="Midfielder">Midfielder</option>
             <option value="Defender">Defender</option>
             <option value="Goalkeeper">Goalkeeper</option>
+            <option value="N/A">N/A</option>
           </select>
           {errors.position && (
             <p className="text-red-400 mt-1 text-sm">
