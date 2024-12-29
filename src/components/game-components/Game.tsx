@@ -232,7 +232,8 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
     const shouldShowHUD = !this.state.showInstructions && 
                          !this.state.showTrialComplete && 
                          !this.state.showPracticeComplete && 
-                         !this.state.showThankYou;
+                         !this.state.showThankYou &&
+                         !this.state.showCountdown;
 
     if (!shouldShowHUD || this.showTimer === -1) return null;
 
