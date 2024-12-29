@@ -50,8 +50,8 @@ class TNT<
     super(props);
     this.data = {
       vts: 0,
-      scores: []
-    };
+      scores: [] as number[]
+    } as TNTData;
   }
 
   createBalls() {
