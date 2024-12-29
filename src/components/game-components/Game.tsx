@@ -154,22 +154,29 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
 
   startTimer(duration: number) {
     this.showTimer = duration; // Initialize timer
+    if (this.timerIntervalRef.current) {
+      clearInterval(this.timerIntervalRef.current);
+    }
     this.timerIntervalRef.current = setInterval(() => {
       if (this.showTimer > 0) {
         this.showTimer -= 1; // Decrement timer
         this.forceUpdate();
       } else {
-        clearInterval(this.timerIntervalRef.current!); // Stop timer when it reaches 0
+        if (this.timerIntervalRef.current) {
+          clearInterval(this.timerIntervalRef.current);
+        }
       }
-    }, 1000); // Update every second
+    }, 1000);
   }
 
   stopTimer() {
     if (this.gameTimeout) {
       clearTimeout(this.gameTimeout);
+      this.gameTimeout = null;
     }
     if (this.timerIntervalRef.current) {
       clearInterval(this.timerIntervalRef.current); // Cleanup interval
+      this.timerIntervalRef.current = null;
     }
   }
 
@@ -193,6 +200,9 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   }
 
   handleTrialCompletion() {
+    if (this.paramsRef.current?.duration) {
+      this.showTimer = this.paramsRef.current.duration;
+    }
     if (this.state.isPractice) {
       if (this.state.trial === this.paramsRef.current!.practiceTrials + 1) {
         this.setState({
