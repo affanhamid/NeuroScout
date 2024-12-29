@@ -33,6 +33,7 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
   lineWidth = 3; // Thickness of the arrow lines
   topFlankDirection: "left" | "right" = "right";
   bottomFlankDirection: "left" | "right" = "right";
+  hasAnswered: boolean = false;
 
   constructor(props: GameProps) {
     super(props);
@@ -134,6 +135,9 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
   };
 
   handleMouseClickAfterGame = (event: MouseEvent) => {
+    if (this.hasAnswered) return;
+    
+    this.hasAnswered = true;
     const canvas = this.canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
     const clickX = event.clientX - rect.left;
@@ -149,6 +153,7 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
 
     this.data.reactionTimes.push(reactionTime);
     this.data.accuracy.push(isCorrect ? 1 : 0);
+    
     // Highlight the prime arrow in green or red based on correctness
     this.drawBackground();
     const midX = canvas.width / 2;
@@ -165,6 +170,7 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
 
     // Proceed to the next trial after 1 second
     setTimeout(() => {
+      this.hasAnswered = false;
       this.setState({ trial: this.state.trial + 1 });
     }, 1000);
   };
@@ -213,27 +219,32 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
       this.drawRandomLines();
 
       setTimeout(() => {
-        // Display the prime arrow
+        // Display the prime arrow and start listening for clicks
         this.drawBackground();
         this.drawPrime(midX, midY, this.correctDirection);
+        this.arrowDisplayTimeRef.current = Date.now();
+        this.addEventListenersAfterGame();
 
-        setTimeout(() => {
-          // Display random lines for 33ms
-          this.drawBackground();
-          this.drawRandomLines();
-
+        // Only proceed with the rest of the sequence if no answer has been given
+        if (!this.hasAnswered) {
           setTimeout(() => {
-            // Display final arrows for 500ms and enable interaction
-            this.drawBackground();
+            if (!this.hasAnswered) {
+              // Display random lines for 33ms
+              this.drawBackground();
+              this.drawRandomLines();
 
-            // Redraw the prime for consistency
-            this.drawPrime(midX, midY - (2 * this.arrowWingLength + 10), this.topFlankDirection);
-            this.drawPrime(midX, midY, this.correctDirection);
-            this.drawPrime(midX, midY + (2 * this.arrowWingLength + 10), this.bottomFlankDirection);
-
-            this.arrowDisplayTimeRef.current = Date.now();
-          }, 33);
-        }, this.state.primeTime);
+              setTimeout(() => {
+                if (!this.hasAnswered) {
+                  // Display final arrows for 500ms
+                  this.drawBackground();
+                  this.drawPrime(midX, midY - (2 * this.arrowWingLength + 10), this.topFlankDirection);
+                  this.drawPrime(midX, midY, this.correctDirection);
+                  this.drawPrime(midX, midY + (2 * this.arrowWingLength + 10), this.bottomFlankDirection);
+                }
+              }, 33);
+            }
+          }, this.state.primeTime);
+        }
       }, 200);
     }, 750);
   }
