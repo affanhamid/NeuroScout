@@ -169,6 +169,26 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
     }, 1000);
   };
 
+  getHUD() {
+    const shouldShowHUD = !this.state.showInstructions && 
+                         !this.state.showTrialComplete && 
+                         !this.state.showPracticeComplete && 
+                         !this.state.showThankYou &&
+                         !this.state.showCountdown;
+
+    if (!shouldShowHUD || this.showTimer === -1) return null;
+
+    return (
+      <div className="absolute top-10 right-10 text-white text-lg">
+        <span>
+          {this.state.isPractice
+            ? `Practice Trial: ${this.state.trial}`
+            : `Trial: ${this.state.trial}`}{" "}
+        </span>
+      </div>
+    );
+  }
+
   renderGame() {
     const canvas = this.canvasRef.current!;
     const ctx = this.ctxRef.current!;
