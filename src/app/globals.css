@@ -53,4 +53,8 @@
   .button-link {
     @apply px-3 py-2 bg-primary text-white rounded-lg text-4xl;
   }
+
+  .game-button {
+    @apply rounded-xl px-3 py-4 w-full text-white text-2xl font-semibold cursor-pointer transition shadow-md;
+  }
 }

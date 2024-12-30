@@ -13,15 +13,13 @@ const GameIntroduction = ({ gameInfo }: { gameInfo: GameType }) => {
 
   return (
     <div className="text-white flex flex-col gap-8 items-center">
-      <h1 className="text-6xl font-bold mb-10" aria-label={`${name} Title`}>
-        {name}
-      </h1>
-
-      <h2 className="text-2xl max-w-3xl text-center">{description}</h2>
-
-      <h2 className="text-2xl max-w-3xl text-center mb-16">
-        First, you will complete {practiceTrials} practice trials (not scored),
-        followed by {trials} main trials.
+      <h1 aria-label={`${name} Title`}>{name}</h1>
+      <h2 className="text-center max-w-3xl flex flex-col gap-10">
+        <span>{description}</span>
+        <span>
+          You will first complete {practiceTrials} practice trials (not scored),
+          followed by {trials} main trials.
+        </span>
       </h2>
     </div>
   );
