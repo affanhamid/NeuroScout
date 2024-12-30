@@ -58,6 +58,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   gameTimeout: ReturnType<typeof setTimeout> | null = null;
 
   rapidTrials = false;
+  getHUD = () => HTMLElement;
 
   constructor(props: GameProps) {
     super(props);
@@ -230,7 +231,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
     this.showTimer = 0;
   }
 
-  getHUD() {
+  getBaseHUD() {
     const shouldShowHUD =
       !this.state.showInstructions &&
       !this.state.showTrialComplete &&
@@ -242,10 +243,13 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
 
     return (
       <div className="absolute top-10 right-10 text-white text-lg">
-        {this.state.isPractice
-          ? `Practice Trial ${this.state.trial} of ${this.paramsRef.current!.practiceTrials}`
-          : `Trial ${this.state.trial} of ${this.paramsRef.current!.trials}`}{" "}
-        | Time Left: {this.showTimer}s
+        <div>
+          {this.state.isPractice
+            ? `Practice Trial ${this.state.trial} of ${this.paramsRef.current!.practiceTrials}`
+            : `Trial ${this.state.trial} of ${this.paramsRef.current!.trials}`}{" "}
+          {!this.rapidTrials && `| Time Left: ${this.showTimer}s`}
+        </div>
+        <div>{this.getHUD()}</div>
       </div>
     );
   }
@@ -314,7 +318,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
         {this.state.showThankYou && (
           <ThankYouDialog redirectLink={this.getNextgameId()} />
         )}
-        {this.getHUD()}
+        {this.getBaseHUD()}
       </main>
     );
   }
