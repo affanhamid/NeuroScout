@@ -1,4 +1,5 @@
 import React from "react";
+export const revalidate = 60;
 
 async function fetchData<T>(url: string): Promise<T> {
   const response = await fetch(url);
