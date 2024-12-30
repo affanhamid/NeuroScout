@@ -28,7 +28,6 @@ export class GlowBall extends Ball {
   }
 
   reset = () => {
-    console.log("resetting ball");
     this.isGlowed = false;
     this.glowIntensity = 0;
     this.shadowSize = 0;

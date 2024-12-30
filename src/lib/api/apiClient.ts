@@ -18,10 +18,11 @@ export const apiClient = async <T>(
     },
     body: body ? JSON.stringify(body) : undefined
   });
-  console.log(response);
+
+  const responseJSON = response.json();
 
   if (!response.ok) {
-    throw new Error(`API request failed: ${response}`);
+    throw new Error(`API request failed: ${responseJSON}`);
   }
 
   return response.json();

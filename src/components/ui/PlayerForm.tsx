@@ -27,12 +27,7 @@ const validationSchema = yup.object().shape({
     .required("Last name is required")
     .min(1, "Last name must have at least 1 character")
     .max(50, "Last name must have at most 50 characters"),
-  age: yup
-    .number()
-    .required("Age is required")
-    .typeError("Age must be a number")
-    .min(6, "Age must be at least 11")
-    .max(99, "Age must be less than 100"),
+  age: yup.string().required("Age is required"),
   position: yup.string().required("Position is required")
 });
 
