@@ -170,29 +170,9 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     this.yellowPointsRef.current = yellowPoints;
   }
 
-  getHUD() {
-    const shouldShowHUD = !this.state.showInstructions && 
-                         !this.state.showTrialComplete && 
-                         !this.state.showPracticeComplete && 
-                         !this.state.showThankYou &&
-                         !this.state.showCountdown;
-
-    if (!shouldShowHUD) return null;
-
-    return (
-      <div className="absolute top-10 right-10 text-white text-lg flex flex-col gap-2">
-        {this.showTimer != -1 && (
-          <span>
-          {this.state.isPractice
-            ? `Practice Trial ${this.state.trial} of ${this.paramsRef.current!.practiceTrials}`
-            : `Trial ${this.state.trial} of ${this.paramsRef.current!.trials}`}{" "}
-            | Time Left: {this.showTimer}s
-            | Total Shapes: {this.state.completedPolygons.size}
-          </span>
-        )}
-      </div>
-    );
-  }
+  getHUD = () => {
+    return <span>Completed Polygons: {this.state.completedPolygons.size}</span>;
+  };
 
   // Start the single animation loop
   startAnimationLoop() {
