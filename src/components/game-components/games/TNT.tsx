@@ -121,10 +121,7 @@ class TNT<
     return (
       <span>
         {this.showTimer === 0 && (
-          <button
-            className="text-xl rounded-full"
-            onClick={this.resetSelection}
-          >
+          <button className="text-xl mt-1" onClick={this.resetSelection}>
             Reset Selection
           </button>
         )}
