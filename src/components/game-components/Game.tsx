@@ -58,7 +58,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   gameTimeout: ReturnType<typeof setTimeout> | null = null;
 
   rapidTrials = false;
-  getHUD = () => HTMLElement;
+  getHUD = () => Element;
 
   constructor(props: GameProps) {
     super(props);

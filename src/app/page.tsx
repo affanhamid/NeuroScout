@@ -3,28 +3,26 @@ import Footer from "../components/ui/Footer";
 import Gallery from "../components/ui/Gallery";
 import { GameTypeWithId } from "@/types";
 import Link from "next/link";
+import Navbar from "@/components/ui/Navbar";
 
 export default function Home() {
   return (
     <main className="relative">
-      <section className="mb-10 pt-12">
-        <h1 className="text-center text-5xl mb-5 text-primary">NeuroScout</h1>
-        <p className="text-2xl text-bold text-center">
-          Optimising talent selection through cognitive insight
-        </p>
+      <Navbar />
+      <section>
+        <h1>NeuroScout</h1>
+        <h2>Optimising talent selection through cognitive insight</h2>
       </section>
-      <section className="pt-24 px-20 flex justify-center pb-16">
+      <section className="py-0">
         <DataProvider<GameTypeWithId[]> endpoint="games">
           {(games) => <Gallery games={games} />}
         </DataProvider>
       </section>
-      <section className="flex flex-col mb-11 items-center justify-center">
-        <div className="text-2xl mb-5">
-          Test your skills now by playing our games
-        </div>
+      <section>
+        <h2>Test your skills now by playing our games</h2>
         <Link
           href="https://neuroscout.co.uk/test/6765254294b4101df01adc7a"
-          className="px-3 py-2 bg-primary text-white rounded-lg text-4xl"
+          className="button-link"
         >
           Play Games
         </Link>

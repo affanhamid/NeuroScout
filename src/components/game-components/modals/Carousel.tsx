@@ -24,37 +24,51 @@ const Carousel = ({ instructions }: { instructions: Instructions }) => {
 
   return (
     <div>
+      {/* Read Instructions Button */}
       <button
-        className="rounded-full px-4 py-4 bg-gray-700 hover:bg-gray-600 active:bg-gray-800 text-white"
+        className="rounded-full px-6 py-3 bg-slate-700 text-white text-lg font-semibold hover:bg-slate-600 active:bg-slate-800 transition shadow-md"
         onClick={() => setShowInstructions(true)}
+        aria-label="Read Instructions"
       >
         Read Instructions
       </button>
+
+      {/* Instructions Modal */}
       {showInstructions && (
-        <div className="absolute top-0 left-0 right-0 bottom-0 px-60 flex justify-center items-center bg-game-background">
-          <div className="relative px-60">
-            <div className="absolute top-2 left-2">
-              <button
-                onClick={() => setShowInstructions(false)}
-                className="flex items-center justify-center bg-gray-800 hover:bg-gray-700 p-2 rounded-full"
-                aria-label="Back to Menu"
-              >
-                <XMarkIcon className="text-green-600 h-4 w-4" />
-              </button>
-            </div>
-            {instructions.length !== 0 && step < instructions.length && (
-              <Image
-                src={instructions[step].image}
-                alt={`Step ${step}`}
-                className="w-auto h-auto"
-                width={700}
-                height={400}
-              />
+        <div className="absolute inset-0 bg-game-background flex items-center justify-center">
+          <div className="relative w-[80%] max-w-4xl p-6 bg-gray-800 rounded-lg shadow-lg">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowInstructions(false)}
+              className="absolute top-4 right-4 flex items-center justify-center bg-gray-700 hover:bg-gray-600 p-2 rounded-full"
+              aria-label="Close Instructions"
+            >
+              <XMarkIcon className="text-white h-6 w-6" />
+            </button>
+
+            {/* Instruction Image */}
+            {instructions.length > 0 && step < instructions.length && (
+              <div className="flex flex-col items-center">
+                <Image
+                  src={instructions[step].image}
+                  alt={`Step ${step + 1}`}
+                  className="rounded-md shadow-md"
+                  width={700}
+                  height={400}
+                  priority
+                />
+                <p className="mt-4 text-white text-lg font-medium">
+                  Step {step + 1} of {instructions.length}
+                </p>
+              </div>
             )}
-            <div className="absolute left-0 right-0 top-[50%] transform -translate-y-[50%] flex justify-between">
+
+            {/* Navigation Controls */}
+            <div className="absolute left-4 right-4 bottom-4 flex justify-between items-center">
+              {/* Previous Button */}
               <button
                 onClick={() => handleClick(-1)}
-                className="text-green-500 bg-transparent cursor-pointer hover:text-green-400 active:text-green-600"
+                className="text-emerald-500 hover:text-emerald-400 active:text-emerald-600 transition"
                 aria-label="Previous Step"
               >
                 <svg
@@ -73,9 +87,10 @@ const Carousel = ({ instructions }: { instructions: Instructions }) => {
                 </svg>
               </button>
 
+              {/* Next Button */}
               <button
                 onClick={() => handleClick(1)}
-                className="text-green-500 bg-transparent cursor-pointer hover:text-green-400 active:text-green-600"
+                className="text-emerald-500 hover:text-emerald-400 active:text-emerald-600 transition"
                 aria-label="Next Step"
               >
                 <svg
