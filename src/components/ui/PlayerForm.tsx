@@ -27,7 +27,12 @@ const validationSchema = yup.object().shape({
     .required("Last name is required")
     .min(1, "Last name must have at least 1 character")
     .max(50, "Last name must have at most 50 characters"),
-  age: yup.string().required("Age is required"),
+  age: yup
+    .number()
+    .required("Age is required")
+    .typeError("Age must be a number")
+    .min(6, "Age must be at least 11")
+    .max(99, "Age must be less than 100"),
   position: yup.string().required("Position is required")
 });
 
@@ -82,17 +87,11 @@ const PlayerForm = ({
           register={register("lastName")}
           error={errors.lastName?.message}
         />
-        <Select
+        <Input
           id="age"
           label="Age"
           register={register("age")}
           error={errors.age?.message}
-          options={[
-            { value: "U9", label: "U9" },
-            { value: "U10", label: "U10" },
-            { value: "U11", label: "U11" },
-            { value: "U12", label: "U12" }
-          ]}
         />
         <Select
           id="position"
