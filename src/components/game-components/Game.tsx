@@ -48,21 +48,6 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   paramsRef: MutableRefObject<TParams | null> = { current: null };
   renderGame() {}
   gameId: string;
-  handleMouseClickDuringGame = (e: MouseEvent) => {
-    void e;
-  };
-  handleMouseClickAfterGame = (e: MouseEvent) => {
-    void e;
-  };
-  handleMouseMove = (e: MouseEvent) => {
-    void e;
-  };
-  handleMouseDown = (e: MouseEvent) => {
-    void e;
-  };
-  handleMouseUp = (e: MouseEvent) => {
-    void e;
-  };
   eventHandler: EventHandler | null = null;
 
   timerIntervalRef: MutableRefObject<NodeJS.Timeout | null> = { current: null };
@@ -117,6 +102,8 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
     this.ctxRef.current = this.canvasRef.current!.getContext("2d")!;
     this.canvasRef.current!.width = window.innerWidth;
     this.canvasRef.current!.height = window.innerHeight;
+    this.canvasRef.current!.setAttribute("tabindex", "0");
+    this.canvasRef.current!.focus();
     this.eventHandler = new EventHandler(this.canvasRef.current!);
   }
 
@@ -131,6 +118,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
       !prevState.isRunning &&
       this.state.isRunning
     ) {
+      this.canvasRef.current?.focus();
       this.renderGame();
       this.eventHandler?.removeAll();
       this.addEventListenersDuringGame();
@@ -214,7 +202,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
       } else if (this.state.trial !== 1) {
         this.setState({
           showTrialComplete: !this.rapidTrials,
-          showCountdown: this.rapidTrials,
+          isRunning: this.rapidTrials,
           showReset: false
         });
       }
@@ -239,20 +227,21 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   }
 
   getHUD() {
-    const shouldShowHUD = !this.state.showInstructions && 
-                         !this.state.showTrialComplete && 
-                         !this.state.showPracticeComplete && 
-                         !this.state.showThankYou &&
-                         !this.state.showCountdown;
+    const shouldShowHUD =
+      !this.state.showInstructions &&
+      !this.state.showTrialComplete &&
+      !this.state.showPracticeComplete &&
+      !this.state.showThankYou &&
+      !this.state.showCountdown;
 
     if (!shouldShowHUD || this.showTimer === -1) return null;
 
     return (
       <div className="absolute top-10 right-10 text-white text-lg">
-          {this.state.isPractice
-            ? `Practice Trial ${this.state.trial} of ${this.paramsRef.current!.practiceTrials}`
-            : `Trial ${this.state.trial} of ${this.paramsRef.current!.trials}`}{" "}
-          | Time Left: {this.showTimer}s
+        {this.state.isPractice
+          ? `Practice Trial ${this.state.trial} of ${this.paramsRef.current!.practiceTrials}`
+          : `Trial ${this.state.trial} of ${this.paramsRef.current!.trials}`}{" "}
+        | Time Left: {this.showTimer}s
       </div>
     );
   }
@@ -265,11 +254,11 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
 
   render() {
     const totalTrials: number = this.state.isPractice
-    ? (this.paramsRef.current!.practiceTrials as number)
-    : (this.paramsRef.current!.trials as number);
+      ? (this.paramsRef.current!.practiceTrials as number)
+      : (this.paramsRef.current!.trials as number);
     return (
-      <main>
-        <canvas ref={this.canvasRef} className="block" />
+      <main className="w-screen h-screen overflow-hidden">
+        <canvas ref={this.canvasRef} className="block" tabIndex={0} />
         {this.state.showCountdown && (
           <Countdown
             onCountdownEnd={() =>
@@ -328,4 +317,3 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
 }
 
 export default Game;
-

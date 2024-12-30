@@ -43,47 +43,6 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
     };
   }
 
-  // Override handleTrialCompletion from base Game class to ensure rapid-fire behavior
-  handleTrialCompletion() {
-    if (this.paramsRef.current?.duration) {
-      this.showTimer = this.paramsRef.current.duration;
-    }
-    
-    if (this.state.isPractice) {
-      if (this.state.trial === this.paramsRef.current!.practiceTrials + 1) {
-        this.setState({
-          trial: 1,
-          showPracticeComplete: true,
-          showReset: false,
-          isPractice: false
-        });
-      } else if (this.state.trial !== 1) {
-        // Always show countdown for rapid trials
-        this.setState({
-          showTrialComplete: false,
-          showCountdown: true,
-          showReset: false
-        });
-      }
-    } else {
-      if (this.state.trial === this.paramsRef.current!.trials + 1) {
-        this.onSubmit();
-        this.setState({
-          showThankYou: true,
-          showReset: false,
-          showCountdown: false
-        });
-      } else {
-        // Skip trial complete dialog and go straight to countdown
-        this.setState({
-          showTrialComplete: false,
-          showCountdown: true,
-          showReset: false
-        });
-      }
-    }
-  }
-
   drawRandomLines() {
     const ctx = this.ctxRef.current!;
     const canvas = this.canvasRef.current!;
@@ -124,7 +83,7 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
       const wingAngle = Math.PI / 6;
       const wingX = Math.cos(wingAngle) * this.arrowWingLength;
       const wingY = Math.sin(wingAngle) * this.arrowWingLength;
-            
+
       ctx.moveTo(endX, y);
       ctx.lineTo(endX + wingX, y - wingY);
       ctx.moveTo(endX, y);
@@ -134,11 +93,11 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
       const endX = x + this.arrowShaftLength / 2;
       ctx.moveTo(startX, y);
       ctx.lineTo(endX, y);
-      
+
       const wingAngle = Math.PI / 6;
       const wingX = Math.cos(wingAngle) * this.arrowWingLength;
       const wingY = Math.sin(wingAngle) * this.arrowWingLength;
-      
+
       ctx.moveTo(endX, y);
       ctx.lineTo(endX - wingX, y - wingY);
       ctx.moveTo(endX, y);
@@ -152,12 +111,13 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
   drawPrime = this.drawArrow;
 
   addEventListenersAfterGame = () => {
-    this.eventHandler!.add("click", this.handleMouseClickAfterGame);
+    this.eventHandler!.add("click", this.handleMouseClick);
+    this.eventHandler!.add("keydown", this.handleKeyPress);
+    this.eventHandler!.add("touchstart", this.handleTouchStart);
   };
 
-  handleMouseClickAfterGame = (event: MouseEvent) => {
+  handleMouseClick = (event: MouseEvent) => {
     if (this.hasAnswered) return;
-    
     this.hasAnswered = true;
     const canvas = this.canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
@@ -166,11 +126,53 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
 
     const reactionTime = Date.now() - this.arrowDisplayTimeRef.current;
     const clickedDirection = clickX < canvasMid ? "left" : "right";
+    this.checkAnswer(clickedDirection, reactionTime);
+  };
+
+  handleKeyPress = (event: KeyboardEvent) => {
+    if (this.hasAnswered) return;
+    const validKeys = ["ArrowLeft", "ArrowRight", "p", "q"];
+    if (!validKeys.includes(event.key)) return;
+
+    this.hasAnswered = true;
+    const reactionTime = Date.now() - this.arrowDisplayTimeRef.current;
+    let clickedDirection: "left" | "right";
+
+    if (event.key === "ArrowLeft" || event.key === "q") {
+      clickedDirection = "left";
+    } else if (event.key === "ArrowRight" || event.key === "p") {
+      clickedDirection = "right";
+    } else {
+      return; // Ignore other keys
+    }
+
+    this.checkAnswer(clickedDirection, reactionTime);
+  };
+
+  handleTouchStart = (event: TouchEvent) => {
+    if (this.hasAnswered) return;
+    this.hasAnswered = true;
+
+    const canvas = this.canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    const touchX = event.touches[0].clientX - rect.left;
+    const canvasMid = canvas.width / 2;
+
+    const reactionTime = Date.now() - this.arrowDisplayTimeRef.current;
+    const clickedDirection = touchX < canvasMid ? "left" : "right";
+    this.checkAnswer(clickedDirection, reactionTime);
+  };
+
+  checkAnswer = (clickedDirection: string, reactionTime: number) => {
     const isCorrect = clickedDirection === this.correctDirection;
 
     this.data.reactionTimes.push(reactionTime);
     this.data.accuracy.push(isCorrect ? 1 : 0);
-    
+    this.updateAnswer(isCorrect);
+  };
+
+  updateAnswer = (isCorrect: boolean) => {
+    const canvas = this.canvasRef.current!;
     this.drawBackground();
     const midX = canvas.width / 2;
     const midY = canvas.height / 2;
@@ -225,9 +227,17 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
               setTimeout(() => {
                 if (!this.hasAnswered) {
                   this.drawBackground();
-                  this.drawPrime(midX, midY - (2 * this.arrowWingLength + 10), this.topFlankDirection);
+                  this.drawPrime(
+                    midX,
+                    midY - (2 * this.arrowWingLength + 10),
+                    this.topFlankDirection
+                  );
                   this.drawPrime(midX, midY, this.correctDirection);
-                  this.drawPrime(midX, midY + (2 * this.arrowWingLength + 10), this.bottomFlankDirection);
+                  this.drawPrime(
+                    midX,
+                    midY + (2 * this.arrowWingLength + 10),
+                    this.bottomFlankDirection
+                  );
                 }
               }, 33);
             }
@@ -239,3 +249,4 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
 }
 
 export default ArrowGame;
+

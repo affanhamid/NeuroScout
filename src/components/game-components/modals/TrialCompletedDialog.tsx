@@ -17,10 +17,11 @@ const TrialCompleteDialog = ({
         <h2 className="text-5xl pb-10">Trial Completed</h2>
         <div className="text-center mb-8">
           <p className="text-2xl pb-2">
-            {isPractice ? 'Practice ' : ''}Trial {nextTrialNum - 1} of {totalTrials} completed
+            {isPractice && "Practice"} Trial {nextTrialNum - 1} of {totalTrials}{" "}
+            completed
           </p>
           <p className="text-xl text-gray-300">
-            Next up: {isPractice ? 'Practice ' : ''}Trial {nextTrialNum} of {totalTrials}
+            Next up: {isPractice && "Practice"} Trial {nextTrialNum}
           </p>
         </div>
         <div className="flex flex-col gap-5">
