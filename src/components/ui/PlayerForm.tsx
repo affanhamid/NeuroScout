@@ -11,6 +11,8 @@ import {
 import { apiClient } from "@/lib/api/apiClient";
 import { useRouter } from "next/navigation";
 import games from "../game-components";
+import Input from "./Input";
+import Select from "./Select";
 
 const validationSchema = yup.object().shape({
   firstName: yup
@@ -63,78 +65,62 @@ const PlayerForm = ({
   };
 
   return (
-    <main className="bg-game-background w-screen h-screen flex flex-col gap-20 justify-center items-center">
+    <main className="bg-[#000000] w-screen h-screen flex flex-col gap-20 justify-center items-center">
       <h1 className="text-white">NeuroScout Assessment Centre</h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="space-y-2 bg-white/5 w-120 border-2 border-white/20 text-gray-100 p-4 rounded-md shadow-md mx-auto"
+        className="space-y-2 bg-white/5 w-110 border-2 border-white/20 text-gray-100 p-4 rounded-md shadow-md mx-auto"
       >
-        <h2 className="text-xl text-center">
+        <h2 className="text-3xl py-3 text-center">
           Organisation: {organization.name}
         </h2>
-        <div>
-          <label htmlFor="firstName" className="block mb-1 font-semibold">
-            First Name
-          </label>
-          <input id="firstName" {...register("firstName")} />
-          {errors.firstName && (
-            <p className="text-red-400 mt-1 text-sm">
-              {errors.firstName.message}
-            </p>
-          )}
-        </div>
+        <Input
+          id="firstName"
+          label="First Name"
+          register={register("firstName")}
+          error={errors.firstName?.message}
+        />
 
-        <div>
-          <label htmlFor="lastName" className="block mb-1 font-semibold">
-            Last Name
-          </label>
-          <input id="lastName" {...register("lastName")} />
-          {errors.lastName && (
-            <p className="text-red-400 mt-1 text-sm">
-              {errors.lastName.message}
-            </p>
-          )}
-        </div>
+        <Input
+          id="lastName"
+          label="Last Name"
+          register={register("lastName")}
+          error={errors.lastName?.message}
+        />
+        <Select
+          id="age"
+          label="Age"
+          register={register("age")}
+          error={errors.age?.message}
+          options={[
+            { value: "U9", label: "U9" },
+            { value: "U10", label: "U10" },
+            { value: "U11", label: "U11" },
+            { value: "U12", label: "U12" }
+          ]}
+        />
+        <Select
+          id="position"
+          label="Position"
+          register={register("position")}
+          error={errors.position?.message}
+          options={[
+            { value: "Forward", label: "Forward" },
+            { value: "Midfielder", label: "Midfielder" },
+            { value: "Defender", label: "Defender" },
+            { value: "Goalkeeper", label: "Goalkeeper" },
+            { value: "N/A", label: "N/A" }
+          ]}
+        />
 
-        <div>
-          <label htmlFor="age" className="block mb-1 font-semibold">
-            Age
-          </label>
-          <input id="age" type="number" {...register("age")} />
-          {errors.age && (
-            <p className="text-red-400 mt-1 text-sm">{errors.age.message}</p>
-          )}
+        <div className="my-5 py-3 px-5 bg-primary/20 rounded-lg">
+          <h4 className="mb-2">Important Notice:</h4>
+          <ul className="list-disc px-4">
+            <li>Must complete assessment in one sitting</li>
+            <li>Estimated time to complete: 20 minutes</li>
+          </ul>
         </div>
-
-        <div>
-          <label htmlFor="position" className="block mb-1 font-semibold">
-            Position
-          </label>
-          <select id="position" {...register("position")}>
-            <option value="">Select Position</option>
-            <option value="Forward">Forward</option>
-            <option value="Midfielder">Midfielder</option>
-            <option value="Defender">Defender</option>
-            <option value="Goalkeeper">Goalkeeper</option>
-            <option value="N/A">N/A</option>
-          </select>
-          {errors.position && (
-            <p className="text-red-400 mt-1 text-sm">
-              {errors.position.message}
-            </p>
-          )}
-        </div>
-        <div className="mt-6">
-          <div className="bg-primary/30 p-3 rounded-md text-sm">
-            <p className="font-medium">Important Notice:</p>
-            <p>• Must complete assessment in one sitting</p>
-            <p>• Estimated time to complete: 20 minutes</p>
-          </div>
-        </div>
-        <button
-          type="submit"
-          className="bg-green-600 text-white rounded px-4 py-2 w-full hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600 text-xl mt-5"
-        >
+        <button type="submit" className="game-button rounded-lg py-2">
           Start Assessment
         </button>
       </form>
