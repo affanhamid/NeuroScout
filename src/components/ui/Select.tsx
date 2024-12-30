@@ -17,27 +17,17 @@ const Select: React.FC<SelectProps> = ({
   register,
   error
 }) => {
-  const [focused, setFocused] = useState(false);
-
   return (
     <div className="relative w-full mb-4">
-      <label
-        htmlFor={id}
-        className={`absolute left-3 top-2.5 text-white transition-all duration-300 ease-in-out pointer-events-none ${
-          focused || register?.value
-            ? "text-xs top-[-8px] bg-primary rounded-sm left-2 px-1"
-            : ""
-        }`}
-      >
-        {label}
-      </label>
       <select
         id={id}
         {...register}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        className=""
+        defaultValue=""
+        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
       >
+        <option value="" disabled>
+          Select {label}
+        </option>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
