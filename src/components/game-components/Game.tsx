@@ -83,7 +83,6 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
     this.stopTimer();
     this.setState({
       trial: this.paramsRef.current!.practiceTrials + 1,
-      isPractice: false,
       isRunning: false
     });
   };
