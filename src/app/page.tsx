@@ -20,10 +20,7 @@ export default function Home() {
       </section>
       <section>
         <h2 className="mb-10">Test your skills now by playing our games</h2>
-        <Link
-          href="https://neuroscout.co.uk/test/6765254294b4101df01adc7a"
-          className="button-link"
-        >
+        <Link href="/test/6765254294b4101df01adc7a" className="button-link">
           Play Games
         </Link>
       </section>

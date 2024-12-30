@@ -3,7 +3,6 @@
 @theme {
   /* Color Scheme */
   --color-game-background: #1b1b1b;
-  --color-background: linear-gradient(135deg, #0f172a, #1e293b);
   --color-primary: #a259ff;
   --color-primary-hover: #8f4bd4;
   --color-primary-active: #703db0;
@@ -40,12 +39,21 @@
     @apply text-gray-200 text-2xl font-bold;
   }
 
+  h4 {
+    @apply text-xl font-bold;
+  }
+
   section {
     @apply py-16 px-20 text-center;
   }
 
   p {
     @apply text-lg mb-5;
+  }
+
+  input,
+  select {
+    @apply border border-gray-600 rounded p-2 w-full bg-white/20 text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary;
   }
 }
 

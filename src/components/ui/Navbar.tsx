@@ -20,7 +20,10 @@ const Navbar = () => {
           >
             View Research
           </Link>
-          <Link href="/" className=" text-lg button-link">
+          <Link
+            href="/test/6765254294b4101df01adc7a"
+            className=" text-lg button-link"
+          >
             Play Games
           </Link>
         </div>
