@@ -26,11 +26,11 @@ const Carousel = ({ instructions }: { instructions: Instructions }) => {
     <div>
       {/* Read Instructions Button */}
       <button
-        className="rounded-full px-6 py-3 bg-slate-700 text-white text-lg font-semibold hover:bg-slate-600 active:bg-slate-800 transition shadow-md"
+        className="bg-slate-600 hover:bg-slate-700 game-button"
         onClick={() => setShowInstructions(true)}
         aria-label="Read Instructions"
       >
-        Read Instructions
+        Instructions
       </button>
 
       {/* Instructions Modal */}

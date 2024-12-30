@@ -19,27 +19,24 @@ const InstructionDialog = ({
       <GameIntroduction gameInfo={gameInfo} />
 
       {/* Buttons Section */}
-      <div className="flex flex-col items-center gap-4 mt-8">
-        {/* Start Game Button */}
+      <div className="flex flex-col items-center gap-4 mt-16">
         <button
-          className="rounded-full px-6 py-4 bg-[#A259FF] text-white text-xl font-semibold hover:bg-[#8F4BD4] active:bg-[#703DB0] transition shadow-md"
+          className="bg-primary hover:bg-primary/80 game-button"
           onClick={onStart}
           aria-label="Start Game Button"
         >
           Start Game
         </button>
-
-        {/* Show Instructions Button */}
-        <Carousel instructions={instructions} />
-
-        {/* Skip Practice Button */}
-        <button
-          onClick={skipPractice}
-          className="rounded-full px-6 py-4 bg-[#6B6B6B] text-white text-xl font-semibold hover:bg-[#5A5A5A] active:bg-[#4A4A4A] transition shadow-md"
-          aria-label="Skip Practice Button"
-        >
-          Skip Practice
-        </button>
+        <div className="mt-3 flex gap-5">
+          <Carousel instructions={instructions} />
+          <button
+            onClick={skipPractice}
+            className="bg-slate-600 hover:bg-slate-700 game-button"
+            aria-label="Skip Practice Button"
+          >
+            Skip Practice
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import logo from "../../../public/logo.png";
 
 const Navbar = () => {
   return (
-    <nav className="flex px-64 pt-5 justify-center">
+    <nav className="flex px-40 xl:px-64 pt-5 justify-center">
       <div className="flex w-full border border-white/20 rounded-lg px-10">
         <div className="flex-1">
           <Link href="/">
