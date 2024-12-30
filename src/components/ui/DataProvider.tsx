@@ -19,6 +19,7 @@ export default async function DataProvider<TData>({
 }: DataProviderProps<TData>) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const data = await fetchData<{ data: TData }>(`${baseUrl}/api/${endpoint}`);
+  console.log(data.data);
 
   return <>{children(data.data)}</>;
 }
