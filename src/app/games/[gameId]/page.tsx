@@ -9,7 +9,10 @@ async function page({ params }: { params: Promise<{ gameId: string }> }) {
   const SelectedGame = games[gameId as keyof typeof games];
   return (
     <DataProvider<GameType> endpoint={`games/${gameId}`}>
-      {(game) => <SelectedGame gameId={gameId} gameInfo={game} />}
+      {(game) => {
+        game.instructions = game.instructions.sort((a, b) => a.step - b.step);
+        return <SelectedGame gameId={gameId} gameInfo={game} />;
+      }}
     </DataProvider>
   );
 }

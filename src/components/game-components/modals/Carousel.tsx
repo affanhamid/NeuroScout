@@ -12,6 +12,7 @@ type Instruction = {
 export type Instructions = Instruction[];
 
 const Carousel = ({ instructions }: { instructions: Instructions }) => {
+  console.log(instructions);
   const [step, setStep] = useState(0);
   const [showInstructions, setShowInstructions] = useState(false);
 
@@ -36,11 +37,11 @@ const Carousel = ({ instructions }: { instructions: Instructions }) => {
       {/* Instructions Modal */}
       {showInstructions && (
         <div className="absolute inset-0 bg-game-background flex items-center justify-center">
-          <div className="relative w-[80%] max-w-4xl p-6 bg-gray-800 rounded-lg shadow-lg">
+          <div className="relative w-[80%] max-w-4xl p-6 rounded-lg ">
             {/* Close Button */}
             <button
               onClick={() => setShowInstructions(false)}
-              className="absolute top-4 right-4 flex items-center justify-center bg-gray-700 hover:bg-gray-600 p-2 rounded-full"
+              className="absolute top-4 right-4 cursor-pointer z-30 flex items-center justify-center bg-gray-700 hover:bg-gray-600 p-2 rounded-full"
               aria-label="Close Instructions"
             >
               <XMarkIcon className="text-white h-6 w-6" />
@@ -52,7 +53,6 @@ const Carousel = ({ instructions }: { instructions: Instructions }) => {
                 <Image
                   src={instructions[step].image}
                   alt={`Step ${step + 1}`}
-                  className="rounded-md shadow-md"
                   width={700}
                   height={400}
                   priority
@@ -64,12 +64,12 @@ const Carousel = ({ instructions }: { instructions: Instructions }) => {
             )}
 
             {/* Navigation Controls */}
-            <div className="absolute left-4 right-4 bottom-4 flex justify-between items-center">
+            <div className="absolute left-4 right-4 bottom-4 top-4 flex justify-between items-center">
               {/* Previous Button */}
               <button
                 onClick={() => handleClick(-1)}
-                className="text-emerald-500 hover:text-emerald-400 active:text-emerald-600 transition"
                 aria-label="Previous Step"
+                className="cursor-pointer"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -90,8 +90,8 @@ const Carousel = ({ instructions }: { instructions: Instructions }) => {
               {/* Next Button */}
               <button
                 onClick={() => handleClick(1)}
-                className="text-emerald-500 hover:text-emerald-400 active:text-emerald-600 transition"
                 aria-label="Next Step"
+                className="cursor-pointer"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
