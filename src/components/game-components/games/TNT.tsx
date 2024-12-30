@@ -118,11 +118,12 @@ class TNT<
   };
 
   getHUD() {
-    const shouldShowHUD = !this.state.showInstructions && 
-    !this.state.showTrialComplete && 
-    !this.state.showPracticeComplete && 
-    !this.state.showThankYou &&
-    !this.state.showCountdown;
+    const shouldShowHUD =
+      !this.state.showInstructions &&
+      !this.state.showTrialComplete &&
+      !this.state.showPracticeComplete &&
+      !this.state.showThankYou &&
+      !this.state.showCountdown;
 
     if (!shouldShowHUD) return null;
 
@@ -195,16 +196,8 @@ class TNT<
     return { score: score, wrongBalls: wrongBalls, correctBalls: correctBalls };
   };
 
-  addEventListenersDuringGame = () => {
-    this.eventHandler!.add("click", this.handleMouseClickDuringGame);
-  };
-
   addEventListenersAfterGame = () => {
     this.eventHandler!.add("click", this.handleMouseClickAfterGame);
-  };
-
-  handleMouseClickDuringGame = (event: MouseEvent) => {
-    void event;
   };
 
   handleMouseClickAfterGame = (event: MouseEvent) => {

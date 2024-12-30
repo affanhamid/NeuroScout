@@ -21,11 +21,11 @@ const Gallery = async ({ games }: { games: GameTypeWithId[] }) => {
                 alt={gameItem.name}
               />
             </Link>
-            <div className="text-center space-y-6">
-              <h3 className="text-gray-600 text-3xl font-bold">
+            <div className="text-center">
+              <h3 className="text-gray-600 text-2xl font-bold">
                 {gameItem.name}
               </h3>
-              <p className="text-gray-600 text-xl">{gameItem.description}</p>
+              <p className="text-gray-600 text-lg">{gameItem.description}</p>
             </div>
           </div>
         ))}

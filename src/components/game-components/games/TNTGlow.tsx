@@ -47,6 +47,10 @@ class TNTGlowGame extends TNT<TNTGlowParams, TNTGlowGameData, GlowBall> {
     );
   };
 
+  addEventListenersDuringGame = () => {
+    this.eventHandler!.add("click", this.handleMouseClickDuringGame);
+  };
+
   handleMouseClickDuringGame = (event: MouseEvent) => {
     const rect = this.canvasRef.current!.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;

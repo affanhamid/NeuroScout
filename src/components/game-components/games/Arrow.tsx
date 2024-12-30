@@ -191,6 +191,29 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
     }, 1000);
   };
 
+  getHUD() {
+    const shouldShowHUD =
+      !this.state.showInstructions &&
+      !this.state.showTrialComplete &&
+      !this.state.showPracticeComplete &&
+      !this.state.showThankYou &&
+      !this.state.showCountdown;
+
+    if (!shouldShowHUD) return null;
+
+    return (
+      <div className="absolute top-10 right-10 text-white text-lg flex flex-col gap-2">
+        {this.showTimer != -1 && (
+          <span>
+            {this.state.isPractice
+              ? `Practice Trial ${this.state.trial} of ${this.paramsRef.current!.practiceTrials}`
+              : `Trial ${this.state.trial} of ${this.paramsRef.current!.trials}`}{" "}
+          </span>
+        )}
+      </div>
+    );
+  }
+
   renderGame() {
     const canvas = this.canvasRef.current!;
     const ctx = this.ctxRef.current!;
