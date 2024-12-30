@@ -79,7 +79,8 @@ export const detectPolygons = (
   lines: Line[],
   completedPolygons: Set<string>,
   onPolygonDetected: (newPolygonKey: string, polygon: Set<Point>) => void,
-  onDuplicatePolygon: (polygonKey: string, polygon: Set<Point>) => void
+  onDuplicatePolygon: (polygon: Set<Point>) => void,
+  onCyclicPolygonDetected: (polygon: Set<Point>) => void
 ): Set<Point> | null => {
   const adjList = new Map<Point, Set<Point>>();
   const detectedPolygons: Set<Point>[] = [];
@@ -106,7 +107,8 @@ export const detectPolygons = (
         const polygonArray = Array.from(polygon);
 
         if (!isSimplePolygon(polygonArray)) {
-          return; // Skip invalid polygon
+          onCyclicPolygonDetected(polygon);
+          return;
         }
 
         const polygonKey = serializePolygon(polygon);
@@ -115,7 +117,7 @@ export const detectPolygons = (
           // Notify about the newly detected polygon
           onPolygonDetected(polygonKey, polygon);
         } else {
-          onDuplicatePolygon(polygonKey, polygon);
+          onDuplicatePolygon(polygon);
         }
         return;
       }

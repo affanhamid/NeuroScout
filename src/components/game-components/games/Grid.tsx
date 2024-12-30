@@ -2,7 +2,13 @@
 
 import Game, { BaseGameParams, GameProps, GameState } from "../Game";
 import { MutableRefObject } from "react";
-import { Point, Line, detectPolygons, highlightAndFadePolygon } from "../utils";
+import {
+  Point,
+  Line,
+  detectPolygons,
+  highlightAndFadePolygon,
+  PolygonType
+} from "../utils";
 
 const HIGHLIGHT_COLOR = "#FFFF00";
 const FADED_COLOR = "rgba(255, 255, 255, 0.2)";
@@ -171,7 +177,23 @@ class GridGame extends Game<GridGameData, GridGameParams> {
   }
 
   getHUD = () => {
-    return <span>Completed Polygons: {this.state.completedPolygons.size}</span>;
+    return this.state.isRunning ? (
+      <div className="flex flex-col">
+        <span>Completed Polygons: {this.state.completedPolygons.size}</span>
+        <span>
+          <button onClick={this.resetLines} className="text-xl w-full mt-3">
+            Reset Lines
+          </button>
+        </span>
+      </div>
+    ) : (
+      <div></div>
+    );
+  };
+
+  resetLines = () => {
+    this.linesRef.current = [];
+    this.currentLineStartRef.current = null;
   };
 
   // Start the single animation loop
@@ -248,6 +270,9 @@ class GridGame extends Game<GridGameData, GridGameParams> {
       this.yellowPointsRef.current.forEach((point) => {
         const distance = this.calculateDistance({ x, y }, point);
         if (distance <= this.interactivityRadius) {
+          if (this.currentLineStartRef.current == point) {
+            return;
+          }
           const newLine = new Line(start, point);
 
           // Avoid duplicate lines
@@ -259,34 +284,9 @@ class GridGame extends Game<GridGameData, GridGameParams> {
             detectPolygons(
               this.linesRef.current,
               this.state.completedPolygons,
-              (newPolygonKey, newPolygon) => {
-                const updatedPolygons = new Set<string>(
-                  this.state.completedPolygons
-                );
-                updatedPolygons.add(newPolygonKey);
-                this.setState({
-                  completedPolygons: updatedPolygons
-                } as GridGameState);
-
-                // Highlight and fade the polygon
-                highlightAndFadePolygon(newPolygon, this.linesRef.current);
-                setTimeout(() => {
-                  this.linesRef.current = [];
-                }, 500);
-              },
-              (polygonKey, polygon) => {
-                void polygonKey;
-                // Highlight duplicate polygons in red
-                highlightAndFadePolygon(
-                  polygon,
-                  this.linesRef.current,
-                  "#FF0000"
-                );
-
-                setTimeout(() => {
-                  this.linesRef.current = [];
-                }, 500);
-              }
+              this.newPolygonDetected,
+              this.duplicatePolygonDetected,
+              this.nonCyclicPolygonDetected
             );
           }
         }
@@ -297,6 +297,33 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     this.drawBackground();
     this.drawGrid();
     this.drawLine();
+  };
+
+  newPolygonDetected = (newPolygonKey: string, newPolygon: PolygonType) => {
+    const updatedPolygons = new Set<string>(this.state.completedPolygons);
+    updatedPolygons.add(newPolygonKey);
+    this.setState({
+      completedPolygons: updatedPolygons
+    } as GridGameState);
+
+    // Highlight and fade the polygon
+    highlightAndFadePolygon(newPolygon, this.linesRef.current);
+    setTimeout(() => {
+      this.linesRef.current = [];
+    }, 100);
+  };
+
+  duplicatePolygonDetected = (polygon: PolygonType) => {
+    // Highlight duplicate polygons in red
+    highlightAndFadePolygon(polygon, this.linesRef.current, "#FF0000");
+
+    setTimeout(() => {
+      this.linesRef.current = [];
+    }, 100);
+  };
+
+  nonCyclicPolygonDetected = (polygon: PolygonType) => {
+    this.duplicatePolygonDetected(polygon);
   };
 
   handleInteractionEnd = () => {

@@ -12,7 +12,6 @@ type Instruction = {
 export type Instructions = Instruction[];
 
 const Carousel = ({ instructions }: { instructions: Instructions }) => {
-  console.log(instructions);
   const [step, setStep] = useState(0);
   const [showInstructions, setShowInstructions] = useState(false);
 

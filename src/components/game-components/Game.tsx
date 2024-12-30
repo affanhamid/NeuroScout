@@ -232,24 +232,21 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   }
 
   getBaseHUD() {
-    const shouldShowHUD =
-      !this.state.showInstructions &&
-      !this.state.showTrialComplete &&
-      !this.state.showPracticeComplete &&
-      !this.state.showThankYou &&
-      !this.state.showCountdown;
-
-    if (!shouldShowHUD || this.showTimer === -1) return null;
-
     return (
       <div className="absolute top-10 right-10 text-white text-lg">
-        <div>
-          {this.state.isPractice
-            ? `Practice Trial ${this.state.trial} of ${this.paramsRef.current!.practiceTrials}`
-            : `Trial ${this.state.trial} of ${this.paramsRef.current!.trials}`}{" "}
-        </div>
-        <div>{!this.rapidTrials && `Time Left: ${this.showTimer}s`}</div>
-        <div>{this.getHUD()}</div>
+        {this.showTimer === 0 ? (
+          <div className="mb-4">
+            <span>
+              {this.state.isPractice
+                ? `Practice Trial ${this.state.trial} of ${this.paramsRef.current!.practiceTrials}`
+                : `Trial ${this.state.trial} of ${this.paramsRef.current!.trials}`}{" "}
+            </span>
+          </div>
+        ) : (
+          ""
+        )}
+
+        <span className="mt-3">{this.getHUD()}</span>
       </div>
     );
   }
@@ -266,7 +263,11 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
       : (this.paramsRef.current!.trials as number);
     return (
       <main className="w-screen h-screen overflow-hidden">
-        <canvas ref={this.canvasRef} className="block" tabIndex={0} />
+        <canvas
+          ref={this.canvasRef}
+          className="block outline-none"
+          tabIndex={0}
+        />
         {this.state.showCountdown && (
           <Countdown
             onCountdownEnd={() =>
