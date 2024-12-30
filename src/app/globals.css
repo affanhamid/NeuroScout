@@ -19,8 +19,11 @@
 }
 
 @layer base {
+  body {
+    @apply overscroll-y-none h-max overflow-hidden;
+  }
   main {
-    @apply bg-gradient-to-br from-[#1b1b1b] to-[#2a1d3e] text-white overflow-hidden overscroll-none;
+    @apply bg-gradient-to-br from-[#1b1b1b] to-[#2a1d3e] text-white h-screen overflow-scroll overscroll-y-none;
   }
 
   button {
