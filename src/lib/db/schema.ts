@@ -29,12 +29,8 @@ export const PlayerSchema = new Schema(
       maxlength: 50 // Optional: Limit name length for validation
     },
     age: {
-      type: Number,
-      required: true,
-      validate: {
-        validator: (val: number) => val > 10 && val < 100,
-        message: "Age must be between 10 and 99"
-      }
+      type: String,
+      required: true
     },
     position: {
       type: String,
