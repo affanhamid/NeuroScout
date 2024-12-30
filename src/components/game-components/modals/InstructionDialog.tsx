@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { HomeIcon } from "@heroicons/react/24/outline";
 import Carousel from "./Carousel";
 import GameIntroduction from "./GameIntroduction";
 import { GameType } from "@/types";
@@ -13,27 +11,38 @@ const InstructionDialog = ({
   onStart: () => void;
   skipPractice: () => void;
 }) => {
+  const instructions = gameInfo.instructions || []; // Fallback for instructions
+
   return (
-    <div className="bg-game-background absolute top-0 left-0 right-0 bottom-0 flex flex-col items-center justify-center">
-  
+    <div className="bg-game-background absolute inset-0 flex flex-col items-center justify-center p-8">
+      {/* Game Introduction Section */}
       <GameIntroduction gameInfo={gameInfo} />
 
-      <button
-        className="mb-5 rounded-full px-4 py-4 bg-green-700 hover:bg-green-600 active:bg-green-600 text-white"
-        onClick={onStart}
-      >
-        Start Game
-      </button>
-      <Carousel instructions={gameInfo.instructions} />
-      <button
-        onClick={skipPractice}
-        className="mt-10 text-3xl rounded-full bg-blue-500"
-      >
-        Skip Practice
-      </button>
+      {/* Buttons Section */}
+      <div className="flex flex-col items-center gap-4 mt-8">
+        {/* Start Game Button */}
+        <button
+          className="rounded-full px-6 py-4 bg-[#A259FF] text-white text-xl font-semibold hover:bg-[#8F4BD4] active:bg-[#703DB0] transition shadow-md"
+          onClick={onStart}
+          aria-label="Start Game Button"
+        >
+          Start Game
+        </button>
+
+        {/* Show Instructions Button */}
+        <Carousel instructions={instructions} />
+
+        {/* Skip Practice Button */}
+        <button
+          onClick={skipPractice}
+          className="rounded-full px-6 py-4 bg-[#6B6B6B] text-white text-xl font-semibold hover:bg-[#5A5A5A] active:bg-[#4A4A4A] transition shadow-md"
+          aria-label="Skip Practice Button"
+        >
+          Skip Practice
+        </button>
+      </div>
     </div>
   );
 };
 
 export default InstructionDialog;
-
