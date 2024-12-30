@@ -20,7 +20,7 @@
 
 @layer base {
   main {
-    @apply bg-gradient-to-br from-[#1b1b1b] to-[#2a1d3e] text-white overflow-hidden;
+    @apply bg-gradient-to-br from-[#1b1b1b] to-[#2a1d3e] text-white overflow-hidden overscroll-none;
   }
 
   button {
