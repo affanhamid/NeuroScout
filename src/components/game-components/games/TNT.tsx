@@ -117,18 +117,6 @@ class TNT<
     this.update(0);
   };
 
-  getHUD = () => {
-    return (
-      <span>
-        {this.showTimer === 0 && (
-          <button className="text-xl mt-1" onClick={this.resetSelection}>
-            Reset Selection
-          </button>
-        )}
-      </span>
-    );
-  };
-
   renderGame() {
     this.setup();
     let lastTimestamp = 0;
@@ -194,6 +182,12 @@ class TNT<
       const distance = Math.sqrt(dx * dx + dy * dy);
 
       if (distance < ball.radius) {
+        if (this.clickedBallsRef.current.has(index)) {
+          this.clickedBallsRef.current.delete(index);
+          this.highlightedBallsRef.current! =
+            this.highlightedBallsRef.current!.filter((el) => el !== index);
+          return;
+        }
         this.clickedBallsRef.current!.add(index);
         this.highlightedBallsRef.current!.push(index);
 
