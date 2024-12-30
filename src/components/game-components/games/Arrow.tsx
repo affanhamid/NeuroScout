@@ -31,6 +31,7 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
   arrowShaftLength = 100;
   arrowWingLength = 20;
   lineWidth = 3;
+  plusSize = 50;
   topFlankDirection: "left" | "right" = "right";
   bottomFlankDirection: "left" | "right" = "right";
   hasAnswered: boolean = false;
@@ -191,6 +192,40 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
     }, 1000);
   };
 
+  drawPlus() {
+    const canvas = this.canvasRef.current!;
+    const ctx = this.ctxRef.current!;
+    const midX = canvas.width / 2;
+    const midY = canvas.height / 2;
+
+    // Set the fill color for the plus sign
+    ctx.fillStyle = "white";
+
+    // Calculate the dimensions of the horizontal and vertical bars
+    const barThickness = this.plusSize / 10; // Thickness of the bars
+    const halfSize = this.plusSize / 2;
+
+    // Adjust Y-coordinate for proper centering
+    const verticalBarTop = midY - halfSize;
+    const horizontalBarTop = midY - barThickness / 2;
+
+    // Draw the vertical bar
+    ctx.fillRect(
+      midX - barThickness / 2,
+      verticalBarTop,
+      barThickness,
+      this.plusSize
+    );
+
+    // Draw the horizontal bar
+    ctx.fillRect(
+      midX - halfSize,
+      horizontalBarTop,
+      this.plusSize,
+      barThickness
+    );
+  }
+
   renderGame() {
     const canvas = this.canvasRef.current!;
     const ctx = this.ctxRef.current!;
@@ -203,10 +238,9 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
 
     // Display sequence
     this.drawBackground();
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = "48px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("+", midX, midY);
+
+    // Draw the centered plus sign
+    this.drawPlus();
 
     setTimeout(() => {
       this.drawBackground();
@@ -214,7 +248,14 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
 
       setTimeout(() => {
         this.drawBackground();
+        // Draw the prime arrow in the center
         this.drawPrime(midX, midY, this.correctDirection);
+
+        // Add offsets for flanking arrows
+        const flankOffset = this.arrowShaftLength + 20; // Space between arrows
+        this.drawPrime(midX, midY - flankOffset, this.topFlankDirection);
+        this.drawPrime(midX, midY + flankOffset, this.bottomFlankDirection);
+
         this.arrowDisplayTimeRef.current = Date.now();
         this.addEventListenersAfterGame();
 
