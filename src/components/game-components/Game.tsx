@@ -58,7 +58,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   gameTimeout: ReturnType<typeof setTimeout> | null = null;
 
   rapidTrials = false;
-  getHUD = () => Element;
+  getHUD = (): JSX.Element => <div></div>;
 
   constructor(props: GameProps) {
     super(props);
@@ -245,10 +245,10 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
       <div className="absolute top-10 right-10 text-white text-lg">
         <div>
           {this.state.isPractice
-            ? `Practice Trial ${this.state.trial} of ${this.paramsRef.current!.practiceTrials}`
-            : `Trial ${this.state.trial} of ${this.paramsRef.current!.trials}`}{" "}
-          {!this.rapidTrials && `| Time Left: ${this.showTimer}s`}
+            ? `Practice Trial ${this.state.trial} / ${this.paramsRef.current!.practiceTrials}`
+            : `Trial ${this.state.trial} / ${this.paramsRef.current!.trials}`}{" "}
         </div>
+        <div>{!this.rapidTrials && `Time Left: ${this.showTimer}s`}</div>
         <div>{this.getHUD()}</div>
       </div>
     );
