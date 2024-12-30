@@ -5,7 +5,8 @@ dotenv.config({ path: ".env.local" });
 
 export const connect = async () => {
   await mongoose.connect(process.env.DOCUMENT_URI as string, {
-    autoIndex: true
+    autoIndex: true,
+    readPreference: "primary"
   });
 };
 
