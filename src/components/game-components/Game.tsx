@@ -215,7 +215,11 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
           showCountdown: false
         });
       } else {
-        this.setState({ showTrialComplete: true, showReset: false });
+        this.setState({
+          showTrialComplete: !this.rapidTrials,
+          isRunning: this.rapidTrials,
+          showReset: false
+        });
       }
     }
   }
