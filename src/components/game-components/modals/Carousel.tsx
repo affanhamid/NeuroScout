@@ -57,14 +57,11 @@ const Carousel = ({ instructions }: { instructions: Instructions }) => {
                   height={400}
                   priority
                 />
-                <p className="mt-4 text-white text-lg font-medium">
-                  Step {step + 1} of {instructions.length}
-                </p>
               </div>
             )}
 
             {/* Navigation Controls */}
-            <div className="absolute left-4 right-4 bottom-4 top-4 flex justify-between items-center">
+            <div className="absolute left-0 right-0 bottom-4 top-4 flex justify-between items-center">
               {/* Previous Button */}
               <button
                 onClick={() => handleClick(-1)}
