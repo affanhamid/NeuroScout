@@ -44,7 +44,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
 > {
   canvasRef = createRef<HTMLCanvasElement>();
   ctxRef: MutableRefObject<CanvasRenderingContext2D | null> = { current: null };
-  animationFrameIdRef = createRef<number>();
+  animationFrameIdRef: MutableRefObject<number | null> = { current: 0 };
   paramsRef: MutableRefObject<TParams | null> = { current: null };
   renderGame() {}
   gameId: string;
@@ -59,6 +59,9 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
 
   rapidTrials = false;
   getHUD = (): JSX.Element => <div></div>;
+  animate = (timestamp: number) => {
+    void timestamp;
+  };
 
   constructor(props: GameProps) {
     super(props);
@@ -88,7 +91,8 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   };
 
   onSubmit = async () => {
-    const playerId = sessionStorage.getItem("playerId");
+    const playerId =
+      sessionStorage.getItem("playerId") || "6773dbc4add5c628e515c538";
     if (!playerId || !this.gameId || !this.data) {
       return;
     }
@@ -170,6 +174,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
 
   componentWillUnmount() {
     this.stopTimer();
+    this.stopAnimationLoop();
 
     // Cancel animation frame
     if (this.animationFrameIdRef.current) {
@@ -225,6 +230,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   }
 
   resetGame() {
+    this.stopAnimationLoop();
     this.setState({ isRunning: false });
     this.stopTimer();
     this.showTimer = 0;
@@ -254,6 +260,19 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
     const thisGameIndex = games.findIndex((gameId) => gameId === this.gameId);
     if (thisGameIndex === -1 || thisGameIndex === games.length - 1) return "/";
     return games[thisGameIndex + 1];
+  }
+
+  startAnimationLoop() {
+    if (!this.animationFrameIdRef.current) {
+      this.animationFrameIdRef.current = requestAnimationFrame(this.animate);
+    }
+  }
+
+  stopAnimationLoop() {
+    if (this.animationFrameIdRef.current) {
+      cancelAnimationFrame(this.animationFrameIdRef.current);
+      this.animationFrameIdRef.current = null;
+    }
   }
 
   render() {

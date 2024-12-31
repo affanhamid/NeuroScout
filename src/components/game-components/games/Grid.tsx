@@ -23,7 +23,7 @@ type PointType = {
 };
 
 export type GridGameData = {
-  polygons: string[];
+  polygons: Set<string>[];
 };
 
 type GridGameParams = BaseGameParams & {};
@@ -48,9 +48,6 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     current: null
   };
   linesRef: MutableRefObject<Line[]> = { current: [] };
-
-  // Polygons
-  animationFrameId: number | null = null;
 
   state: GridGameState = {
     ...this.state,
@@ -196,29 +193,14 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     this.currentLineStartRef.current = null;
   };
 
-  // Start the single animation loop
-  startAnimationLoop() {
-    const animate = () => {
-      this.drawBackground();
-      this.drawGrid();
-      this.drawLine(); // Draw all lines, including faded ones
+  animate = () => {
+    if (!this.canvasRef.current) return;
+    this.drawBackground();
+    this.drawGrid();
+    this.drawLine();
 
-      // Continue the animation loop
-      this.animationFrameId = requestAnimationFrame(animate);
-    };
-
-    // Start the loop
-    if (!this.animationFrameId) {
-      this.animationFrameId = requestAnimationFrame(animate);
-    }
-  }
-
-  stopAnimationLoop() {
-    if (this.animationFrameId) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
-    }
-  }
+    this.animationFrameIdRef.current = requestAnimationFrame(this.animate);
+  };
 
   getInteractionPos = (event: MouseEvent | TouchEvent) => {
     const rect = this.canvasRef.current!.getBoundingClientRect();
@@ -302,6 +284,7 @@ class GridGame extends Game<GridGameData, GridGameParams> {
   newPolygonDetected = (newPolygonKey: string, newPolygon: PolygonType) => {
     const updatedPolygons = new Set<string>(this.state.completedPolygons);
     updatedPolygons.add(newPolygonKey);
+    console.log(updatedPolygons);
     this.setState({
       completedPolygons: updatedPolygons
     } as GridGameState);
@@ -336,10 +319,7 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     this.mousePosRef.current = null;
     this.linesRef.current = [];
     this.data = {
-      polygons: [
-        ...this.data.polygons,
-        ...this.state.completedPolygons
-      ]
+      polygons: [...this.data.polygons, this.state.completedPolygons]
     };
     super.resetGame();
     this.setState({
