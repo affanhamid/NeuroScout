@@ -1,4 +1,4 @@
-import { Point } from "./Point";
+import { Point, Polygon } from "./Point";
 import { Line } from "./Line";
 
 const doLinesIntersect = (
@@ -77,13 +77,21 @@ const isSimplePolygon = (polygon: Point[]): boolean => {
 
 export const detectPolygons = (
   lines: Line[],
-  completedPolygons: Set<string>,
-  onPolygonDetected: (newPolygonKey: string, polygon: Set<Point>) => void,
-  onDuplicatePolygon: (polygon: Set<Point>) => void,
-  onCyclicPolygonDetected: (polygon: Set<Point>) => void
+  completedPolygons: Polygon[],
+  onPolygonDetected: (polygon: Polygon) => void,
+  onDuplicatePolygon: (polygon: Polygon) => void,
+  onCyclicPolygonDetected: (polygon: Polygon) => void
 ): Set<Point> | null => {
   const adjList = new Map<Point, Set<Point>>();
-  const detectedPolygons: Set<Point>[] = [];
+  const detectedPolygons: Set<string> = new Set(); // Track unique polygons using a stringified key
+
+  // Helper to generate a unique key for a polygon
+  const generatePolygonKey = (polygon: Polygon): string => {
+    const sortedPoints = Array.from(polygon.points)
+      .map((p) => `${p.x},${p.y}`)
+      .sort(); // Sort to ensure consistent key
+    return sortedPoints.join("-");
+  };
 
   // Build adjacency list
   lines.forEach((line) => {
@@ -103,21 +111,26 @@ export const detectPolygons = (
     adjList.get(current)?.forEach((neighbor) => {
       if (neighbor === start && path.length >= 3) {
         // Complete cycle found
-        const polygon = new Set([...stack]);
-        const polygonArray = Array.from(polygon);
+        const polygon = new Polygon();
+        stack.forEach((point) => polygon.addPoint(point));
+        const polygonKey = generatePolygonKey(polygon);
 
-        if (!isSimplePolygon(polygonArray)) {
-          onCyclicPolygonDetected(polygon);
-          return;
-        }
+        if (!detectedPolygons.has(polygonKey)) {
+          detectedPolygons.add(polygonKey);
 
-        const polygonKey = serializePolygon(polygon);
+          const polygonArray = Array.from(polygon.points);
+          if (!isSimplePolygon(polygonArray)) {
+            onCyclicPolygonDetected(polygon);
+            return;
+          }
 
-        if (!completedPolygons.has(polygonKey)) {
-          // Notify about the newly detected polygon
-          onPolygonDetected(polygonKey, polygon);
-        } else {
-          onDuplicatePolygon(polygon);
+          if (
+            !completedPolygons.some((p) => generatePolygonKey(p) === polygonKey)
+          ) {
+            onPolygonDetected(polygon);
+          } else {
+            onDuplicatePolygon(polygon);
+          }
         }
         return;
       }
@@ -137,19 +150,12 @@ export const detectPolygons = (
     }
   });
 
-  return detectedPolygons.length > 0 ? detectedPolygons[0] : null;
-};
-
-const serializePolygon = (polygon: Set<Point>): string => {
-  const sortedPoints = Array.from(polygon)
-    .map((p) => `${p.row},${p.col}`)
-    .sort();
-  return JSON.stringify(sortedPoints);
+  return detectedPolygons.size > 0 ? null : null;
 };
 
 // Highlight and fade the polygon, only after a valid one is detected
 export const highlightAndFadePolygon = (
-  polygon: Set<Point>,
+  polygon: Polygon,
   lines: Line[],
   color: string = "#00FF00" // Default to green
 ) => {
@@ -157,7 +163,10 @@ export const highlightAndFadePolygon = (
 
   // Find and highlight lines forming the polygon
   lines.forEach((line) => {
-    if (polygon.has(line.start) && polygon.has(line.end)) {
+    if (
+      polygon.points.includes(line.start) &&
+      polygon.points.includes(line.end)
+    ) {
       line.setHighlighted(true, color); // Highlight with the specified color
       linesToFade.push(line);
     }
