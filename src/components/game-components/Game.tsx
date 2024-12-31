@@ -252,8 +252,8 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
 
   getNextgameId() {
     const thisGameIndex = games.findIndex((gameId) => gameId === this.gameId);
-    if (!!thisGameIndex || thisGameIndex === games.length - 1) return "/";
-    return games[thisGameIndex];
+    if (thisGameIndex === -1 || thisGameIndex === games.length - 1) return "/";
+    return games[thisGameIndex + 1];
   }
 
   render() {
