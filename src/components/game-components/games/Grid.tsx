@@ -338,7 +338,7 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     this.data = {
       polygons: [
         ...this.data.polygons,
-        ...Array.from(this.state.completedPolygons)
+        ...this.state.completedPolygons
       ]
     };
     super.resetGame();
