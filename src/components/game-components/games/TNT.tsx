@@ -45,6 +45,7 @@ class TNT<
     current: new Set<number>()
   };
   currentSpeedRef: MutableRefObject<number> = { current: 0.01 };
+  lastTimestampRef: MutableRefObject<number> = { current: 0 };
 
   constructor(props: GameProps) {
     super(props);
@@ -117,28 +118,41 @@ class TNT<
     this.update(0);
   };
 
+  getHUD = () => {
+    return (
+      <span>
+        {this.showTimer === 0 && (
+          <button className="text-xl mt-1" onClick={this.resetSelection}>
+            Reset Selection
+          </button>
+        )}
+      </span>
+    );
+  };
+
+  animate = (timestamp: number) => {
+    if (!this.canvasRef.current) return;
+    if (!this.lastTimestampRef.current)
+      this.lastTimestampRef.current = timestamp;
+
+    const deltaTime = Math.max(
+      Math.min((timestamp - this.lastTimestampRef.current) / 1000, 1),
+      1e-6
+    );
+
+    this.lastTimestampRef.current = timestamp;
+
+    this.drawBackground();
+
+    this.update(deltaTime);
+    if (this.state.isRunning) {
+      requestAnimationFrame(this.animate);
+    }
+  };
+
   renderGame() {
     this.setup();
-    let lastTimestamp = 0;
-
-    const animate = (timestamp: number) => {
-      if (!lastTimestamp) lastTimestamp = timestamp;
-
-      const deltaTime = Math.max(
-        Math.min((timestamp - lastTimestamp) / 1000, 1),
-        1e-6
-      );
-
-      lastTimestamp = timestamp;
-
-      this.drawBackground();
-
-      this.update(deltaTime);
-      if (this.state.isRunning) {
-        requestAnimationFrame(animate);
-      }
-    };
-    requestAnimationFrame(animate);
+    this.startAnimationLoop();
 
     setTimeout(() => {
       this.currentSpeedRef.current = this.paramsRef.current!.startingVts;
