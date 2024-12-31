@@ -3,8 +3,8 @@ export class Point {
   col: number;
   x: number;
   y: number;
-  isYellow: boolean = false; // Whether the point is highlighted
-  isHovered: boolean = false; // Whether the point is currently hovered
+  isYellow: boolean = false;
+  isHovered: boolean = false;
 
   constructor(row: number, col: number, x: number, y: number) {
     this.row = row;
@@ -21,8 +21,15 @@ export class Point {
     this.isHovered = isHovered;
   }
 
-  equals(other: Point): boolean {
+  isEquals(other: Point): boolean {
     return this.x === other.x && this.y === other.y;
+  }
+
+  greaterThan(other: Point): boolean {
+    if (this.x !== other.x) {
+      return this.x > other.x;
+    }
+    return this.y > other.y;
   }
 
   toString(): string {
@@ -55,9 +62,34 @@ export class Point {
   }
 }
 
-export type LineType = {
-  start: Point;
-  end: Point;
-};
+export class Polygon {
+  points: Point[];
+  constructor() {
+    this.points = [];
+  }
 
-export type PolygonType = Set<Point>;
+  addPoint(point: Point) {
+    this.points.push(point);
+  }
+
+  isEqual(polygon: Polygon): boolean {
+    if (this.points.length !== polygon.points.length) {
+      return false;
+    }
+
+    const sortedPoints1 = this.points
+      .slice()
+      .sort((a, b) => (a.greaterThan(b) ? 1 : -1));
+    const sortedPoints2 = polygon.points
+      .slice()
+      .sort((a, b) => (a.greaterThan(b) ? 1 : -1));
+
+    for (let i = 0; i < sortedPoints1.length; i++) {
+      if (!sortedPoints1[i].isEquals(sortedPoints2[i])) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+}

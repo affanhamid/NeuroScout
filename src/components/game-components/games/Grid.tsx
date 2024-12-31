@@ -7,14 +7,15 @@ import {
   Line,
   detectPolygons,
   highlightAndFadePolygon,
-  PolygonType
+  Polygon
 } from "../utils";
 
 const HIGHLIGHT_COLOR = "#FFFF00";
 const FADED_COLOR = "rgba(255, 255, 255, 0.2)";
 
 interface GridGameState extends GameState {
-  completedPolygons: Set<string>;
+  completedPolygons: Record<number, Polygon>;
+  duplicatePolygons: Record<number, Polygon>;
 }
 
 type PointType = {
@@ -22,9 +23,13 @@ type PointType = {
   y: number;
 };
 
-export type GridGameData = {
-  polygons: Set<string>[];
+type TrialData = {
+  polygons: Record<number, Polygon>;
+  duplicatePolygons: Record<number, Polygon>;
+  yellowPoints: Point[];
 };
+
+export type GridGameData = TrialData[];
 
 type GridGameParams = BaseGameParams & {};
 
@@ -41,24 +46,20 @@ class GridGame extends Game<GridGameData, GridGameParams> {
   interactivityRadius = 30;
 
   // Lines
-  currentLineStartRef: MutableRefObject<Point | null> = {
-    current: null
-  };
-  mousePosRef: MutableRefObject<{ x: number; y: number } | null> = {
+  currentLineRef: MutableRefObject<Line | null> = {
     current: null
   };
   linesRef: MutableRefObject<Line[]> = { current: [] };
 
   state: GridGameState = {
     ...this.state,
-    completedPolygons: new Set()
+    completedPolygons: {},
+    duplicatePolygons: {}
   };
 
   constructor(props: GameProps) {
     super(props);
-    this.data = {
-      polygons: []
-    };
+    this.data = [];
   }
 
   addEventListenersDuringGame = () => {
@@ -102,10 +103,8 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     this.pointsRef.current = points;
   }
 
-  drawLine() {
+  drawLine(start: Point, end: Point) {
     const ctx = this.ctxRef.current!;
-    const start = this.currentLineStartRef.current;
-    const end = this.mousePosRef.current;
 
     if (start && end) {
       ctx.strokeStyle = HIGHLIGHT_COLOR;
@@ -115,10 +114,14 @@ class GridGame extends Game<GridGameData, GridGameParams> {
       ctx.lineTo(end.x, end.y);
       ctx.stroke();
     }
+  }
 
-    this.linesRef.current.forEach((line) => {
-      line.draw(ctx);
-    });
+  drawLines() {
+    this.linesRef.current.forEach((line) => line.draw(this.ctxRef.current!));
+
+    if (this.currentLineRef.current) {
+      this.currentLineRef.current.draw(this.ctxRef.current!);
+    }
   }
 
   drawGrid() {
@@ -171,12 +174,16 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     }
 
     this.yellowPointsRef.current = yellowPoints;
+    this.gameEndTimeRef.current = Date.now();
   }
 
   getHUD = () => {
     return this.state.isRunning ? (
       <div className="flex flex-col">
-        <span>Completed Polygons: {this.state.completedPolygons.size}</span>
+        <span>
+          Completed Polygons:{" "}
+          {Object.values(this.state.completedPolygons).length}
+        </span>
         <span>
           <button onClick={this.resetLines} className="text-xl w-full mt-3">
             Reset Lines
@@ -190,14 +197,14 @@ class GridGame extends Game<GridGameData, GridGameParams> {
 
   resetLines = () => {
     this.linesRef.current = [];
-    this.currentLineStartRef.current = null;
+    this.currentLineRef.current = null;
   };
 
   animate = () => {
     if (!this.canvasRef.current) return;
     this.drawBackground();
     this.drawGrid();
-    this.drawLine();
+    this.drawLines();
 
     this.animationFrameIdRef.current = requestAnimationFrame(this.animate);
   };
@@ -224,14 +231,16 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     this.yellowPointsRef.current.forEach((point) => {
       const distance = this.calculateDistance({ x, y }, point);
       if (distance <= this.interactivityRadius) {
-        this.currentLineStartRef.current = point;
-        this.mousePosRef.current = { x: point.x, y: point.y };
+        this.currentLineRef.current = new Line(point, point);
       }
     });
   };
 
   handleIntearctionMove = (event: MouseEvent) => {
     const { x, y } = this.getInteractionPos(event);
+    if (this.currentLineRef.current) {
+      this.currentLineRef.current!.end = { x, y } as Point;
+    }
 
     // Hover detection
     this.pointsRef.current.flat().forEach((point) => {
@@ -239,33 +248,31 @@ class GridGame extends Game<GridGameData, GridGameParams> {
       point.setHovered(distance <= this.interactivityRadius && point.isYellow);
     });
 
-    const start = this.currentLineStartRef.current;
+    const start = this.currentLineRef.current?.start;
 
     if (start) {
       // Draw a temporary line
-      this.mousePosRef.current = { x, y };
       this.drawBackground();
       this.drawGrid();
-      this.drawLine();
 
       // Check for proximity to yellow points
       this.yellowPointsRef.current.forEach((point) => {
         const distance = this.calculateDistance({ x, y }, point);
         if (distance <= this.interactivityRadius) {
-          if (this.currentLineStartRef.current == point) {
+          if (this.currentLineRef.current!.start == point) {
             return;
           }
           const newLine = new Line(start, point);
 
           // Avoid duplicate lines
-          if (!this.linesRef.current.some((line) => line.equals(newLine))) {
+          if (!this.linesRef.current.some((line) => line.isEquals(newLine))) {
             this.linesRef.current.push(newLine); // Add the new line
-            this.currentLineStartRef.current = point; // Update the starting point
+            this.currentLineRef.current!.start = point; // Update the starting point
 
             // Polygon detection after a valid line
             detectPolygons(
               this.linesRef.current,
-              this.state.completedPolygons,
+              Object.values(this.state.completedPolygons),
               this.newPolygonDetected,
               this.duplicatePolygonDetected,
               this.nonCyclicPolygonDetected
@@ -278,13 +285,12 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     // Final redraw
     this.drawBackground();
     this.drawGrid();
-    this.drawLine();
+    this.drawLines();
   };
 
-  newPolygonDetected = (newPolygonKey: string, newPolygon: PolygonType) => {
-    const updatedPolygons = new Set<string>(this.state.completedPolygons);
-    updatedPolygons.add(newPolygonKey);
-    console.log(updatedPolygons);
+  newPolygonDetected = (newPolygon: Polygon) => {
+    const updatedPolygons = this.state.completedPolygons;
+    updatedPolygons[Date.now() - this.gameEndTimeRef.current] = newPolygon;
     this.setState({
       completedPolygons: updatedPolygons
     } as GridGameState);
@@ -296,7 +302,13 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     }, 100);
   };
 
-  duplicatePolygonDetected = (polygon: PolygonType) => {
+  duplicatePolygonDetected = (polygon: Polygon) => {
+    const duplicatePolygons = this.state.duplicatePolygons;
+    duplicatePolygons[Date.now() - this.gameEndTimeRef.current] = polygon;
+    this.setState({
+      duplicatePolygons: duplicatePolygons
+    } as GridGameState);
+
     // Highlight duplicate polygons in red
     highlightAndFadePolygon(polygon, this.linesRef.current, "#FF0000");
 
@@ -305,25 +317,35 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     }, 100);
   };
 
-  nonCyclicPolygonDetected = (polygon: PolygonType) => {
+  nonCyclicPolygonDetected = (polygon: Polygon) => {
     this.duplicatePolygonDetected(polygon);
   };
 
   handleInteractionEnd = () => {
-    this.currentLineStartRef.current = null; // Clear the starting point
-    this.mousePosRef.current = null; // Clear the mouse position
+    this.currentLineRef.current = null; // Clear the starting point
   };
 
   resetGame() {
-    this.currentLineStartRef.current = null;
-    this.mousePosRef.current = null;
+    this.currentLineRef.current = null;
     this.linesRef.current = [];
-    this.data = {
-      polygons: [...this.data.polygons, this.state.completedPolygons]
-    };
+    this.data = [
+      ...this.data,
+      {
+        polygons: this.state.completedPolygons,
+        duplicatePolygons: this.state.duplicatePolygons,
+        yellowPoints: this.yellowPointsRef.current.map(
+          (yellowPoint) =>
+            ({
+              row: yellowPoint.row,
+              col: yellowPoint.col
+            }) as Point
+        )
+      }
+    ];
     super.resetGame();
     this.setState({
-      completedPolygons: new Set(),
+      completedPolygons: {},
+      duplicatePolygons: {},
       trial: this.state.trial + 1
     } as GridGameState);
   }

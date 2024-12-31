@@ -18,10 +18,10 @@ export class Line {
     this.opacity = 1; // Reset opacity to 1 when highlighted
   }
 
-  equals(other: Line): boolean {
+  isEquals(other: Line): boolean {
     return (
-      (this.start.equals(other.start) && this.end.equals(other.end)) ||
-      (this.start.equals(other.end) && this.end.equals(other.start))
+      (this.start.isEquals(other.start) && this.end.isEquals(other.end)) ||
+      (this.start.isEquals(other.end) && this.end.isEquals(other.start))
     );
   }
 
