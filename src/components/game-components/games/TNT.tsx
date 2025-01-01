@@ -118,18 +118,6 @@ class TNT<
     this.update(0);
   };
 
-  getHUD = () => {
-    return (
-      <span>
-        {this.showTimer === 0 && (
-          <button className="text-xl mt-1" onClick={this.resetSelection}>
-            Reset Selection
-          </button>
-        )}
-      </span>
-    );
-  };
-
   animate = (timestamp: number) => {
     if (!this.canvasRef.current) return;
     if (!this.lastTimestampRef.current)
