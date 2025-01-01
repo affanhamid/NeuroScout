@@ -33,9 +33,8 @@ class TNTGlowGame extends TNT<TNTGlowParams, TNTGlowGameData, GlowBall> {
     setTimeout(
       () => {
         const availableBalls = this.ballsRef.current!.filter(
-          (_, index) => !this.highlightedBallsRef.current.includes(index)
+          (_, index) => !this.actualBallsRef.current.includes(index)
         );
-
         if (availableBalls.length > 0 && this.shouldGlowRef.current) {
           const randomBall =
             availableBalls[Math.floor(Math.random() * availableBalls.length)];
