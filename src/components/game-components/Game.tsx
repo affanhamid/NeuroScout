@@ -100,6 +100,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
     if (!playerId || !this.gameId || !this.data) {
       return;
     }
+    console.log(this.data);
     await apiClient("/api/game-observations", {
       method: "POST",
       body: { data: this.data, gameId: this.gameId, playerId }

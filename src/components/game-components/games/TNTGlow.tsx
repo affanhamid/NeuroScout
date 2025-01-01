@@ -6,7 +6,7 @@ import { createBalls, GlowBall } from "../utils";
 import TNT, { BaseTNTGameData, BaseTNTParams } from "./TNT";
 
 type TNTGlowGameData = BaseTNTGameData & {
-  reactionTimes: number[];
+  reactionTimes: number[][];
 };
 
 type TNTGlowParams = BaseTNTParams & {
@@ -20,6 +20,7 @@ class TNTGlowGame extends TNT<TNTGlowParams, TNTGlowGameData, GlowBall> {
 
   constructor(props: GameProps) {
     super(props);
+    this.data.reactionTimes = [];
   }
 
   randomGaussian(mean: number, stddev: number) {
@@ -88,6 +89,11 @@ class TNTGlowGame extends TNT<TNTGlowParams, TNTGlowGameData, GlowBall> {
         this.paramsRef.current!.duration * 1000 - 3000
       );
     }, 3000);
+  }
+  
+  resetGame() {
+    super.resetGame();
+    this.data.reactionTimes.push(this.reactionTimesRef.current);
   }
 }
 
