@@ -14,7 +14,6 @@ interface TNTGameState extends GameState {
 }
 
 export type BaseTNTGameData = {
-  vts: number;
   scores: number[];
 };
 
@@ -50,7 +49,6 @@ class TNT<
   constructor(props: GameProps) {
     super(props);
     this.data = {
-      vts: 0,
       scores: [] as number[]
     } as TNTData;
   }
@@ -207,7 +205,6 @@ class TNT<
           this.correctBallsRef.current = correctBalls;
 
           this.data = {
-            vts: this.state.vts,
             scores: [...this.data.scores, score]
           } as TNTData;
 
