@@ -88,9 +88,9 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
       trial: 1,
       showInstructions: false,
       isPractice: false,
-      showCountdown: true, 
-      showTrialComplete: false, 
-      showPracticeComplete: false 
+      showCountdown: true,
+      showTrialComplete: false,
+      showPracticeComplete: false
     });
   };
 
