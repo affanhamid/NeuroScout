@@ -8,7 +8,7 @@ export class GlowBall extends Ball {
   glowIntensity: number;
   maxGlowIntensity: number;
   shadowSize: number;
-  lastGlowedTime: number;
+  lastGlowedTime: number = 0;
 
   constructor(
     x: number,

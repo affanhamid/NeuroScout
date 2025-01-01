@@ -204,9 +204,7 @@ class TNT<
           this.wrongBallsRef.current = wrongBalls;
           this.correctBallsRef.current = correctBalls;
 
-          this.data = {
-            scores: [...this.data.scores, score]
-          } as TNTData;
+          this.data.scores = [...this.data.scores, score];
 
           if (score === 4) {
             this.setState({
