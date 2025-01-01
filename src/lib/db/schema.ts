@@ -89,16 +89,6 @@ export const GameSchema = new Schema(
       ],
       required: true
     },
-    scoringMechanisms: {
-      type: [
-        {
-          id: { type: String, required: true },
-          description: { type: String, required: true },
-          function: { type: String, required: true } // Serialized JS function
-        }
-      ],
-      required: true
-    },
     deletedAt: { type: Date }
   },
   { timestamps: true }
