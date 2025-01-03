@@ -9,7 +9,12 @@ interface ArrowGameState extends GameState {
 }
 
 export type ArrowGameData = {
-  scores: Record<number, boolean>;
+  scores: {
+    accuracy: boolean;
+    reactionTime: number;
+    topFlankerDir: string;
+    bottomFlankerDir: string;
+  }[];
 };
 
 type ArrowGameParams = BaseGameParams & {};
@@ -38,7 +43,7 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
   constructor(props: GameProps) {
     super(props);
     this.data = {
-      scores: {}
+      scores: []
     };
   }
 
@@ -165,7 +170,12 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
   checkAnswer = (clickedDirection: string, reactionTime: number) => {
     const isCorrect = clickedDirection === this.correctDirection;
 
-    this.data.scores[reactionTime] = isCorrect;
+    this.data.scores.push({
+      accuracy: isCorrect,
+      reactionTime: reactionTime,
+      topFlankerDir: this.topFlankDirection,
+      bottomFlankerDir: this.bottomFlankDirection
+    });
     this.updateAnswer(isCorrect);
   };
 
