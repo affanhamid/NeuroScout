@@ -111,7 +111,7 @@ const PlayerForm = ({
           <h4 className="mb-2">Important Notice:</h4>
           <ul className="list-disc px-4">
             <li>Must complete assessment in one sitting</li>
-            <li>Estimated time to complete: 20 minutes</li>
+            <li>Estimated time to complete: 15 minutes</li>
           </ul>
         </div>
         <button type="submit" className="game-button rounded-lg py-2">
