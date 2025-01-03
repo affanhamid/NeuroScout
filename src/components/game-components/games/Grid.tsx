@@ -328,6 +328,7 @@ class GridGame extends Game<GridGameData, GridGameParams> {
   resetGame() {
     this.currentLineRef.current = null;
     this.linesRef.current = [];
+    
     this.data = [
       ...this.data,
       {

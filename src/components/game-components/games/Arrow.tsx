@@ -12,6 +12,7 @@ export type ArrowGameData = {
   scores: {
     accuracy: boolean;
     reactionTime: number;
+    primerDir: string;
     topFlankerDir: string;
     bottomFlankerDir: string;
   }[];
@@ -173,6 +174,7 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
     this.data.scores.push({
       accuracy: isCorrect,
       reactionTime: reactionTime,
+      primerDir: this.correctDirection,
       topFlankerDir: this.topFlankDirection,
       bottomFlankerDir: this.bottomFlankDirection
     });
