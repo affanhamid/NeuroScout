@@ -328,12 +328,48 @@ class GridGame extends Game<GridGameData, GridGameParams> {
   resetGame() {
     this.currentLineRef.current = null;
     this.linesRef.current = [];
-    
+
+    const polygonsData: Record<number, Polygon> = Object.entries(
+      this.state.completedPolygons
+    ).reduce(
+      (acc, [key, val]) => {
+        acc[Number(key)] = {
+          points: val.points.map(
+            (point) =>
+              ({
+                row: point.row,
+                col: point.col
+              }) as Point
+          )
+        } as Polygon;
+        return acc;
+      },
+      {} as Record<number, Polygon>
+    );
+
+    const duplicatePolygonsData: Record<number, Polygon> = Object.entries(
+      this.state.duplicatePolygons
+    ).reduce(
+      (acc, [key, val]) => {
+        acc[Number(key)] = {
+          points: val.points.map(
+            (point) =>
+              ({
+                row: point.row,
+                col: point.col
+              }) as Point
+          )
+        } as Polygon;
+        return acc;
+      },
+      {} as Record<number, Polygon>
+    );
+
     this.data = [
       ...this.data,
       {
-        polygons: this.state.completedPolygons,
-        duplicatePolygons: this.state.duplicatePolygons,
+        polygons: polygonsData,
+        duplicatePolygons: duplicatePolygonsData,
         yellowPoints: this.yellowPointsRef.current.map(
           (yellowPoint) =>
             ({
@@ -343,6 +379,7 @@ class GridGame extends Game<GridGameData, GridGameParams> {
         )
       }
     ];
+
     super.resetGame();
     this.setState({
       completedPolygons: {},
