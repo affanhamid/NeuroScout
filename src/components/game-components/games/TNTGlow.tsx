@@ -6,7 +6,7 @@ import { createBalls, GlowBall } from "../utils";
 import TNT, { BaseTNTGameData, BaseTNTParams } from "./TNT";
 
 type TNTGlowGameData = BaseTNTGameData & {
-  reactionTimes: number[][];
+  reactionTimesGlow: number[][];
 };
 
 type TNTGlowParams = BaseTNTParams & {
@@ -15,12 +15,12 @@ type TNTGlowParams = BaseTNTParams & {
 };
 
 class TNTGlowGame extends TNT<TNTGlowParams, TNTGlowGameData, GlowBall> {
-  reactionTimesRef: MutableRefObject<number[]> = { current: [] };
+  reactionTimesGlowRef: MutableRefObject<number[]> = { current: [] };
   shouldGlowRef: MutableRefObject<boolean> = { current: true };
 
   constructor(props: GameProps) {
     super(props);
-    this.data.reactionTimes = [];
+    this.data.reactionTimesGlow = [];
   }
 
   randomGaussian(mean: number, stddev: number) {
@@ -71,25 +71,25 @@ class TNTGlowGame extends TNT<TNTGlowParams, TNTGlowGameData, GlowBall> {
   };
 
   resetGame() {
-    if (this.reactionTimesRef.current.length > 0) {
-    this.data.reactionTimes = [
-      ...this.data.reactionTimes,
-      this.reactionTimesRef.current
+    if (this.reactionTimesGlowRef.current.length > 0) {
+    this.data.reactionTimesGlow = [
+      ...this.data.reactionTimesGlow,
+      this.reactionTimesGlowRef.current
     ];
     }
-      this.reactionTimesRef.current = [];
+      this.reactionTimesGlowRef.current = [];
     
     super.resetGame();
   }
 
   createBalls() {
-    this.reactionTimesRef.current = [];
+    this.reactionTimesGlowRef.current = [];
     this.ballsRef.current = createBalls(
       this.canvasRef.current!,
       this.ballSizeRef.current!,
       this.paramsRef.current!.numOfBalls,
       GlowBall,
-      this.reactionTimesRef
+      this.reactionTimesGlowRef
     );
 
     setTimeout(() => {
