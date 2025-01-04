@@ -71,14 +71,19 @@ class TNTGlowGame extends TNT<TNTGlowParams, TNTGlowGameData, GlowBall> {
   };
 
   resetGame() {
+    if (this.reactionTimesRef.current.length > 0) {
     this.data.reactionTimes = [
       ...this.data.reactionTimes,
       this.reactionTimesRef.current
     ];
+    }
+      this.reactionTimesRef.current = [];
+    
     super.resetGame();
   }
 
   createBalls() {
+    this.reactionTimesRef.current = [];
     this.ballsRef.current = createBalls(
       this.canvasRef.current!,
       this.ballSizeRef.current!,
