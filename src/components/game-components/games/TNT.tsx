@@ -15,6 +15,9 @@ interface TNTGameState extends GameState {
 
 export type BaseTNTGameData = {
   scores: number[];
+  reactionTimes: {
+    clickTimes: number[];  
+  }[];
 };
 
 export type BaseTNTParams = BaseGameParams & {
@@ -43,14 +46,17 @@ class TNT<
   clickedBallsRef: MutableRefObject<Set<number>> = {
     current: new Set<number>()
   };
+  trialTimeSinceClick: MutableRefObject<number> = { current: 0 };
+  currentTrialClickTimes: MutableRefObject<number[]> = { current: [] };
   currentSpeedRef: MutableRefObject<number> = { current: 0.01 };
   lastTimestampRef: MutableRefObject<number> = { current: 0 };
 
   constructor(props: GameProps) {
     super(props);
     this.data = {
-      scores: [] as number[]
-    } as TNTData;
+      scores: [] as number[],
+      reactionTimes: []
+    };
   }
 
   createBalls() {
@@ -143,6 +149,7 @@ class TNT<
     setTimeout(() => {
       this.currentSpeedRef.current = this.paramsRef.current!.startingVts;
       this.highlightedBallsRef.current = [];
+      this.currentTrialClickTimes.current = [];
     }, 1000);
   }
 
@@ -165,6 +172,7 @@ class TNT<
   };
 
   addEventListenersAfterGame = () => {
+    this.trialTimeSinceClick.current = performance.now();
     this.eventHandler!.add("click", this.handleMouseClickAfterGame);
   };
 
@@ -172,6 +180,8 @@ class TNT<
     if (this.clickedBallsRef.current!.size >= 4) {
       return;
     }
+    const currentClickTime = performance.now();
+    
     const rect = this.canvasRef.current!.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
@@ -190,6 +200,10 @@ class TNT<
         }
         this.clickedBallsRef.current!.add(index);
         this.highlightedBallsRef.current!.push(index);
+        
+        const reactionTime = currentClickTime - this.trialTimeSinceClick.current;
+        this.trialTimeSinceClick.current = currentClickTime;
+        this.currentTrialClickTimes.current.push(reactionTime);
 
         if (this.clickedBallsRef.current!.size === 4) {
           // Remove the event listener immediately to avoid extra clicks
@@ -205,6 +219,10 @@ class TNT<
           this.correctBallsRef.current = correctBalls;
 
           this.data.scores = [...this.data.scores, score];
+          
+          this.data.reactionTimes.push({
+            clickTimes: [...this.currentTrialClickTimes.current],
+          });
 
           if (score === 4) {
             this.setState({
