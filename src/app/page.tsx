@@ -11,7 +11,7 @@ export default function Home() {
       <Navbar />
       <section>
         <h1>NeuroScout</h1>
-        <h2>Optimising talent selection through cognitive insight</h2>
+        <h2>Optimising talent through cognitive insight</h2>
       </section>
       <section className="py-0">
         <DataProvider<GameTypeWithId[]> endpoint="games">
