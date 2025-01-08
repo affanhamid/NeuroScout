@@ -22,6 +22,7 @@ type ArrowGameParams = BaseGameParams & {};
 
 const CORRECT_COLOR = "#00FF00"; // Green for correct
 const INCORRECT_COLOR = "#FF0000"; // Red for incorrect
+const STROKE_COLOR = "#EEEEEE"; // Normal gray colour
 
 class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
   answersRef: MutableRefObject<boolean[]> = { current: [] };
@@ -52,13 +53,17 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
     const ctx = this.ctxRef.current!;
     const canvas = this.canvasRef.current!;
 
+    ctx.strokeStyle = STROKE_COLOR;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 1;
+    console.log(ctx.strokeStyle);
+
     for (let i = 0; i < 100; i++) {
       const x1 = Math.random() * canvas.width;
       const y1 = Math.random() * canvas.height;
       const x2 = Math.random() * canvas.width;
       const y2 = Math.random() * canvas.height;
 
-      ctx.strokeStyle = "#EEEEEE";
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
@@ -70,7 +75,7 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
     x: number,
     y: number,
     direction: "left" | "right",
-    color = "#FFFFFF"
+    color = STROKE_COLOR
   ) {
     const ctx = this.ctxRef.current!;
     ctx.fillStyle = color;
@@ -79,38 +84,26 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
 
     ctx.beginPath();
 
-    if (direction === "left") {
-      const startX = x + this.arrowShaftLength / 2;
-      const endX = x - this.arrowShaftLength / 2;
-      ctx.moveTo(startX, y);
-      ctx.lineTo(endX, y);
+    const offsetDir = direction === "right" ? -1 : 1;
 
-      const wingAngle = Math.PI / 6;
-      const wingX = Math.cos(wingAngle) * this.arrowWingLength;
-      const wingY = Math.sin(wingAngle) * this.arrowWingLength;
+    const startX = x + (offsetDir * this.arrowShaftLength) / 2;
+    const endX = x - (offsetDir * this.arrowShaftLength) / 2;
 
-      ctx.moveTo(endX, y);
-      ctx.lineTo(endX + wingX, y - wingY);
-      ctx.moveTo(endX, y);
-      ctx.lineTo(endX + wingX, y + wingY);
-    } else {
-      const startX = x - this.arrowShaftLength / 2;
-      const endX = x + this.arrowShaftLength / 2;
-      ctx.moveTo(startX, y);
-      ctx.lineTo(endX, y);
+    ctx.moveTo(startX, y);
+    ctx.lineTo(endX, y);
 
-      const wingAngle = Math.PI / 6;
-      const wingX = Math.cos(wingAngle) * this.arrowWingLength;
-      const wingY = Math.sin(wingAngle) * this.arrowWingLength;
+    const wingAngle = Math.PI / 6;
+    const wingX = Math.cos(wingAngle) * this.arrowWingLength;
+    const wingY = Math.sin(wingAngle) * this.arrowWingLength;
 
-      ctx.moveTo(endX, y);
-      ctx.lineTo(endX - wingX, y - wingY);
-      ctx.moveTo(endX, y);
-      ctx.lineTo(endX - wingX, y + wingY);
-    }
-
+    ctx.moveTo(endX, y);
+    ctx.lineTo(endX + offsetDir * wingX, y - wingY);
+    ctx.moveTo(endX, y);
+    ctx.lineTo(endX + offsetDir * wingX, y + wingY);
     ctx.stroke();
     ctx.closePath();
+    ctx.fillStyle = STROKE_COLOR;
+    ctx.strokeStyle = STROKE_COLOR;
   }
 
   drawPrime = this.drawArrow;
@@ -208,7 +201,7 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
     const midY = canvas.height / 2;
 
     // Set the fill color for the plus sign
-    ctx.fillStyle = "white";
+    ctx.fillStyle = STROKE_COLOR;
 
     // Calculate the dimensions of the horizontal and vertical bars
     const barThickness = this.plusSize / 10; // Thickness of the bars
