@@ -173,7 +173,6 @@ export const DashboardSidebar = ({ players, onFilterChange, onSortChange }: Dash
             className="p-3 bg-gray-900 rounded-lg hover:bg-gray-800 cursor-pointer"
             >
             <div className="flex items-center space-x-3">
-                <UserCircleIcon className="h-8 w-8 text-gray-500" />
                 <div>
                 <p className="text-sm font-medium text-gray-300">{player.name}</p>
                 <p className="text-xs text-gray-500">
