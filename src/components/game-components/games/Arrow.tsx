@@ -58,7 +58,7 @@ class ArrowGame extends Game<ArrowGameData, ArrowGameParams> {
       const x2 = Math.random() * canvas.width;
       const y2 = Math.random() * canvas.height;
 
-      ctx.strokeStyle = "#FFFFFF";
+      ctx.strokeStyle = "#EEEEEE";
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
