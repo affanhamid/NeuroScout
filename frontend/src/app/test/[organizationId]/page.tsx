@@ -1,5 +1,5 @@
 import PlayerForm from "@/components/ui/PlayerForm";
-import React from "../../../../frontend/node_modules/@types/react";
+import React from "react";
 import DataProvider from "@/components/ui/DataProvider";
 import { OrganizationTypeWithId } from "@/types";
 
