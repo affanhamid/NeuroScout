@@ -1,8 +1,8 @@
 "use client";
-import * as React from "../../../frontend/node_modules/@types/react";
-import { useState } from "../../../frontend/node_modules/@types/react";
-import Link from "../../../frontend/node_modules/next/link";
-import Image from "../../../frontend/node_modules/next/image";
+
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import logo from "../../../public/logo.png";
 
 const Navbar = () => {
@@ -47,4 +47,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

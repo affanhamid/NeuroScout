@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 mongoose.set("debug", true);
-import dotenv from "../../../frontend/node_modules/dotenv/lib/main";
+import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
 export const connect = async () => {

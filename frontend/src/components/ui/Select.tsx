@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "../../../frontend/node_modules/@types/react";
+import React, { useState } from "react";
 
 interface SelectProps {
   id: string;

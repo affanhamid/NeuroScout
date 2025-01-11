@@ -1,18 +1,15 @@
 "use client";
-import React from "../../../frontend/node_modules/@types/react";
-import {
-  useForm,
-  SubmitHandler
-} from "../../../frontend/node_modules/react-hook-form/src";
-import { yupResolver } from "../../../frontend/node_modules/@hookform/resolvers/yup/dist";
-import * as yup from "../../../frontend/node_modules/yup";
+import React from "react";
+import { useForm, SubmitHandler } from "react-hook-form/src";
+import { yupResolver } from "yup";
+import * as yup from "yup";
 import {
   OrganizationTypeWithId,
   PlayerFields,
   PlayerTypeWithId
 } from "@/types";
 import { apiClient } from "@/lib/api/apiClient";
-import { useRouter } from "../../../frontend/node_modules/next/navigation";
+import { useRouter } from "next/navigation";
 import games from "../game-components";
 import Input from "./Input";
 import Select from "./Select";
