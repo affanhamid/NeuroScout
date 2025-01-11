@@ -7,6 +7,7 @@ from pymongo import MongoClient
 
 class DB:
     _instance = None
+    client = None
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -15,4 +16,14 @@ class DB:
         return cls._instance
 
     def _initialize(self, db_uri):
-        self.collection = MongoClient(db_uri)["test"]
+        """Initializes the db"""
+        self.client = MongoClient(db_uri)
+
+    def get_collection(self, collection_name):
+        """Get a collection from the database."""
+        return self.client[collection_name]
+
+    def close(self):
+        """Close the MongoDB client connection."""
+        self.client.close()
+        DB._instance = None
