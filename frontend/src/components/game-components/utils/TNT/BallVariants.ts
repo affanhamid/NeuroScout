@@ -1,5 +1,5 @@
 import { Ball, HIGHLIGHT_COLOR } from "./Ball";
-import { MutableRefObject } from "../../../../../frontend/node_modules/@types/react";
+import { MutableRefObject } from "react";
 
 export class GlowBall extends Ball {
   strobeInterval: NodeJS.Timeout | null = null;

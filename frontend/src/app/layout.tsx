@@ -1,8 +1,8 @@
-import type { Metadata } from "../../frontend/node_modules/next";
+import type { Metadata } from "next";
 import "./globals.css";
-import { Inter } from "../../frontend/node_modules/next/font/google";
-import { Analytics } from "../../frontend/node_modules/@vercel/analytics/dist/react/index.mjs";
-import { SpeedInsights } from "../../frontend/node_modules/@vercel/speed-insights/dist/next/index.mjs";
+import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: "NeuroScout",

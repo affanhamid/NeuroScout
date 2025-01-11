@@ -1,7 +1,4 @@
-import React, {
-  useState,
-  useEffect
-} from "../../../../frontend/node_modules/@types/react";
+import React, { useState, useEffect } from "react";
 
 export const Countdown = ({
   onCountdownEnd

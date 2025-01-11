@@ -1,4 +1,4 @@
-import React from "../../../frontend/node_modules/@types/react";
+import React from "react";
 
 const Footer = () => {
   return (
