@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Component,
-  createRef,
-  MutableRefObject
-} from "../../../frontend/node_modules/@types/react";
+import { Component, createRef, MutableRefObject } from "react";
 import InstructionDialog from "./modals/InstructionDialog";
 import { Countdown } from "./utils";
 import TrialCompleteDialog from "./modals/TrialCompletedDialog";

@@ -1,5 +1,5 @@
-import Image from "../../../frontend/node_modules/next/image";
-import Link from "../../../frontend/node_modules/next/link";
+import Image from "next/image";
+import Link from "next/link";
 import { GameTypeWithId } from "@/types";
 
 const Gallery = async ({ games }: { games: GameTypeWithId[] }) => {

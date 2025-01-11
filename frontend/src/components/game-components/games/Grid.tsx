@@ -1,7 +1,7 @@
 "use client";
 
 import Game, { BaseGameParams, GameProps, GameState } from "../Game";
-import { MutableRefObject } from "../../../../frontend/node_modules/@types/react";
+import { MutableRefObject } from "react";
 import {
   Point,
   Line,

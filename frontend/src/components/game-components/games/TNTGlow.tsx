@@ -1,6 +1,6 @@
 "use client";
 
-import { MutableRefObject } from "../../../../frontend/node_modules/@types/react";
+import { MutableRefObject } from "react";
 import { GameProps } from "../Game";
 import { createBalls, GlowBall } from "../utils";
 import TNT, { BaseTNTGameData, BaseTNTParams } from "./TNT";

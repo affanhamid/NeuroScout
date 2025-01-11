@@ -7,7 +7,7 @@ import {
   resolveCollisions,
   resolveCollisionsWithWalls
 } from "../utils";
-import { MutableRefObject } from "../../../../frontend/node_modules/@types/react";
+import { MutableRefObject } from "react";
 
 interface TNTGameState extends GameState {
   vts: number;
@@ -265,4 +265,3 @@ class TNT<
 }
 
 export default TNT;
-
