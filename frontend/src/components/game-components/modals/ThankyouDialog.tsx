@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "../../../../frontend/node_modules/@types/react";
-import { useRouter } from "../../../../frontend/node_modules/next/navigation";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const ThankYouDialog = ({ redirectLink = "/" }: { redirectLink?: string }) => {
   const router = useRouter();

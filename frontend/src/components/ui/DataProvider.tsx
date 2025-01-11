@@ -1,4 +1,4 @@
-import React from "../../../frontend/node_modules/@types/react";
+import React from "react";
 
 async function fetchData<T>(url: string): Promise<T> {
   const response = await fetch(url, { cache: "no-store" });

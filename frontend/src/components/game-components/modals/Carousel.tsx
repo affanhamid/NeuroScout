@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "../../../../frontend/node_modules/@types/react";
-import Image from "../../../../frontend/node_modules/next/image";
-import { XMarkIcon } from "../../../../frontend/node_modules/@heroicons/react/24/outline";
+import { useState } from "react";
+import Image from "next/image";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 type Instruction = {
   step: number;

@@ -2,10 +2,10 @@ import DataProvider from "@/components/ui/DataProvider";
 import Footer from "../components/ui/Footer";
 import Gallery from "../components/ui/Gallery";
 import { GameTypeWithId } from "@/types";
-import Link from "../../frontend/node_modules/next/link";
+import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 
-export default function Home() {
+const Home = () => {
   return (
     <main className="relative">
       <Navbar />
@@ -27,4 +27,6 @@ export default function Home() {
       <Footer />
     </main>
   );
-}
+};
+
+export default Home;
