@@ -2,7 +2,9 @@
 This module defines a pipeline class
 """
 
-from stage import Stage
+from typing import Any
+
+from analysis.stage import Stage
 
 
 class Pipeline:
@@ -16,3 +18,13 @@ class Pipeline:
 
     def add_stage(self, stage: Stage):
         self.stages.append(stage)
+        return self
+
+    def run(self, data: dict[str, Any]):
+        for s in self.stages:
+            data = s.run(data)
+        return data
+
+
+def create_pipeline(*args, **kwargs):
+    return Pipeline(*args, **kwargs)

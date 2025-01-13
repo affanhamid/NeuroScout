@@ -3,7 +3,9 @@ This module contains an analysis class to join together different
 pipelines and produce a single result
 """
 
-from pipeline import Pipeline
+from typing import Any
+
+from analysis.pipeline import Pipeline
 
 
 class Analysis:
@@ -16,3 +18,13 @@ class Analysis:
 
     def add_pipeline(self, pipeline: Pipeline):
         self.pipelines.append(pipeline)
+        return self
+
+    def run(self, data: dict[str, Any]):
+        for p in self.pipelines:
+            data = p.run(data)
+        return data
+
+
+def create_analysis(*args, **kwargs):
+    return Analysis(*args, **kwargs)
