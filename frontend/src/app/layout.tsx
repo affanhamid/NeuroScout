@@ -3,17 +3,18 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import Providers from "./providers";
 
 export const metadata: Metadata = {
   title: "NeuroScout",
   description:
-    "NeuroScout is a football talent-acquisition platform through cognitive assessments"
+    "NeuroScout is a football talent-acquisition platform through cognitive assessments",
 };
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default async function RootLayout({
-  children
+  children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
@@ -49,9 +50,11 @@ export default async function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
       <body className={inter.className}>
-        <main>{children}</main>
-        <Analytics />
-        <SpeedInsights />
+        <Providers>
+          <main>{children}</main>
+          <Analytics />
+          <SpeedInsights />
+        </Providers>
       </body>
     </html>
   );
