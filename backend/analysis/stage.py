@@ -21,15 +21,36 @@ class Stage:
         return data
 
 
-class SummaryStatistics(Stage):
+class NumericalSummary(Stage):
     """
-    This stage creates the summary statistics for a given data
+    This stage creates the summary statistics for the numerical columns of the given data
     """
 
     @classmethod
     def run(cls, data: dict[str, Any]) -> dict[str, Any]:
+        columns = data["columns"]
 
-        data["summary"]["numerical_cols"] = data["data"].describe()
+        data["summary"]["numerical"] = data["data"][columns["numerical"]].describe()
+        return data
+
+
+class BooleanSummary(Stage):
+    """
+    This stage creates the summary statistics for the boolean columns of the given data
+    """
+
+    @classmethod
+    def run(cls, data: dict[str, Any]) -> dict[str, Any]:
+        summary = {}
+        boolean_columns = data["columns"]["boolean"]
+
+        for col in boolean_columns:
+            summary[col] = {
+                "mean": data["data"][col].mean(),
+                "std": data["data"][col].std(),
+            }
+
+        data["summary"]["boolean"] = pd.DataFrame(summary)
         return data
 
 
@@ -47,7 +68,7 @@ class ClassifyColumns(Stage):
         data["columns"] = {
             "numerical": numerical_cols,
             "boolean": boolean_cols,
-            "category": categorical_cols,
+            "categorical": categorical_cols,
         }
         return data
 
@@ -67,8 +88,8 @@ class FormatData(Stage):
                 "categorical": [],
             },
             "summary": {
-                "numerical_cols": {},
-                "boolean_cols": {},
-                "categorical_cols": {},
+                "numerical": {},
+                "boolean": {},
+                "categorical": {},
             },
         }

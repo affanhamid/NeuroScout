@@ -1,7 +1,7 @@
 import pandas as pd
 from analysis.analysis import create_analysis
 from analysis.pipeline import create_pipeline
-from analysis.stage import FormatData, Stage, SummaryStatistics
+from analysis.stage import BooleanSummary, ClassifyColumns, FormatData, NumericalSummary
 
 """
     accuracy, reactionTime, primerDir, topFlankerDir, bottomFlankerDir
@@ -19,14 +19,17 @@ def analyse_arrow_game(data: pd.DataFrame):
     """
 
     descriptive_analysis = (
-        create_pipeline().add_stage(FormatData).add_stage(SummaryStatistics)
+        create_pipeline()
+        .add_stage(FormatData)
+        .add_stage(ClassifyColumns)
+        .add_stage(NumericalSummary)
+        .add_stage(BooleanSummary)
     )
     analysis = create_analysis().add_pipeline(descriptive_analysis)
 
     """
         Todo:
         Descriptive analysis:
-        - Descriptive analysis of accuracy (accuracy rate)
         - Distribution analysis
         - Response time by condition
 
@@ -47,4 +50,4 @@ def analyse_arrow_game(data: pd.DataFrame):
         
     """
 
-    return analysis.run(data)["summary"]
+    return analysis.run(data)
