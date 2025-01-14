@@ -29,7 +29,26 @@ class SummaryStatistics(Stage):
     @classmethod
     def run(cls, data: dict[str, Any]) -> dict[str, Any]:
 
-        data["summary"] = data["data"].describe()
+        data["summary"]["numerical_cols"] = data["data"].describe()
+        return data
+
+
+class ClassifyColumns(Stage):
+    """
+    This stage creates the summary statistics for a given data
+    """
+
+    @classmethod
+    def run(cls, data: dict[str, Any]) -> dict[str, Any]:
+
+        numerical_cols = data["data"].select_dtypes(include=["number"]).columns
+        boolean_cols = data["data"].select_dtypes(include=["bool"]).columns
+        categorical_cols = data["data"].select_dtypes(include=["category"]).columns
+        data["columns"] = {
+            "numerical": numerical_cols,
+            "boolean": boolean_cols,
+            "category": categorical_cols,
+        }
         return data
 
 
@@ -40,4 +59,16 @@ class FormatData(Stage):
 
     @classmethod
     def run(cls, data: pd.DataFrame) -> dict[str, Any]:
-        return {"data": data}
+        return {
+            "data": data,
+            "columns": {
+                "numerical": [],
+                "boolean": [],
+                "categorical": [],
+            },
+            "summary": {
+                "numerical_cols": {},
+                "boolean_cols": {},
+                "categorical_cols": {},
+            },
+        }

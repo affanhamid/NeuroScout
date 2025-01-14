@@ -18,5 +18,9 @@ test_data = pd.DataFrame(
         "bottomFlankerDir": ["right", "right", "left", "right"],
     }
 )
+categorical_columns = ["primerDir", "topFlankerDir", "bottomFlankerDir"]
+
+for col in categorical_columns:
+    test_data[col] = test_data[col].astype("category")
 
 print(analyse_arrow_game(test_data))
