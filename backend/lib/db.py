@@ -27,5 +27,3 @@ class DB:
         """Close the MongoDB client connection."""
         self.client.close()
         DB._instance = None
-
-
