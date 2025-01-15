@@ -15,15 +15,21 @@ class Analysis:
 
     def __init__(self):
         self.pipelines = []
+        self.preprocessor = None
 
     def add_pipeline(self, pipeline: Pipeline):
         self.pipelines.append(pipeline)
         return self
 
+    def add_preprocessor(self, preprocessor: Pipeline):
+        self.preprocessor = preprocessor
+        return self
+
     def run(self, data: dict[str, Any]):
+        res = self.preprocessor.run(data)
         for p in self.pipelines:
-            data = p.run(data)
-        return data
+            res = p.run(res)
+        return res
 
 
 def create_analysis(*args, **kwargs):

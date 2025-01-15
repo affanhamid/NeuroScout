@@ -1,7 +1,14 @@
 import pandas as pd
 from analysis.analysis import create_analysis
 from analysis.pipeline import create_pipeline
-from analysis.stage import BooleanSummary, ClassifyColumns, FormatData, NumericalSummary
+from analysis.stages import (
+    BooleanSummary,
+    CategoricalSummary,
+    ClassifyColumns,
+    Correlation,
+    FormatData,
+    NumericalSummary,
+)
 
 """
     accuracy, reactionTime, primerDir, topFlankerDir, bottomFlankerDir
@@ -17,15 +24,6 @@ def analyse_arrow_game(data: pd.DataFrame):
     :param arrow_game_obs: Pandas data frame with the following strucutre:
                         accuracy, reactionTime, topFlankerDir, bottomFlankerDir
     """
-
-    descriptive_analysis = (
-        create_pipeline()
-        .add_stage(FormatData)
-        .add_stage(ClassifyColumns)
-        .add_stage(NumericalSummary)
-        .add_stage(BooleanSummary)
-    )
-    analysis = create_analysis().add_pipeline(descriptive_analysis)
 
     """
         Todo:
@@ -49,5 +47,24 @@ def analyse_arrow_game(data: pd.DataFrame):
         - Reaction time over time
         
     """
+
+    descriptive_analysis = (
+        create_pipeline()
+        .add_stage(ClassifyColumns)
+        .add_stage(NumericalSummary)
+        .add_stage(BooleanSummary)
+        .add_stage(CategoricalSummary)
+    )
+
+    distribution_analysis = create_pipeline()
+    intervariable_analysis = create_pipeline().add_stage(Correlation)
+
+    analysis = (
+        create_analysis()
+        .add_preprocessor(FormatData)
+        .add_pipeline(descriptive_analysis)
+        .add_pipeline(distribution_analysis)
+        .add_pipeline(intervariable_analysis)
+    )
 
     return analysis.run(data)
