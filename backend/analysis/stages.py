@@ -5,6 +5,23 @@ import pandas as pd
 from analysis.stage import Stage
 
 
+class GroupWise(Stage):
+    """
+    This method finds the summary statistics for each category group
+    """
+
+    @classmethod
+    def run(cls, data: dict[str, Any]) -> dict[str, Any]:
+        columns = data["columns"]
+
+        for col in columns["categorical"]:
+            data["intervariable"]["groupwise"][col] = data["data"].groupby(col, observed=True)[columns["numerical"].append(columns["boolean"])].agg(["mean", "std"])
+
+        for col in columns["boolean"]:
+            data["intervariable"]["groupwise"][col] = data["data"].groupby(col, observed=True)[columns["numerical"]].agg(["mean", "std"])
+
+        return data
+
 class Correlation(Stage):
     """
     This method finds all correlations in the dataframe
@@ -104,5 +121,6 @@ class FormatData(Stage):
             },
             "intervariable": {
                 "correlation": {},
+                "groupwise": {}
             },
         }
