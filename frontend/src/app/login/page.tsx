@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession, signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -11,6 +11,17 @@ export default function LoginPage() {
   const [isRegistering, setIsRegistering] = useState(false);
   const router = useRouter();
 
+  // Handle redirection if the user is already logged in
+  useEffect(() => {
+    if (session) {
+      const timer = setTimeout(() => {
+        router.push("/dashboard");
+      }, 1000); // Allow time to display the redirect message
+
+      return () => clearTimeout(timer);
+    }
+  }, [session, router]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
@@ -19,7 +30,7 @@ export default function LoginPage() {
     const data = new FormData(event.target as HTMLFormElement);
 
     const result = await signIn("credentials", {
-      username: data.get("username"),
+      email: data.get("email"),
       password: data.get("password"),
       action: isRegistering ? "register" : "login",
       redirect: false,
@@ -31,15 +42,10 @@ export default function LoginPage() {
       setError(
         isRegistering
           ? result?.error || "Registration failed"
-          : "Invalid username or password"
-      ); 
+          : "Invalid email or password"
+      );
     } else {
-      const redirectMessage = isRegistering
-        ? "Registration successful! Redirecting to dashboard..."
-        : "Login successful! Redirecting to dashboard...";
-      setError(null);
-      alert(redirectMessage);
-      router.push("/dashboard");
+      router.push("/dashboard"); // Redirect directly without popups
     }
   };
 
@@ -48,8 +54,12 @@ export default function LoginPage() {
   }
 
   if (session) {
-    router.push("/dashboard"); 
-    return null; 
+    return (
+      <div style={{ maxWidth: "400px", margin: "auto", padding: "2rem" }}>
+        <h1>Welcome Back!</h1>
+        <p>Redirecting you to your dashboard...</p>
+      </div>
+    );
   }
 
   return (
@@ -58,12 +68,12 @@ export default function LoginPage() {
       {error && <p style={{ color: "red" }}>{error}</p>}
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="username">Username</label>
+          <label htmlFor="email">Email</label>
           <input
-            id="username"
-            name="username"
-            type="text"
-            placeholder="Enter your username"
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Enter your email"
             required
           />
         </div>

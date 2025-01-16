@@ -20,7 +20,6 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Missing email or password");
         }
 
-        // Connect to MongoDB
         await connect();
 
         // Define or reuse the User model
@@ -31,7 +30,7 @@ export const authOptions: NextAuthOptions = {
             new mongoose.Schema({
               email: { type: String, required: true, unique: true },
               password: { type: String, required: true },
-              role: { type: String, default: "user" },
+              role: { type: String, enum: ["admin", "user", "manager"], default: "user" }, // Role-based access control
               organizationId: { type: String, default: "6765254294b4101df01adc7a" },
             })
           );
@@ -52,7 +51,7 @@ export const authOptions: NextAuthOptions = {
           });
           await newUser.save();
 
-          return { id: newUser._id, name: newUser.email };
+          return { id: newUser._id, email: newUser.email, role: newUser.role };
         } else if (action === "login") {
           // Handle login
           const user = await User.findOne({ email });
@@ -65,7 +64,7 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Invalid email or password");
           }
 
-          return { id: user._id, name: user.email };
+          return { id: user._id, email: user.email, role: user.role };
         }
 
         throw new Error("Invalid action");
@@ -74,6 +73,25 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
+  },
+  callbacks: {
+    // Add role and organization to the JWT token
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role; // Attach role to the token
+        token.organizationId = user.organizationId; // Attach organizationId to the token
+      }
+      return token;
+    },
+    // Add role and organization to the session
+    async session({ session, token }) {
+      session.user = {
+        ...session.user,
+        role: token.role,
+        organizationId: token.organizationId,
+      };
+      return session;
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
