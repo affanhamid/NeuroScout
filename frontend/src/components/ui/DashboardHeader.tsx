@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
