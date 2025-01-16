@@ -9,14 +9,15 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        username: { label: "Username", type: "text" },
+        email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
+        action: { label: "Action", type: "text" },
       },
       async authorize(credentials) {
-        const { username, password } = credentials || {};
+        const { email, password, action } = credentials || {};
 
-        if (!username || !password) {
-          throw new Error("Missing username or password");
+        if (!email || !password) {
+          throw new Error("Missing email or password");
         }
 
         // Connect to MongoDB
@@ -28,25 +29,46 @@ export const authOptions: NextAuthOptions = {
           mongoose.model(
             "User",
             new mongoose.Schema({
-              username: { type: String, required: true },
-              password: { type: String, required: true }, // hashed password
+              email: { type: String, required: true, unique: true },
+              password: { type: String, required: true },
+              role: { type: String, default: "user" },
+              organizationId: { type: String, default: "6765254294b4101df01adc7a" },
             })
           );
 
-        // Find the user in the database
-        const user = await User.findOne({ username });
-        if (!user) {
-          throw new Error("Invalid username or password");
+        if (action === "register") {
+          // Handle registration
+          const existingUser = await User.findOne({ email });
+          if (existingUser) {
+            throw new Error("Email already registered");
+          }
+
+          const hashedPassword = await bcrypt.hash(password, 10);
+          const newUser = new User({
+            email,
+            password: hashedPassword,
+            role: "user", // Default role
+            organizationId: "6765254294b4101df01adc7a", // Default organizationId
+          });
+          await newUser.save();
+
+          return { id: newUser._id, name: newUser.email };
+        } else if (action === "login") {
+          // Handle login
+          const user = await User.findOne({ email });
+          if (!user) {
+            throw new Error("Invalid email or password");
+          }
+
+          const isValidPassword = await bcrypt.compare(password, user.password);
+          if (!isValidPassword) {
+            throw new Error("Invalid email or password");
+          }
+
+          return { id: user._id, name: user.email };
         }
 
-        // Validate the password
-        const isValidPassword = await bcrypt.compare(password, user.password);
-        if (!isValidPassword) {
-          throw new Error("Invalid username or password");
-        }
-
-        // Return user object without sensitive information
-        return { id: user._id, name: user.username };
+        throw new Error("Invalid action");
       },
     }),
   ],
