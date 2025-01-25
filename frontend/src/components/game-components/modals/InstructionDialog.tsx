@@ -2,16 +2,18 @@ import Carousel from "./Carousel";
 import GameIntroduction from "./GameIntroduction";
 import { GameType } from "@/types";
 
+interface InstructionDialogProps {
+  gameInfo: GameType;
+  onStart: () => void;
+  skipPractice: () => void;
+}
+
 const InstructionDialog = ({
   gameInfo,
   onStart,
   skipPractice
-}: {
-  gameInfo: GameType;
-  onStart: () => void;
-  skipPractice: () => void;
-}) => {
-  const instructions = gameInfo.instructions || []; // Fallback for instructions
+}: InstructionDialogProps) => {
+  const instructions = gameInfo.instructions || [];
 
   return (
     <div className="bg-game-background absolute inset-0 flex flex-col items-center justify-center p-8">

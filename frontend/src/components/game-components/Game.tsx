@@ -6,12 +6,15 @@ import { Countdown } from "./utils";
 import TrialCompleteDialog from "./modals/TrialCompletedDialog";
 import PracticeCompleteDialog from "./modals/PracticeCompleteDialog";
 import ThankYouDialog from "./modals/ThankyouDialog";
+import InstructionsModal from "./modals/InstructionsModal";
 import games from "./gameSequence";
 import { apiClient } from "@/lib/api/apiClient";
 import { GameObservationFields, GameType } from "@/types";
 import EventHandler from "./utils/EventHandler";
 
-export interface GameState {
+export type InstructionSource = 'practice-complete' | 'trial-complete' | null;
+
+interface BaseGameState {
   trial: number;
   showInstructions: boolean;
   showCountdown: boolean;
@@ -21,6 +24,8 @@ export interface GameState {
   showTrialComplete: boolean;
   showReset: boolean;
   showThankYou: boolean;
+  showInstructionsModal: boolean;
+  instructionSource: InstructionSource;
 }
 
 export interface GameProps {
@@ -40,7 +45,7 @@ export type BaseGameParams = {
 
 class Game<TData, TParams extends BaseGameParams> extends Component<
   GameProps,
-  GameState
+  BaseGameState
 > {
   canvasRef = createRef<HTMLCanvasElement>();
   ctxRef: MutableRefObject<CanvasRenderingContext2D | null> = { current: null };
@@ -52,11 +57,10 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
 
   timerIntervalRef: MutableRefObject<NodeJS.Timeout | null> = { current: null };
   showTimer: number = -1;
-
   gameEndTimeRef: MutableRefObject<number> = { current: 0 };
-  data: TData;
   gameTimeout: ReturnType<typeof setTimeout> | null = null;
 
+  data: TData;
   rapidTrials = false;
   getHUD = (): JSX.Element => <div></div>;
   animate = (timestamp: number) => {
@@ -75,10 +79,11 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
       showPracticeComplete: false,
       showTrialComplete: false,
       showReset: false,
-      showThankYou: false
+      showThankYou: false,
+      showInstructionsModal: false,
+      instructionSource: null
     };
     this.data = {} as TData;
-
     this.paramsRef.current! = props.gameInfo.parameters[0].data;
   }
 
@@ -106,6 +111,27 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
     });
   };
 
+  handleInstructionsClose = () => {
+    if (this.state.instructionSource === 'practice-complete') {
+      this.setState({
+        showInstructionsModal: false,
+        showPracticeComplete: true,
+        instructionSource: null
+      });
+    } else if (this.state.instructionSource === 'trial-complete') {
+      this.setState({
+        showInstructionsModal: false,
+        showTrialComplete: true,
+        instructionSource: null
+      });
+    } else {
+      this.setState({
+        showInstructionsModal: false,
+        instructionSource: null
+      });
+    }
+  };
+
   componentDidMount() {
     this.ctxRef.current = this.canvasRef.current!.getContext("2d")!;
     this.canvasRef.current!.width = window.innerWidth;
@@ -116,10 +142,9 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   }
 
   addEventListenersDuringGame = () => {};
-
   addEventListenersAfterGame = () => {};
 
-  componentDidUpdate(prevProps: Readonly<GameProps>, prevState: GameState) {
+  componentDidUpdate(prevProps: Readonly<GameProps>, prevState: BaseGameState) {
     void prevProps;
     if (
       this.canvasRef.current &&
@@ -133,10 +158,8 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
 
       this.gameTimeout = setTimeout(() => {
         this.resetGame();
-
         this.eventHandler?.removeAll();
         this.addEventListenersAfterGame();
-
         this.gameEndTimeRef.current = Date.now();
       }, this.paramsRef.current!.duration * 1000);
 
@@ -149,13 +172,13 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
   }
 
   startTimer(duration: number) {
-    this.showTimer = duration; // Initialize timer
+    this.showTimer = duration;
     if (this.timerIntervalRef.current) {
       clearInterval(this.timerIntervalRef.current);
     }
     this.timerIntervalRef.current = setInterval(() => {
       if (this.showTimer > 0) {
-        this.showTimer -= 1; // Decrement timer
+        this.showTimer -= 1;
         this.forceUpdate();
       } else {
         if (this.timerIntervalRef.current) {
@@ -171,7 +194,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
       this.gameTimeout = null;
     }
     if (this.timerIntervalRef.current) {
-      clearInterval(this.timerIntervalRef.current); // Cleanup interval
+      clearInterval(this.timerIntervalRef.current);
       this.timerIntervalRef.current = null;
     }
   }
@@ -180,12 +203,10 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
     this.stopTimer();
     this.stopAnimationLoop();
 
-    // Cancel animation frame
     if (this.animationFrameIdRef.current) {
       cancelAnimationFrame(this.animationFrameIdRef.current);
     }
 
-    // Remove all event listeners
     this.eventHandler?.removeAll();
   }
 
@@ -254,7 +275,6 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
         ) : (
           ""
         )}
-
         <span className="mt-3">{this.getHUD()}</span>
       </div>
     );
@@ -283,6 +303,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
     const totalTrials: number = this.state.isPractice
       ? (this.paramsRef.current!.practiceTrials as number)
       : (this.paramsRef.current!.trials as number);
+      
     return (
       <main className="w-screen h-screen overflow-hidden">
         <canvas
@@ -313,8 +334,9 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
             }
             onShowInstructions={() =>
               this.setState({
-                showInstructions: true,
-                showTrialComplete: false
+                showInstructionsModal: true,
+                showTrialComplete: false,
+                instructionSource: 'trial-complete'
               })
             }
             nextTrialNum={this.state.trial}
@@ -332,14 +354,21 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
             }}
             onShowInstructions={() =>
               this.setState({
-                showInstructions: true,
-                showPracticeComplete: false
+                showInstructionsModal: true,
+                showPracticeComplete: false,
+                instructionSource: 'practice-complete'
               })
             }
           />
         )}
         {this.state.showThankYou && (
           <ThankYouDialog redirectLink={this.getNextgameId()} />
+        )}
+        {this.state.showInstructionsModal && (
+          <InstructionsModal
+            instructions={this.props.gameInfo.instructions || []}
+            onClose={this.handleInstructionsClose}
+          />
         )}
         {this.getBaseHUD()}
       </main>

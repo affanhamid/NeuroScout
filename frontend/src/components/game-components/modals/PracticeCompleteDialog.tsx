@@ -15,7 +15,7 @@ const PracticeCompleteDialog = ({
             Start Test
           </button>
           <button
-            onClick={onShowInstructions}
+            onClick={() => onShowInstructions()}
             className="bg-gray-700 rounded-lg"
           >
             Show Instructions
