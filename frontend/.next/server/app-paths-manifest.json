@@ -1,0 +1,7 @@
+{
+  "/page": "app/page.js",
+  "/api/games/route": "app/api/games/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/games/[gameId]/page": "app/games/[gameId]/page.js",
+  "/api/games/[id]/route": "app/api/games/[id]/route.js"
+}

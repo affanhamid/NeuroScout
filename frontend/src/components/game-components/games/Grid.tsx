@@ -2,13 +2,7 @@
 
 import Game, { BaseGameParams, GameProps, GameState } from "../Game";
 import { MutableRefObject } from "react";
-import {
-  Point,
-  Line,
-  detectPolygons,
-  highlightAndFadePolygon,
-  Polygon
-} from "../utils";
+import { Point, Line, detectPolygons, highlightAndFadePolygon, Polygon } from "../utils";
 
 const HIGHLIGHT_COLOR = "#FFFF00";
 const FADED_COLOR = "rgba(255, 255, 255, 0.2)";
@@ -34,21 +28,16 @@ export type GridGameData = TrialData[];
 type GridGameParams = BaseGameParams & {};
 
 class GridGame extends Game<GridGameData, GridGameParams> {
-  // Grid
+  windowWidth: number;
+  windowHeight: number;
   gridSizeRef: MutableRefObject<number> = { current: 5 };
-  gridTotalSizeRef: MutableRefObject<number> = { current: 600 };
-
-  // Points
+  gridTotalSizeRef: MutableRefObject<number> = { current: 300 };
   pointsRef: MutableRefObject<Point[][]> = { current: [] };
   yellowPointsRef: MutableRefObject<Point[]> = { current: [] };
   hoveredPointRef: MutableRefObject<Point | null> = { current: null };
   showYellowRef: MutableRefObject<boolean> = { current: false };
-  interactivityRadius = 30;
-
-  // Lines
-  currentLineRef: MutableRefObject<Line | null> = {
-    current: null
-  };
+  interactivityRadius = 20;
+  currentLineRef: MutableRefObject<Line | null> = { current: null };
   linesRef: MutableRefObject<Line[]> = { current: [] };
 
   state: GridGameState = {
@@ -60,36 +49,70 @@ class GridGame extends Game<GridGameData, GridGameParams> {
   constructor(props: GameProps) {
     super(props);
     this.data = [];
+    this.windowWidth = window.innerWidth;
+    this.windowHeight = window.innerHeight;
+    this.updateGridDimensions();
+    window.addEventListener('resize', this.handleResize);
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
+  }
+
+  handleResize = () => {
+    this.windowWidth = window.innerWidth;
+    this.windowHeight = window.innerHeight;
+    this.updateGridDimensions();
+    if (this.canvasRef.current) {
+      this.initializePoints();
+      this.drawGrid();
+    }
+  };
+
+  updateGridDimensions = () => {
+    const smallerDimension = Math.min(this.windowWidth, this.windowHeight);
+    switch (true) {
+      case smallerDimension <= 480:
+        this.gridTotalSizeRef.current = Math.min(280, smallerDimension * 0.8);
+        this.interactivityRadius = 15;
+        break;
+      case smallerDimension <= 768:
+        this.gridTotalSizeRef.current = Math.min(400, smallerDimension * 0.7);
+        this.interactivityRadius = 20;
+        break;
+      case smallerDimension <= 1024:
+        this.gridTotalSizeRef.current = Math.min(500, smallerDimension * 0.6);
+        this.interactivityRadius = 25;
+        break;
+      default:
+        this.gridTotalSizeRef.current = Math.min(600, smallerDimension * 0.5);
+        this.interactivityRadius = 30;
+        break;
+    }
+  };
 
   addEventListenersDuringGame = () => {
     this.eventHandler!.add("mousedown", this.handleInteractionStart);
     this.eventHandler!.add("mousemove", this.handleIntearctionMove);
     this.eventHandler!.add("mouseup", this.handleInteractionEnd);
-
     this.eventHandler!.add("touchstart", this.handleInteractionStart);
     this.eventHandler!.add("touchmove", this.handleIntearctionMove);
     this.eventHandler!.add("touchend", this.handleInteractionEnd);
   };
 
   calculateDistance(p1: PointType, p2: PointType): number {
-    const distance = Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
-    return distance;
+    return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
   }
 
   initializePoints() {
     const gridSize = this.gridSizeRef.current;
     const gridTotalSize = this.gridTotalSizeRef.current;
-
     const canvas = this.canvasRef.current;
     if (!canvas) return;
-
     const cellSize = gridTotalSize / (gridSize - 1);
     const startX = (canvas.width - gridTotalSize) / 2;
     const startY = (canvas.height - gridTotalSize) / 2;
-
     const points: Point[][] = [];
-
     for (let row = 0; row < gridSize; row++) {
       const rowPoints: Point[] = [];
       for (let col = 0; col < gridSize; col++) {
@@ -99,13 +122,11 @@ class GridGame extends Game<GridGameData, GridGameParams> {
       }
       points.push(rowPoints);
     }
-
     this.pointsRef.current = points;
   }
 
   drawLine(start: Point, end: Point) {
     const ctx = this.ctxRef.current!;
-
     if (start && end) {
       ctx.strokeStyle = HIGHLIGHT_COLOR;
       ctx.lineWidth = 2;
@@ -118,7 +139,6 @@ class GridGame extends Game<GridGameData, GridGameParams> {
 
   drawLines() {
     this.linesRef.current.forEach((line) => line.draw(this.ctxRef.current!));
-
     if (this.currentLineRef.current) {
       this.currentLineRef.current.draw(this.ctxRef.current!);
     }
@@ -128,51 +148,37 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     const ctx = this.ctxRef.current!;
     const points = this.pointsRef.current!;
     const showYellow = this.showYellowRef.current;
-
-    points
-      .flat()
-      .forEach((point) =>
-        point.draw(ctx, showYellow, HIGHLIGHT_COLOR, FADED_COLOR)
-      );
+    points.flat().forEach((point) => point.draw(ctx, showYellow, HIGHLIGHT_COLOR, FADED_COLOR));
   }
 
   generateYellowPoints() {
     const gridSize = this.gridSizeRef.current!;
     const yellowPoints: Point[] = [];
 
-    // Helper function to check if three points are collinear
     const areCollinear = (p1: Point, p2: Point, p3: Point): boolean => {
-      // Use the area of the triangle formed by the three points
-      // If the area is 0, they are collinear
-      return (
-        p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y) === 0
-      );
+      return p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y) === 0;
     };
 
-    // Check if adding a new point violates the collinearity constraint
     const isValidPoint = (newPoint: Point) => {
       for (let i = 0; i < yellowPoints.length; i++) {
         for (let j = i + 1; j < yellowPoints.length; j++) {
           if (areCollinear(yellowPoints[i], yellowPoints[j], newPoint)) {
-            return false; // Found three collinear points
+            return false;
           }
         }
       }
-      return true; // No collinearity issues
+      return true;
     };
 
     while (yellowPoints.length < 5) {
       const row = Math.floor(Math.random() * gridSize);
       const col = Math.floor(Math.random() * gridSize);
-
       const point = this.pointsRef.current![row][col];
-
       if (!point.isYellow && isValidPoint(point)) {
         point.setYellow(true);
         yellowPoints.push(point);
       }
     }
-
     this.yellowPointsRef.current = yellowPoints;
     this.gameEndTimeRef.current = Date.now();
   }
@@ -180,14 +186,9 @@ class GridGame extends Game<GridGameData, GridGameParams> {
   getHUD = () => {
     return this.state.isRunning ? (
       <div className="flex flex-col">
+        <span>Completed Polygons: {Object.values(this.state.completedPolygons).length}</span>
         <span>
-          Completed Polygons:{" "}
-          {Object.values(this.state.completedPolygons).length}
-        </span>
-        <span>
-          <button onClick={this.resetLines} className="text-xl w-full mt-3">
-            Reset Lines
-          </button>
+          <button onClick={this.resetLines} className="text-xl w-full mt-3">Reset Lines</button>
         </span>
       </div>
     ) : (
@@ -205,7 +206,6 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     this.drawBackground();
     this.drawGrid();
     this.drawLines();
-
     this.animationFrameIdRef.current = requestAnimationFrame(this.animate);
   };
 
@@ -227,7 +227,6 @@ class GridGame extends Game<GridGameData, GridGameParams> {
 
   handleInteractionStart = (event: MouseEvent | TouchEvent) => {
     const { x, y } = this.getInteractionPos(event);
-
     this.yellowPointsRef.current.forEach((point) => {
       const distance = this.calculateDistance({ x, y }, point);
       if (distance <= this.interactivityRadius) {
@@ -242,7 +241,6 @@ class GridGame extends Game<GridGameData, GridGameParams> {
       this.currentLineRef.current!.end = { x, y } as Point;
     }
 
-    // Hover detection
     this.pointsRef.current.flat().forEach((point) => {
       const distance = this.calculateDistance({ x, y }, point);
       point.setHovered(distance <= this.interactivityRadius && point.isYellow);
@@ -251,11 +249,9 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     const start = this.currentLineRef.current?.start;
 
     if (start) {
-      // Draw a temporary line
       this.drawBackground();
       this.drawGrid();
 
-      // Check for proximity to yellow points
       this.yellowPointsRef.current.forEach((point) => {
         const distance = this.calculateDistance({ x, y }, point);
         if (distance <= this.interactivityRadius) {
@@ -263,13 +259,9 @@ class GridGame extends Game<GridGameData, GridGameParams> {
             return;
           }
           const newLine = new Line(start, point);
-
-          // Avoid duplicate lines
           if (!this.linesRef.current.some((line) => line.isEquals(newLine))) {
-            this.linesRef.current.push(newLine); // Add the new line
-            this.currentLineRef.current!.start = point; // Update the starting point
-
-            // Polygon detection after a valid line
+            this.linesRef.current.push(newLine);
+            this.currentLineRef.current!.start = point;
             detectPolygons(
               this.linesRef.current,
               Object.values(this.state.completedPolygons),
@@ -282,7 +274,6 @@ class GridGame extends Game<GridGameData, GridGameParams> {
       });
     }
 
-    // Final redraw
     this.drawBackground();
     this.drawGrid();
     this.drawLines();
@@ -294,8 +285,6 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     this.setState({
       completedPolygons: updatedPolygons
     } as GridGameState);
-
-    // Highlight and fade the polygon
     highlightAndFadePolygon(newPolygon, this.linesRef.current);
     setTimeout(() => {
       this.linesRef.current = [];
@@ -308,10 +297,7 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     this.setState({
       duplicatePolygons: duplicatePolygons
     } as GridGameState);
-
-    // Highlight duplicate polygons in red
     highlightAndFadePolygon(polygon, this.linesRef.current, "#FF0000");
-
     setTimeout(() => {
       this.linesRef.current = [];
     }, 100);
@@ -322,25 +308,17 @@ class GridGame extends Game<GridGameData, GridGameParams> {
   };
 
   handleInteractionEnd = () => {
-    this.currentLineRef.current = null; // Clear the starting point
+    this.currentLineRef.current = null;
   };
 
   resetGame() {
     this.currentLineRef.current = null;
     this.linesRef.current = [];
 
-    const polygonsData: Record<number, Polygon> = Object.entries(
-      this.state.completedPolygons
-    ).reduce(
+    const polygonsData: Record<number, Polygon> = Object.entries(this.state.completedPolygons).reduce(
       (acc, [key, val]) => {
         acc[Number(key)] = {
-          points: val.points.map(
-            (point) =>
-              ({
-                row: point.row,
-                col: point.col
-              }) as Point
-          )
+          points: val.points.map((point) => ({ row: point.row, col: point.col }) as Point)
         } as Polygon;
         return acc;
       },
@@ -352,13 +330,7 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     ).reduce(
       (acc, [key, val]) => {
         acc[Number(key)] = {
-          points: val.points.map(
-            (point) =>
-              ({
-                row: point.row,
-                col: point.col
-              }) as Point
-          )
+          points: val.points.map((point) => ({ row: point.row, col: point.col }) as Point)
         } as Polygon;
         return acc;
       },
@@ -371,11 +343,7 @@ class GridGame extends Game<GridGameData, GridGameParams> {
         polygons: polygonsData,
         duplicatePolygons: duplicatePolygonsData,
         yellowPoints: this.yellowPointsRef.current.map(
-          (yellowPoint) =>
-            ({
-              row: yellowPoint.row,
-              col: yellowPoint.col
-            }) as Point
+          (yellowPoint) => ({ row: yellowPoint.row, col: yellowPoint.col }) as Point
         )
       }
     ];
@@ -392,15 +360,12 @@ class GridGame extends Game<GridGameData, GridGameParams> {
     this.drawBackground();
     this.initializePoints();
     this.drawGrid();
-
     setTimeout(() => {
       this.generateYellowPoints();
       this.showYellowRef.current = true;
       this.drawBackground();
       this.drawGrid();
     }, 1000);
-
-    // Start the animation loop
     this.startAnimationLoop();
   }
 }
