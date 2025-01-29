@@ -10,6 +10,7 @@ import games from "./gameSequence";
 import { apiClient } from "@/lib/api/apiClient";
 import { GameObservationFields, GameType } from "@/types";
 import EventHandler from "./utils/EventHandler";
+import OrientationPrompt from "./OrientationPrompt";
 
 export interface GameState {
   trial: number;
@@ -342,6 +343,7 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
           <ThankYouDialog redirectLink={this.getNextgameId()} />
         )}
         {this.getBaseHUD()}
+        <OrientationPrompt />
       </main>
     );
   }
