@@ -1,3 +1,7 @@
 {
+  "/api/organizations/[id]/route": "app/api/organizations/[id]/route.js",
+  "/api/players/organization/[id]/route": "app/api/players/organization/[id]/route.js",
+  "/api/players/game-observations-by-player-id/[id]/route": "app/api/players/game-observations-by-player-id/[id]/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/results/[organizationId]/page": "app/results/[organizationId]/page.js"
 }

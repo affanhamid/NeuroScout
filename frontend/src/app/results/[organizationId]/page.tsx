@@ -1,5 +1,5 @@
 import DataProvider from "@/components/ui/DataProvider";
-import { GameObservationType, PlayerType } from "@/types";
+import { GameObservationType, OrganizationType, PlayerType } from "@/types";
 import React from "react";
 
 type ScoreEntry = {
@@ -48,7 +48,7 @@ const gridAnalysis = (data: GridGameTrial[]): number => {
   if (totalExpected === 0) return 0;
 
   const rawScore = (totalCorrect - totalDuplicates) / totalExpected;
-  return parseFloat(Math.max(0, Math.min(1, rawScore)).toFixed(3));
+  return parseFloat(rawScore.toFixed(3));
 };
 
 type GlowData = {
@@ -103,72 +103,84 @@ async function page({
   const resolvedParams = await params;
 
   return (
-    <DataProvider<PlayerType[]>
-      endpoint={`players/organization/${resolvedParams.organizationId}`}
+    <DataProvider<OrganizationType>
+      endpoint={`organizations/${resolvedParams.organizationId}`}
     >
-      {(players) => {
-        // Fetch and process each player's game observations
-        const playerPromises = players.map(async (player) => {
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/players/game-observations-by-player-id/${player._id}`,
-            { cache: "no-store" }
-          );
-          const { data: gameObservations }: { data: GameObservationType[] } =
-            await res.json();
+      {(organization) => (
+        <div className="px-10">
+          <h1 className="py-10">{organization.name}</h1>
+          <DataProvider<PlayerType[]>
+            endpoint={`players/organization/${resolvedParams.organizationId}`}
+          >
+            {(players) => {
+              // Fetch and process each player's game observations
+              const playerPromises = players.map(async (player) => {
+                const res = await fetch(
+                  `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/players/game-observations-by-player-id/${player._id}`,
+                  { cache: "no-store" }
+                );
+                const {
+                  data: gameObservations
+                }: { data: GameObservationType[] } = await res.json();
 
-          if (gameObservations.length !== 3) return null;
+                if (gameObservations.length !== 3) return null;
 
-          const scores = gameObservations.map((obs) =>
-            gameAnalysis(obs.gameId, obs.data)
-          );
-          const total = scores.reduce((sum, s) => sum + s, 0);
+                const scores = gameObservations.map((obs) =>
+                  gameAnalysis(obs.gameId, obs.data)
+                );
+                const total = scores.reduce((sum, s) => sum + s, 0);
 
-          return { player, scores, total };
-        });
+                return { player, scores, total };
+              });
 
-        return Promise.all(playerPromises).then((results) => {
-          const validResults = results.filter((r) => r !== null) as {
-            player: PlayerType;
-            scores: number[];
-            total: number;
-          }[];
+              return Promise.all(playerPromises).then((results) => {
+                const validResults = results.filter((r) => r !== null) as {
+                  player: PlayerType;
+                  scores: number[];
+                  total: number;
+                }[];
 
-          const ranked = validResults.sort((a, b) => b.total - a.total);
+                const ranked = validResults.sort((a, b) => b.total - a.total);
 
-          return (
-            <table className="min-w-full border border-gray-300">
-              <thead>
-                <tr className="bg-gray-100 text-left text-black">
-                  <th className="border px-4 py-2">Rank</th>
-                  <th className="border px-4 py-2">Player</th>
-                  <th className="border px-4 py-2">Glow Game</th>
-                  <th className="border px-4 py-2">Grid Game</th>
-                  <th className="border px-4 py-2">Arrow Game</th>
-                  <th className="border px-4 py-2 font-bold">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ranked.map(({ player, scores, total }, index) => (
-                  <tr key={player._id.toString()}>
-                    <td className="border px-4 py-2 font-semibold">
-                      #{index + 1}
-                    </td>
-                    <td className="border px-4 py-2">{player.firstName}</td>
-                    {scores.map((score, i) => (
-                      <td key={i} className="border px-4 py-2">
-                        {score.toFixed(3)}
-                      </td>
-                    ))}
-                    <td className="border px-4 py-2 font-bold">
-                      {total.toFixed(3)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          );
-        });
-      }}
+                return (
+                  <table className="min-w-full border border-gray-300">
+                    <thead>
+                      <tr className="bg-gray-100 text-left text-black">
+                        <th className="border px-4 py-2">Rank</th>
+                        <th className="border px-4 py-2">Player</th>
+                        <th className="border px-4 py-2">Glow Game</th>
+                        <th className="border px-4 py-2">Grid Game</th>
+                        <th className="border px-4 py-2">Arrow Game</th>
+                        <th className="border px-4 py-2 font-bold">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ranked.map(({ player, scores, total }, index) => (
+                        <tr key={player._id.toString()}>
+                          <td className="border px-4 py-2 font-semibold">
+                            #{index + 1}
+                          </td>
+                          <td className="border px-4 py-2">
+                            {player.firstName}
+                          </td>
+                          {scores.map((score, i) => (
+                            <td key={i} className="border px-4 py-2">
+                              {score.toFixed(3)}
+                            </td>
+                          ))}
+                          <td className="border px-4 py-2 font-bold">
+                            {total.toFixed(3)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                );
+              });
+            }}
+          </DataProvider>
+        </div>
+      )}
     </DataProvider>
   );
 }
