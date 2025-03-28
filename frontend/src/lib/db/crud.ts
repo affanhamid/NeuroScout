@@ -1,4 +1,4 @@
-import { Model, Document, Types } from "mongoose";
+import { Model, Document, Types, FilterQuery } from "mongoose";
 import * as e from "@/errors";
 import { handleDBError } from "@/errors";
 
@@ -25,6 +25,14 @@ export const getAll = async <TObject>(
   model: Model<TObject>
 ): Promise<(Document & TObject)[]> => {
   const items = await model.find();
+  return items;
+};
+
+export const getByField = async <TObject>(
+  model: Model<TObject>,
+  filter: FilterQuery<TObject>
+): Promise<(Document & TObject)[]> => {
+  const items = await model.find(filter);
   return items;
 };
 
@@ -99,6 +107,7 @@ const withErrorHandling = <
     | [TObject] // For addOne
     | [id: string] // For getOne and deleteOne
     | [id: string, updates: Partial<TObject & Document>, isNew: boolean] // For updateOne
+    | [filter: FilterQuery<TObject>]
     | [], // For getAll
   TResult
 >(
@@ -123,6 +132,7 @@ const withErrorHandling = <
 export const handlers = {
   getAll: withErrorHandling(getAll),
   getOne: withErrorHandling(getOne),
+  getByField: withErrorHandling(getByField),
   addOne: withErrorHandling(addOne),
   updateOne: withErrorHandling(updateOne),
   deleteOne: withErrorHandling(deleteOne)

@@ -194,7 +194,9 @@ export const MetricsTemplateSchema = new Schema(
 
 // Types
 export type OrganizationType = InferSchemaType<typeof OrganizationSchema> & {};
-export type PlayerType = InferSchemaType<typeof PlayerSchema>;
+export type PlayerType = InferSchemaType<typeof PlayerSchema> & {
+  _id: Types.ObjectId;
+};
 export type GameType = InferSchemaType<typeof GameSchema>;
 export type GameObservationType = InferSchemaType<typeof GameObservationSchema>;
 export type UserType = InferSchemaType<typeof UserSchema>;

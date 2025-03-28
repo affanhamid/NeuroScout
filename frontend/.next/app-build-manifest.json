@@ -6,35 +6,20 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/page": [
+    "/results/[organizationId]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/results/[organizationId]/page.js"
     ],
-    "/api/games/route": [
+    "/api/players/organization/[id]/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/games/route.js"
+      "static/chunks/app/api/players/organization/[id]/route.js"
     ],
-    "/games/[gameId]/page": [
+    "/api/players/game-observations-by-player-id/[id]/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/games/[gameId]/page.js"
-    ],
-    "/api/games/[id]/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/games/[id]/route.js"
-    ],
-    "/test/[organizationId]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/test/[organizationId]/page.js"
-    ],
-    "/api/organizations/[id]/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/organizations/[id]/route.js"
+      "static/chunks/app/api/players/game-observations-by-player-id/[id]/route.js"
     ]
   }
 }

@@ -4,6 +4,7 @@ import {
   addOne,
   deleteOne,
   getAll,
+  getByField,
   getOne,
   updateOne,
   validateReferences
@@ -35,6 +36,15 @@ export class BaseAPI<TObject> {
   async getAll(): Promise<Response> {
     try {
       const objects = await getAll(this.model);
+      return ApiResponse.success(objects).toJson();
+    } catch (error) {
+      return handleApiError(error);
+    }
+  }
+
+  async getByField<T>(fieldObj: Record<string, T>): Promise<Response> {
+    try {
+      const objects = await getByField(this.model, fieldObj);
       return ApiResponse.success(objects).toJson();
     } catch (error) {
       return handleApiError(error);

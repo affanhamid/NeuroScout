@@ -4,14 +4,11 @@ import { ApiRequest } from "@/types";
 
 const api = new BaseAPI(PlayerModel);
 
-export const GET = (
-  request: Request,
-  {
-    params
-  }: {
-    params: { id: string };
-  }
-): Promise<Response> => {
+export const GET = ({
+  params
+}: {
+  params: { id: string };
+}): Promise<Response> => {
   return api.getOne(params.id);
 };
 
