@@ -8,9 +8,12 @@ const ThankYouDialog = ({ redirectLink = "/" }: { redirectLink?: string }) => {
 
   useEffect(() => {
     if (redirectLink) {
-      const timer = setTimeout(() => {
-        router.push(redirectLink);
-      }, 3000);
+      const timer = setTimeout(
+        () => {
+          router.push(redirectLink);
+        },
+        redirectLink.includes("test") ? 5000 : 3000
+      );
 
       return () => clearTimeout(timer); // Cleanup timer on unmount
     } else {
@@ -21,8 +24,16 @@ const ThankYouDialog = ({ redirectLink = "/" }: { redirectLink?: string }) => {
   return (
     <div className="bg-game-background absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center">
       <div className="text-white border-white border-2 rounded-xl w-1/2 h-1/2 flex flex-col items-center justify-center py-32">
-        <h2 className="text-5xl pb-10">Thank You for playing!</h2>
-        <p className="text-xl pb-10">Redirecting you now...</p>
+        <h2 className="text-5xl pb-10 flex flex-col gap-3">
+          <span>Thank you for playing!</span>
+          {redirectLink.includes("test") ? (
+            <p className="text-xl pb-10">
+              Uploading results and Redirecting to organisation page...
+            </p>
+          ) : (
+            <p className="text-xl pb-10">Redirecting to next game...</p>
+          )}
+        </h2>
       </div>
     </div>
   );
