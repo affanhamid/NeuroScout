@@ -263,7 +263,13 @@ class Game<TData, TParams extends BaseGameParams> extends Component<
 
   getNextgameId() {
     const thisGameIndex = games.findIndex((gameId) => gameId === this.gameId);
-    if (thisGameIndex === -1 || thisGameIndex === games.length - 1) return "/";
+    const organizationId = sessionStorage.getItem("organizationId");
+    if (thisGameIndex === -1 || thisGameIndex === games.length - 1) {
+      if (organizationId != "") {
+        return `/test/${organizationId}`;
+      }
+      return "/";
+    }
     return games[thisGameIndex + 1];
   }
 

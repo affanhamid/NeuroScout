@@ -6,10 +6,25 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
+    "/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/page.js"
+    ],
+    "/api/games/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/games/route.js"
+    ],
     "/results/[organizationId]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/results/[organizationId]/page.js"
+    ],
+    "/api/organizations/[id]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/organizations/[id]/route.js"
     ],
     "/api/players/organization/[id]/route": [
       "static/chunks/webpack.js",
@@ -21,10 +36,25 @@
       "static/chunks/main-app.js",
       "static/chunks/app/api/players/game-observations-by-player-id/[id]/route.js"
     ],
-    "/api/organizations/[id]/route": [
+    "/test/[organizationId]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/organizations/[id]/route.js"
+      "static/chunks/app/test/[organizationId]/page.js"
+    ],
+    "/api/players/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/players/route.js"
+    ],
+    "/games/[gameId]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/games/[gameId]/page.js"
+    ],
+    "/api/games/[id]/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/games/[id]/route.js"
     ],
     "/_not-found/page": [
       "static/chunks/webpack.js",

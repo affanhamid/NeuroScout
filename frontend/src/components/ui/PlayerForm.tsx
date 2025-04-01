@@ -61,6 +61,10 @@ const PlayerForm = ({
       }
     );
     sessionStorage.setItem("playerId", response.data._id.toString());
+    sessionStorage.setItem(
+      "organizationId",
+      response.data.organizationId.toString()
+    );
     router.push(`/games/${Object.keys(games)[0]}`);
   };
 
